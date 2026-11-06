@@ -1146,3 +1146,5 @@
 "Space" = "Space";
 "Voice search" = "Voice search";
 "Search on %@. Press to change the service." = "Search on %@. Press to change the service.";
+"Signed in as %@" = "Signed in as %@";
+"Signed in" = "Signed in";

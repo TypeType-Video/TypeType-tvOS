@@ -9,9 +9,7 @@ struct TVBrandLogo: View {
         .resizable()
         .scaledToFit()
         .frame(width: markSize, height: markSize)
-      Text(verbatim: "TypeType")
-        .font(.system(size: markSize * 0.72, weight: .bold))
-        .foregroundStyle(TVPalette.textHigh)
+      TVWordmark(capHeight: markSize * 0.5)
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(Text(verbatim: "TypeType"))

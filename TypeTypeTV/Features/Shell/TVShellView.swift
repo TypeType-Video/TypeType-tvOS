@@ -68,6 +68,7 @@ struct TVShellView: View {
         .tabItem { Label("Settings", systemImage: "gearshape") }
         .tag(TVTab.settings)
     }
+    .overlay { TVTopBarMarks(user: coordinator.currentUser) }
     .background(TVPalette.ink.ignoresSafeArea())
     .fullScreenCover(item: $playing) { video in
       TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies) {

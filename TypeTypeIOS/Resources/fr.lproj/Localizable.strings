@@ -1146,3 +1146,5 @@
 "Space" = "Espace";
 "Voice search" = "Recherche vocale";
 "Search on %@. Press to change the service." = "Recherche sur %@. Appuyez pour changer de service.";
+"Signed in as %@" = "Connecté en tant que %@";
+"Signed in" = "Connecté";
