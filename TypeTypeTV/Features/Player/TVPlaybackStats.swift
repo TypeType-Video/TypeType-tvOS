@@ -33,9 +33,10 @@ struct TVPlaybackStats: View {
   }
 
   private var video: String {
-    guard let source = controller.preparation?.video, source.width > 0, source.height > 0 else { return "-" }
+    guard let source = controller.preparation?.video, source.effectiveHeight > 0 else { return "-" }
+    let size = source.width > 0 ? "\(source.width)x\(source.effectiveHeight)" : "\(source.effectiveHeight)p"
     return [
-      "\(source.width)x\(source.height)\(source.fps > 0 ? " \(source.fps) fps" : "")",
+      "\(size)\(source.fps > 0 ? " \(source.fps) fps" : "")",
       source.codec ?? "",
       source.bitrate.map(Self.bitrate) ?? "",
     ].filter { !$0.isEmpty }.joined(separator: "  ")
