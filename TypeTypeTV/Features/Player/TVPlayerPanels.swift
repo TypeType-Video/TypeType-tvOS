@@ -48,6 +48,7 @@ struct TVPlayerPanel: View {
     case .playlists: "Add to a playlist"
     case .comments: "Comments"
     case .queue: "Up next"
+    case .captionStyle: "Subtitle style"
     case .info: "Description"
     }
   }
@@ -61,6 +62,8 @@ struct TVPlayerPanel: View {
       TVPlayerChapterRows(controller: controller, session: session)
     case .comments:
       TVCommentRows(comments: comments, threads: threads)
+    case .captionStyle:
+      TVCaptionStyleRows(controller: controller)
     case .queue:
       TVQueueRows(videos: queue) { video in
         session.closePanel()

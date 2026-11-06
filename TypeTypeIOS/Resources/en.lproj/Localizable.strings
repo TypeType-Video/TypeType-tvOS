@@ -1178,3 +1178,13 @@
 "Comments on the video are hidden. Press to show them." = "Comments on the video are hidden. Press to show them.";
 "Playback statistics" = "Playback statistics";
 "Buffer" = "Buffer";
+"Subtitle style" = "Subtitle style";
+"Text color" = "Text color";
+"Background" = "Background";
+"Sample subtitle" = "Sample subtitle";
+"Yellow" = "Yellow";
+"Cyan" = "Cyan";
+"Green" = "Green";
+"White" = "White";
+"Translucent" = "Translucent";
+"Solid" = "Solid";

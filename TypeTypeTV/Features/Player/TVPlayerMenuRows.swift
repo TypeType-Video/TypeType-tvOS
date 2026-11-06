@@ -38,6 +38,9 @@ struct TVPlayerMenuRows: View {
       row("playlists", "Add to a playlist", "text.badge.plus") { session.open(.playlists) }
         .disabled(!actions.isPrepared)
       row("speed", "Playback speed", "speedometer", value: speedLabel) { session.open(.speed) }
+      if controller.captionTrack != nil {
+        row("caption-style", "Subtitle style", "captions.bubble") { session.open(.captionStyle) }
+      }
       row("stats", "Playback statistics", "chart.bar.xaxis",
           value: session.statsShown ? String(localized: "On") : String(localized: "Off")) { session.statsShown.toggle() }
       row("audio-only", "Audio only", "headphones",

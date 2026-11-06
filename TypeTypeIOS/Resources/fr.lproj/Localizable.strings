@@ -1178,3 +1178,13 @@
 "Comments on the video are hidden. Press to show them." = "Commentaires sur la vidéo masqués. Appuyez pour les afficher.";
 "Playback statistics" = "Statistiques de lecture";
 "Buffer" = "Tampon";
+"Subtitle style" = "Style des sous-titres";
+"Text color" = "Couleur du texte";
+"Background" = "Fond";
+"Sample subtitle" = "Exemple de sous-titre";
+"Yellow" = "Jaune";
+"Cyan" = "Cyan";
+"Green" = "Vert";
+"White" = "Blanc";
+"Translucent" = "Transparent";
+"Solid" = "Plein";
