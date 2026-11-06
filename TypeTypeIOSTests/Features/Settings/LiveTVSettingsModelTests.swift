@@ -13,6 +13,14 @@ final class LiveTVSettingsModelTests: XCTestCase {
     XCTAssertEqual(model.blockedChannels.map(\.url), ["https://example.test/c"])
   }
 
+  func testSavedChangeIsAnnounced() async {
+    let model = LiveTVSettingsModel(settingsService: SettingsStub(), contentControls: ControlsStub())
+    await model.load()
+    let announced = expectation(forNotification: .liveSettingsDidChange, object: nil)
+    await model.change { $0.hideShorts = true }
+    await fulfillment(of: [announced], timeout: 1)
+  }
+
   func testRefusedChangeComesBack() async {
     let service = SettingsStub()
     service.refuses = true

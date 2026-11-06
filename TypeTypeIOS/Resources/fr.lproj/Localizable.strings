@@ -1172,3 +1172,5 @@
 "Checking your session." = "Vérification de votre session.";
 "The server is not answering. The app keeps trying and continues as soon as it is back." = "Le serveur ne répond pas. L’app réessaie et reprend dès qu’il revient.";
 "Audio language, %@" = "Langue audio, %@";
+"New from your subscriptions" = "Nouveau dans vos abonnements";
+"SHORT" = "SHORT";

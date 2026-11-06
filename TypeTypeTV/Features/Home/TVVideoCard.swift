@@ -17,6 +17,13 @@ struct TVVideoCard: View {
       } label: {
         ZStack(alignment: .bottomLeading) {
           TVRemoteImage(url: video.thumbnail)
+          if video.isShortFormContent {
+            Text("SHORT").font(TVType.label).foregroundStyle(TVPalette.textHigh)
+              .padding(.horizontal, 12).padding(.vertical, 6)
+              .background(TVPalette.accent, in: RoundedRectangle(cornerRadius: 8))
+              .padding(14)
+              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+          }
           if video.duration > 0 {
             Text(verbatim: LiveVideoMetadataFormatter.duration(video.duration))
               .font(TVType.label)

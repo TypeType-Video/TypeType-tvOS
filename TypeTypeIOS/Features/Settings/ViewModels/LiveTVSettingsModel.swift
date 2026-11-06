@@ -38,6 +38,7 @@ final class LiveTVSettingsModel: ObservableObject {
     failure = nil
     do {
       settings = try await settingsService.update(next)
+      NotificationCenter.default.post(name: .liveSettingsDidChange, object: nil)
     } catch {
       settings = before
       failure = Self.message(error)
@@ -58,4 +59,9 @@ final class LiveTVSettingsModel: ObservableObject {
   private static func message(_ error: Error) -> String {
     (error as? LocalizedError)?.errorDescription ?? String(localized: "The change could not be saved. Check the connection and try again.")
   }
+}
+
+extension Notification.Name {
+  // Screens built from the account settings, such as the TV home rows, load again when one changes.
+  static let liveSettingsDidChange = Notification.Name("LiveSettingsDidChange")
 }

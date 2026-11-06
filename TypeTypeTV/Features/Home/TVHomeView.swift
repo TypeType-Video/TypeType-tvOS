@@ -25,7 +25,9 @@ struct TVHomeView: View {
           history: dependencies.historyService,
           subscriptions: dependencies.subscriptionsService,
           search: dependencies.searchService,
-          library: dependencies.libraryService
+          library: dependencies.libraryService,
+          notifications: dependencies.notificationsService,
+          settings: dependencies.settingsService
         )
       )
     )
@@ -48,6 +50,7 @@ struct TVHomeView: View {
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.loadIfNeeded() }
     .onChange(of: refresh) { _, _ in Task { await model.reload() } }
+    .onReceive(NotificationCenter.default.publisher(for: .liveSettingsDidChange)) { _ in Task { await model.reload() } }
   }
 }
 
@@ -88,6 +91,7 @@ private struct TVHomeLoaded: View {
         .padding(.bottom, 112)
       }
       .scrollClipDisabled()
+      .tvReportsScroll()
     }
     .task(id: focusedCard == nil && !preview.showsFrames) {
       guard focusedCard == nil, !preview.showsFrames, home.featured.count > 1 else { return }
