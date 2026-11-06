@@ -78,8 +78,10 @@ struct TVSettingsView: View {
             }
           }
           .padding(.vertical, 20)
+          .padding(.horizontal, 24)
         }
-        .scrollClipDisabled()
+        // Clipped to the column like Android's settings list: rows scrolling up must not pass over the tab bar.
+        .padding(.horizontal, -24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .focusSection()
       }
