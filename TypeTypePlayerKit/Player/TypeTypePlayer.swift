@@ -29,6 +29,11 @@ public final class TypeTypePlayer {
   }
 
   public var videoLayer: AVSampleBufferDisplayLayer { renderer.displayLayer }
+
+  public func bufferedAhead() async -> TimeInterval {
+    guard let end = await engine.bufferedUntil() else { return 0 }
+    return max(end - currentTime, 0)
+  }
   public var currentTime: TimeInterval { max(renderer.currentTime.seconds, 0) }
   public var isMuted: Bool {
     get { renderer.audioRenderer.isMuted }
