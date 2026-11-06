@@ -17,3 +17,6 @@ Package.resolved
 .env.local
 
 .hermes/
+
+# Personal signing for a real Apple TV
+Signing.local.xcconfig

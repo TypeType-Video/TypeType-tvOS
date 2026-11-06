@@ -1,0 +1,8 @@
+// Signing for a real Apple TV. Put your own values in Signing.local.xcconfig next to this file (it is not
+// tracked): DEVELOPMENT_TEAM = <your team ID>, and BUNDLE_ID_SUFFIX = .<something of yours>, because a free
+// Apple ID cannot sign an app identifier that another account already registered.
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM =
+BUNDLE_ID_SUFFIX =
+
+#include? "Signing.local.xcconfig"
