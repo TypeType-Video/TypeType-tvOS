@@ -72,6 +72,13 @@ extension LivePlayerController {
       return
     }
 
+    // Expired links first: the same quality at the same position is better than a lower one.
+    if LiveStreamRefreshClaim.refreshesExpiredLinks(videoURL: video.url),
+      streamRefreshClaim.claim(loadedAt: streamLoadedAt, now: Date()) {
+      refreshExpiredStream(using: service)
+      return
+    }
+
     let recoveredSource: String
     switch failedKind {
     case .video:
@@ -114,6 +121,48 @@ extension LivePlayerController {
         guard !Task.isCancelled else { return }
         try await installWithProviderFallback(
           recoveredPreparation,
+          autoplay: shouldAutoplay,
+          seekOverride: restartTime
+        )
+        providerRecoveryInProgress = false
+      } catch is CancellationError {
+        providerRecoveryInProgress = false
+      } catch {
+        providerRecoveryInProgress = false
+        Self.logPreparationFailure(error)
+        state = .failed(Self.message(for: error))
+        stopPlaybackSession()
+      }
+    }
+  }
+
+  private func refreshExpiredStream(using service: LivePlaybackServiceProtocol) {
+    let restartTime = max(position, providerRecoveryResumeTime, 0)
+    let shouldAutoplay = providerRecoveryDesiredAutoplay
+    providerRecoveryInProgress = true
+    state = .loading
+    AppLogger.app.info(
+      "Refreshing expired provider links at \(restartTime, privacy: .public)s."
+    )
+    loadTask?.cancel()
+    loadTask = Task { [weak self] in
+      guard let self else { return }
+      do {
+        await service.discardPendingStreams(for: video.url)
+        let fresh = try await service.playbackStream(for: video.url)
+        guard !Task.isCancelled else { return }
+        stream = fresh
+        streamLoadedAt = Date()
+        let refreshed = try service.prepare(
+          stream: fresh,
+          sourceURL: video.url,
+          preferences: preferences
+        )
+        resetProviderRecoveryState(for: refreshed, autoplay: shouldAutoplay)
+        providerRecoveryResumeTime = restartTime
+        providerRecoveryInProgress = true
+        try await installWithProviderFallback(
+          refreshed,
           autoplay: shouldAutoplay,
           seekOverride: restartTime
         )

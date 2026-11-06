@@ -120,6 +120,8 @@ final class LivePlayerController: ObservableObject {
   var providerRecoveryInProgress = false
   var providerRecoveryResumeTime: TimeInterval = 0
   var providerRecoveryDesiredAutoplay = false
+  var streamLoadedAt = Date()
+  var streamRefreshClaim = LiveStreamRefreshClaim()
 
   init(
     video: LiveVideoItem,
