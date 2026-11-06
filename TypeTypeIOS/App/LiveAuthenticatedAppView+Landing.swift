@@ -1,12 +1,5 @@
 import Foundation
 
-enum LiveAuthenticatedTab: Hashable {
-  case home
-  case subscriptions
-  case library
-  case search
-}
-
 extension LiveAuthenticatedAppView {
   @MainActor
   func applyDefaultLandingPage() async {
