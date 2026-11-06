@@ -10,6 +10,7 @@ struct TVPlayerPanel: View {
   let panel: TVPlayerSession.Panel
   var queue: [LiveVideoItem] = []
   var onOpen: (LiveVideoItem) -> Void = { _ in }
+  @FocusState private var choiceFocus: String?
 
   private static let speeds: [Float] = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
@@ -36,6 +37,36 @@ struct TVPlayerPanel: View {
     }
     .ignoresSafeArea()
     .focusSection()
+    // Opened from the options menu, the row that had the focus is gone: the focus goes to the current choice.
+    .task(id: "\(panel) \(preferredChoice ?? "")") {
+      guard choiceFocus == nil, let preferred = preferredChoice,
+        (try? await Task.sleep(for: .milliseconds(60))) != nil
+      else { return }
+      choiceFocus = preferred
+    }
+  }
+
+  private var preferredChoice: String? {
+    switch panel {
+    case .playlists: actions.playlists.first?.name
+    case .quality:
+      controller.selectedVideoSourceID == nil
+        ? String(localized: "Auto")
+        : LivePlaybackVideoCatalog.resolutionOptions(from: controller.availableVideoSources).first(where: isSelected)
+          .map(LivePlaybackVideoCatalog.qualityLabel(for:))
+    case .audio: controller.audioTracks.first { $0.id == controller.currentAudioTrack?.id }.map(audioLabel)
+    case .speed: speedLabel(Self.speeds.first { $0 == controller.playbackRate } ?? 1)
+    default: nil
+    }
+  }
+
+  private func audioLabel(_ track: TVAudioTrack) -> String {
+    track.original && !track.label.localizedCaseInsensitiveContains(String(localized: "Original"))
+      ? "\(track.label) · \(String(localized: "Original"))" : track.label
+  }
+
+  private func speedLabel(_ speed: Float) -> String {
+    speed == 1 ? String(localized: "Normal") : "\(speed.formatted())×"
   }
 
   private var title: LocalizedStringKey {
@@ -88,15 +119,13 @@ struct TVPlayerPanel: View {
       }
     case .audio:
       ForEach(controller.audioTracks) { track in
-        choice(track.original && !track.label.localizedCaseInsensitiveContains(String(localized: "Original"))
-               ? "\(track.label) · \(String(localized: "Original"))" : track.label,
-               selected: track.id == controller.currentAudioTrack?.id) {
+        choice(audioLabel(track), selected: track.id == controller.currentAudioTrack?.id) {
           if track.id != controller.currentAudioTrack?.id { controller.selectAudioSource(track.sourceID) }
         }
       }
     case .speed:
       ForEach(Self.speeds, id: \.self) { speed in
-        choice(speed == 1 ? String(localized: "Normal") : "\(speed.formatted())×", selected: controller.playbackRate == speed) {
+        choice(speedLabel(speed), selected: controller.playbackRate == speed) {
           controller.setPlaybackRate(speed)
         }
       }
@@ -130,6 +159,7 @@ struct TVPlayerPanel: View {
       .frame(width: 560, alignment: .leading)
     }
     .buttonStyle(.tvPill)
+    .focused($choiceFocus, equals: label)
     .accessibilityAddTraits(selected ? .isSelected : [])
   }
 }
