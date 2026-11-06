@@ -1141,3 +1141,5 @@
 "Captions" = "Sous-titres";
 "Captions on, %@. Press to turn them off." = "Sous-titres activés, %@. Appuyez pour les désactiver.";
 "Captions off. Press to turn them on." = "Sous-titres désactivés. Appuyez pour les activer.";
+"Up next: %@, %@. Plays in %lld seconds. Press OK to play now, Back to cancel." = "À suivre : %@, %@. Lecture dans %lld secondes. OK pour lancer maintenant, Retour pour annuler.";
+"Back" = "Retour";

@@ -1141,3 +1141,5 @@
 "Captions" = "Captions";
 "Captions on, %@. Press to turn them off." = "Captions on, %@. Press to turn them off.";
 "Captions off. Press to turn them on." = "Captions off. Press to turn them on.";
+"Up next: %@, %@. Plays in %lld seconds. Press OK to play now, Back to cancel." = "Up next: %@, %@. Plays in %lld seconds. Press OK to play now, Back to cancel.";
+"Back" = "Back";

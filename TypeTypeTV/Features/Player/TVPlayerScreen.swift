@@ -13,7 +13,6 @@ struct TVPlayerScreen: View {
         TVPlayerContent(controller: controller, playback: playback, dependencies: dependencies, onClose: close)
           .id(ObjectIdentifier(controller))
       }
-      TVUpNextCard(playback: playback)
     }
     .onAppear { playback.open(video) }
   }
@@ -25,18 +24,18 @@ struct TVPlayerScreen: View {
   }
 }
 
-private struct TVPlayerContent: View {
+struct TVPlayerContent: View {
   @ObservedObject var controller: LivePlayerController
   @ObservedObject var playback: LivePlaybackCoordinator
   let onClose: () -> Void
-  @StateObject private var session: TVPlayerSession
-  @StateObject private var actions: LiveVideoQuickActionsViewModel
-  @StateObject private var engagement: LiveVideoEngagementViewModel
-  @StateObject private var comments: LiveCommentsViewModel
-  @StateObject private var threads: LiveCommentThreads
-  @FocusState private var focus: TVPlayerFocus?
-  @FocusState private var relatedFocus: Bool
-  @State private var panelOrigin: TVPlayerFocus?
+  @StateObject var session: TVPlayerSession
+  @StateObject var actions: LiveVideoQuickActionsViewModel
+  @StateObject var engagement: LiveVideoEngagementViewModel
+  @StateObject var comments: LiveCommentsViewModel
+  @StateObject var threads: LiveCommentThreads
+  @FocusState var focus: TVPlayerFocus?
+  @FocusState var relatedFocus: Bool
+  @State var panelOrigin: TVPlayerFocus?
 
   init(
     controller: LivePlayerController, playback: LivePlaybackCoordinator, dependencies: AppDependencies,
@@ -79,6 +78,7 @@ private struct TVPlayerContent: View {
         .transition(.opacity)
       }
       if !session.controlsVisible, session.panel == nil, !countdownActive { TVSponsorNotice(controller: controller) }
+      if let next = upNextVideo { TVUpNextCard(next: next, fill: upNextFill, secondsLeft: upNextSecondsLeft) }
       if let panel = session.panel {
         TVPlayerPanel(
           controller: controller, session: session, actions: actions, engagement: engagement,
@@ -91,6 +91,7 @@ private struct TVPlayerContent: View {
     }
     .animation(.easeOut(duration: 0.2), value: session.controlsVisible)
     .onExitCommand {
+      if upNextVideo != nil { return session.upNextDismissed = true }
       let hadPanel = session.panel != nil
       guard session.back() else { return onClose() }
       if !hadPanel { focus = restingFocus }
@@ -98,12 +99,10 @@ private struct TVPlayerContent: View {
     .onChange(of: session.controlsVisible) { _, _ in focus = restingFocus }
     // Moving between controls counts as a press: the 4.5 s before they hide starts over.
     .onChange(of: focus) { _, _ in session.touch() }
-    // The Up next card takes the screen and the focus while it counts down, as on Android TV.
+    // Android opens the next video as soon as this one ends; Back on the Up next card stops that.
     .onChange(of: countdownActive) { _, active in
       guard active else { return }
-      session.controlsVisible = false
-      session.relatedOpen = false
-      focus = nil
+      if session.upNextDismissed { playback.cancelAutoplayCountdown() } else { playback.playUpcomingNow() }
     }
     .onChange(of: session.relatedOpen) { _, open in
       if open { Task { relatedFocus = true } }
@@ -123,40 +122,4 @@ private struct TVPlayerContent: View {
       _ = await (state, subscription)
     }
   }
-
-  // Takes the remote while the controls are hidden: Select pauses, Left and Right scrub, Up and Down bring the controls.
-  private var catcher: some View {
-    Button(action: session.togglePlay) { Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity) }
-      .buttonStyle(TVBareButtonStyle())
-      .focused($focus, equals: .catcher)
-      .disabled(session.controlsVisible || session.panel != nil || countdownActive)
-      .onMoveCommand { direction in
-        switch direction {
-        case .left: if !session.undoSkip() { session.scrub(direction: -1) }
-        case .right: session.scrub(direction: 1)
-        case .down: session.showControls(fromBelow: true)
-        default: session.showControls()
-        }
-      }
-      .onPlayPauseCommand(perform: session.togglePlay)
-      .accessibilityLabel(Text(verbatim: controller.video.title))
-  }
-
-  private var restingFocus: TVPlayerFocus? {
-    if countdownActive { return nil }
-    guard session.controlsVisible else { return .catcher }
-    return session.controlsFromBelow ? .play : .seek
-  }
-
-  private var countdownActive: Bool { playback.autoplayCountdownRemaining != nil }
-
-  private var isOpening: Bool {
-    controller.position == 0 && (controller.state == .loading || controller.state == .idle)
-  }
-
-  private var related: [LiveVideoItem] {
-    controller.stream?.relatedStreams.filter { !$0.isShortFormContent && !$0.isLive } ?? []
-  }
-
-  private var nextVideo: LiveVideoItem? { related.first }
 }

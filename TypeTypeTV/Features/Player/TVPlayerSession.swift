@@ -16,6 +16,7 @@ final class TVPlayerSession: ObservableObject {
   @Published var controlsVisible = true
   @Published private(set) var controlsFromBelow = false
   @Published var relatedOpen = false
+  @Published var upNextDismissed = false
   @Published var panel: Panel?
   // The options row last chosen, so coming back from a section lands on it instead of at the top.
   var menuEntry: String?
