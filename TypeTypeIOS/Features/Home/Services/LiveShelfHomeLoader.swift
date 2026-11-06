@@ -13,6 +13,8 @@ final class LiveShelfHomeLoader {
     // The videos of the unread notifications only: the row disappears once they are read.
     var notifications: () async throws -> [LiveVideoItem] = { [] }
     var settings: () async throws -> LiveSettings = { LiveSettings() }
+    // DeArrow's community titles and thumbnails, laid over every video of the home at once.
+    var brand: ([LiveVideoItem]) async -> [LiveVideoItem] = { $0 }
   }
 
   private let sources: Sources
@@ -28,7 +30,8 @@ final class LiveShelfHomeLoader {
     search: LiveSearchServiceProtocol,
     library: LiveLibraryServiceProtocol,
     notifications: LiveNotificationsServiceProtocol? = nil,
-    settings: LiveSettingsServiceProtocol? = nil
+    settings: LiveSettingsServiceProtocol? = nil,
+    deArrow: LiveDeArrowStore? = nil
   ) {
     self.init(
       sources: Sources(
@@ -43,7 +46,8 @@ final class LiveShelfHomeLoader {
           guard let page = try await notifications?.notifications(page: 1, limit: 20), page.unreadCount > 0 else { return [] }
           return page.items.filter { !$0.read }.map(\.video)
         },
-        settings: { try await settings?.settings() ?? LiveSettings() }
+        settings: { try await settings?.settings() ?? LiveSettings() },
+        brand: { videos in await deArrow?.branded(videos) ?? videos }
       )
     )
   }
@@ -100,7 +104,13 @@ final class LiveShelfHomeLoader {
     ].filter { !$0.videos.isEmpty }
 
     let heroes = featured.isEmpty ? Array(shelves.first?.videos.prefix(1) ?? []) : featured
-    return LiveShelfHome(featured: heroes, shelves: shelves)
+    let branded = await sources.brand(heroes + shelves.flatMap(\.videos))
+    let byID = Dictionary(branded.map { ($0.canonicalID, $0) }, uniquingKeysWith: { first, _ in first })
+    func brand(_ videos: [LiveVideoItem]) -> [LiveVideoItem] { videos.map { byID[$0.canonicalID] ?? $0 } }
+    return LiveShelfHome(
+      featured: brand(heroes),
+      shelves: shelves.map { LiveHomeShelf(id: $0.id, title: $0.title, videos: brand($0.videos), progress: $0.progress) }
+    )
   }
 
   // The one row that keeps short videos: the others leave them out.
