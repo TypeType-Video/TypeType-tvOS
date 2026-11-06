@@ -3,13 +3,14 @@ import SwiftUI
 struct TVPlayerScreen: View {
   let video: LiveVideoItem
   @ObservedObject var playback: LivePlaybackCoordinator
+  let dependencies: AppDependencies
   let onClose: () -> Void
 
   var body: some View {
     ZStack {
       Color.black.ignoresSafeArea()
       if let controller = playback.controller {
-        TVPlayerContent(controller: controller, playback: playback, onClose: close)
+        TVPlayerContent(controller: controller, playback: playback, dependencies: dependencies, onClose: close)
           .id(ObjectIdentifier(controller))
       }
       TVUpNextCard(playback: playback)
@@ -29,15 +30,24 @@ private struct TVPlayerContent: View {
   @ObservedObject var playback: LivePlaybackCoordinator
   let onClose: () -> Void
   @StateObject private var session: TVPlayerSession
+  @StateObject private var actions: LiveVideoQuickActionsViewModel
+  @StateObject private var engagement: LiveVideoEngagementViewModel
   @FocusState private var focus: TVPlayerFocus?
   @FocusState private var relatedFocus: Bool
   @State private var panelOrigin: TVPlayerFocus?
 
-  init(controller: LivePlayerController, playback: LivePlaybackCoordinator, onClose: @escaping () -> Void) {
+  init(
+    controller: LivePlayerController, playback: LivePlaybackCoordinator, dependencies: AppDependencies,
+    onClose: @escaping () -> Void
+  ) {
     self.controller = controller
     self.playback = playback
     self.onClose = onClose
     _session = StateObject(wrappedValue: TVPlayerSession(controller: controller))
+    _actions = StateObject(wrappedValue: LiveVideoQuickActionsViewModel(video: controller.video, dependencies: dependencies))
+    _engagement = StateObject(wrappedValue: LiveVideoEngagementViewModel(
+      video: controller.video, allowsSubscription: true, service: dependencies.subscriptionsService
+    ))
   }
 
   var body: some View {
@@ -61,7 +71,7 @@ private struct TVPlayerContent: View {
         .transition(.opacity)
       }
       if !session.controlsVisible, session.panel == nil, !countdownActive { TVSponsorNotice(controller: controller) }
-      if let panel = session.panel { TVPlayerPanel(controller: controller, session: session, panel: panel) }
+      if let panel = session.panel { TVPlayerPanel(controller: controller, session: session, actions: actions, engagement: engagement, panel: panel) }
       if case let .failed(message) = controller.state { failure(message) }
     }
     .animation(.easeOut(duration: 0.2), value: session.controlsVisible)
@@ -91,6 +101,11 @@ private struct TVPlayerContent: View {
     .onAppear {
       focus = .seek
       session.touch()
+    }
+    .task {
+      async let state: Void = actions.prepare()
+      async let subscription: Void = engagement.prepare()
+      _ = await (state, subscription)
     }
   }
 
@@ -141,23 +156,5 @@ private struct TVPlayerContent: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color.black.opacity(0.85))
-  }
-}
-
-private struct TVOpeningPoster: View {
-  let video: LiveVideoItem
-
-  var body: some View {
-    ZStack(alignment: .bottomLeading) {
-      TVRemoteImage(url: video.thumbnail).opacity(0.5)
-      LinearGradient(colors: [.clear, TVPalette.ink], startPoint: .center, endPoint: .bottom)
-      VStack(alignment: .leading, spacing: 20) {
-        ProgressView()
-        Text(verbatim: video.title).font(TVType.headline).foregroundStyle(TVPalette.textHigh).lineLimit(2)
-      }
-      .padding(TVDimens.safeStart)
-    }
-    .ignoresSafeArea()
-    .allowsHitTesting(false)
   }
 }

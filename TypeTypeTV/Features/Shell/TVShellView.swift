@@ -70,7 +70,7 @@ struct TVShellView: View {
     }
     .background(TVPalette.ink.ignoresSafeArea())
     .fullScreenCover(item: $playing) { video in
-      TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator) {
+      TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies) {
         playing = nil
         playbackEnded += 1
       }
