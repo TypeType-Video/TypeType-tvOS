@@ -52,7 +52,8 @@ struct TVSettingsView: View {
     self.coordinator = coordinator
     _model = StateObject(wrappedValue: LiveTVSettingsModel(
       settingsService: coordinator.dependencies.settingsService,
-      contentControls: coordinator.dependencies.contentControlsService
+      contentControls: coordinator.dependencies.contentControlsService,
+      notifications: coordinator.dependencies.notificationsService
     ))
   }
 

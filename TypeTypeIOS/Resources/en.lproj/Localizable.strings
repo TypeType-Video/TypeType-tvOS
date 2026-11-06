@@ -1188,3 +1188,6 @@
 "White" = "White";
 "Translucent" = "Translucent";
 "Solid" = "Solid";
+"Unread notifications" = "Unread notifications";
+"Mark all as read" = "Mark all as read";
+"Clear the new-video notifications of this account." = "Clear the new-video notifications of this account.";

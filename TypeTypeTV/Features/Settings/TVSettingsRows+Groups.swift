@@ -36,6 +36,15 @@ extension TVSettingsRows {
       TVSettingRow(systemImage: "person", title: "Signed in as", trailing: .value(user.publicUsername ?? user.role.title))
       TVSettingRow(systemImage: "person.badge.key", title: "Role", trailing: .value(user.role.title))
     }
+    if let unread = model.unreadNotifications {
+      TVSettingRow(systemImage: "bell.badge", title: "Unread notifications", trailing: .value(String(unread)))
+      if unread > 0 {
+        TVSettingRow(systemImage: "checkmark.circle", title: "Mark all as read",
+                     summary: "Clear the new-video notifications of this account.") {
+          Task { await model.markNotificationsRead() }
+        }
+      }
+    }
     TVSettingRow(systemImage: "rectangle.portrait.and.arrow.right", title: "Sign out",
                  summary: "Remove this session from the television.") {
       Task { await coordinator.signOut() }

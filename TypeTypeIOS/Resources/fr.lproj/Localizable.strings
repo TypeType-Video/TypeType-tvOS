@@ -1188,3 +1188,6 @@
 "White" = "Blanc";
 "Translucent" = "Transparent";
 "Solid" = "Plein";
+"Unread notifications" = "Notifications non lues";
+"Mark all as read" = "Tout marquer comme lu";
+"Clear the new-video notifications of this account." = "Efface les notifications de nouvelles vidéos de ce compte.";

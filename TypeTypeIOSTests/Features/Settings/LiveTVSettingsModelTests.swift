@@ -21,6 +21,16 @@ final class LiveTVSettingsModelTests: XCTestCase {
     await fulfillment(of: [announced], timeout: 1)
   }
 
+  func testMarksNotificationsRead() async {
+    let notifications = NotificationsStub()
+    let model = LiveTVSettingsModel(settingsService: SettingsStub(), contentControls: ControlsStub(), notifications: notifications)
+    await model.load()
+    XCTAssertEqual(model.unreadNotifications, 3)
+    await model.markNotificationsRead()
+    XCTAssertEqual(model.unreadNotifications, 0)
+    XCTAssertTrue(notifications.markedAll)
+  }
+
   func testRefusedChangeComesBack() async {
     let service = SettingsStub()
     service.refuses = true
@@ -70,4 +80,19 @@ private final class ControlsStub: LiveContentControlsServiceProtocol {
   func addKeyword(_ keyword: String) async throws -> LiveBlockedKeywordItem { throw CancellationError() }
 
   func removeKeyword(_ keyword: String) async throws {}
+}
+
+private final class NotificationsStub: LiveNotificationsServiceProtocol {
+  private(set) var markedAll = false
+
+  func unreadCount() async throws -> Int { 3 }
+
+  func notifications(page: Int, limit: Int) async throws -> LiveNotificationsPage { throw CancellationError() }
+
+  func markAllRead() async throws -> LiveNotificationsReadResult {
+    markedAll = true
+    return try JSONDecoder().decode(LiveNotificationsReadResult.self, from: Data(#"{"readAt":1,"unreadCount":0}"#.utf8))
+  }
+
+  func markRead(notificationID: String) async throws -> LiveNotificationsReadResult { throw CancellationError() }
 }
