@@ -95,12 +95,15 @@ private struct TVHomeLoaded: View {
 
 struct TVBackdrop: View {
   let video: LiveVideoItem
+  @AppStorage(TVDeviceSetting.backdropKey) private var shown = true
 
   var body: some View {
     ZStack {
-      TVRemoteImage(url: video.thumbnail)
-        .id(video.canonicalID)
-        .transition(.opacity)
+      if shown {
+        TVRemoteImage(url: video.thumbnail)
+          .id(video.canonicalID)
+          .transition(.opacity)
+      }
       LinearGradient(
         stops: [
           .init(color: TVPalette.ink.opacity(0.96), location: 0),

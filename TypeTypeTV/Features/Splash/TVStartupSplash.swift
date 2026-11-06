@@ -2,6 +2,7 @@ import AVFoundation
 import SwiftUI
 
 struct TVStartupSplash: View {
+  var short = false
   let onFinished: () -> Void
   @State private var start: Date?
   @State private var chime: AVAudioPlayer?
@@ -34,6 +35,10 @@ struct TVStartupSplash: View {
 
   private func begin() {
     guard start == nil else { return }
+    if short {
+      start = Date.now.addingTimeInterval(-TVSplashTimeline.shortStart / 1_000)
+      return
+    }
     if let url = Bundle.main.url(forResource: "startup_chime", withExtension: "m4a"),
       let player = try? AVAudioPlayer(contentsOf: url) {
       player.play()

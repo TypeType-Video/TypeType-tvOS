@@ -10,6 +10,7 @@ enum TVSplashTimeline {
   private static let hop: Double = 210
   private static let hopMotion: Double = 0.85
   static let burst: Double = traceStart + Double(hops - 1) * hop + hop * hopMotion
+  static let shortStart: Double = traceStart + Double(hops - 1) * hop
   private static let burstRise: Double = 90
   private static let burstFall: Double = 900
   private static let punchRise: Double = 80
