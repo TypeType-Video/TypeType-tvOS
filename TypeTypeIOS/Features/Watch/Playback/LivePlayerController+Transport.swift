@@ -254,11 +254,13 @@ extension LivePlayerController {
     restartAtCurrentPosition()
   }
 
-  func setAudioOnly(_ enabled: Bool) {
+  func setAudioOnly(_ enabled: Bool, remembers: Bool = true) {
     guard audioOnly != enabled else { return }
     audioOnly = enabled
-    appPreferences.update {
-      $0.playerAudioOnlyPlayback = enabled
+    if remembers {
+      appPreferences.update {
+        $0.playerAudioOnlyPlayback = enabled
+      }
     }
     restartAtCurrentPosition()
   }

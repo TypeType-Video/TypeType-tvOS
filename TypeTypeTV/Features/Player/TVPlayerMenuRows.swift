@@ -36,7 +36,8 @@ struct TVPlayerMenuRows: View {
       row("speed", "Playback speed", "speedometer", value: speedLabel) { session.open(.speed) }
       row("audio-only", "Audio only", "headphones",
           value: controller.audioOnly ? String(localized: "On") : String(localized: "Off")) {
-        controller.setAudioOnly(!controller.audioOnly)
+        // Android TV keeps this choice for the open video only; the next one plays with its picture again.
+        controller.setAudioOnly(!controller.audioOnly, remembers: false)
       }
     }
     // Set on the next turn: set during the first layout, the focus engine keeps its own first row instead.
