@@ -9,6 +9,7 @@ enum TVPlayerFocus: Hashable {
   case audio
   case quality
   case info
+  case channel
   case more
 }
 
@@ -142,6 +143,10 @@ struct TVPlayerControls: View {
         }
         .buttonStyle(.tvPill)
         .focused(focus, equals: .quality)
+      }
+      if !controller.video.uploaderURL.isEmpty {
+        TVChannelAvatarButton(video: controller.video) { session.open(.channel) }
+          .focused(focus, equals: .channel)
       }
       TVCircleButton(systemImage: "info.circle", label: "Description") { session.open(.info) }
         .focused(focus, equals: .info)

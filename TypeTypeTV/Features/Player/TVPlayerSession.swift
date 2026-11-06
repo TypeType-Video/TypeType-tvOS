@@ -13,6 +13,7 @@ final class TVPlayerSession: ObservableObject {
     case queue
     case captionStyle
     case comments
+    case channel
     case info
   }
 

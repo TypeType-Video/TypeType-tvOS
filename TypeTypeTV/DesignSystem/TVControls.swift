@@ -21,8 +21,8 @@ struct TVCircleButton: View {
   }
 }
 
-private struct TVCircleButtonStyle: ButtonStyle {
-  let emphasized: Bool
+struct TVCircleButtonStyle: ButtonStyle {
+  var emphasized = false
 
   func makeBody(configuration: Configuration) -> some View {
     TVCircleLabel(configuration: configuration, emphasized: emphasized)

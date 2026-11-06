@@ -121,7 +121,8 @@ struct TVShellView: View {
       coordinator.dependencies.playbackPrewarmer?.prewarm(video)
     }
     .fullScreenCover(item: $playing) { video in
-      TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies) {
+      TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies,
+                     onOpenChannel: { url in Task { openChannel(url) } }) {
         playing = nil
         playbackEnded += 1
       }
