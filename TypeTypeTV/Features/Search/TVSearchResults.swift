@@ -8,6 +8,12 @@ struct TVSearchResults: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 56) {
+      Text("\(model.results.count) results")
+        .textCase(.uppercase)
+        .font(TVType.label)
+        .tracking(3.6)
+        .foregroundStyle(TVPalette.textMid)
+        .padding(.leading, TVDimens.safeStart)
       if !channels.isEmpty {
         row(title: "Channels") {
           ForEach(channels, id: \.canonicalID) { channel in

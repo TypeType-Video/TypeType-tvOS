@@ -28,7 +28,7 @@ struct TVSearchView: View {
   var body: some View {
     ScrollView(.vertical) {
       VStack(alignment: .leading, spacing: 48) {
-        if model.services.count > 1 { servicePicker }
+        TVSearchScope(model: model)
         content
       }
       .padding(.bottom, 112)
@@ -54,25 +54,14 @@ struct TVSearchView: View {
     .task { await model.prepare() }
   }
 
-  private var servicePicker: some View {
-    HStack(spacing: 20) {
-      ForEach(model.services, id: \.id) { service in
-        Button(service.name) {
-          Task { await model.selectService(service.id) }
-        }
-        .buttonStyle(service.id == model.selectedServiceID ? .tvPillEmphasized : .tvPill)
-        .accessibilityAddTraits(service.id == model.selectedServiceID ? .isSelected : [])
-      }
-    }
-    .padding(.leading, TVDimens.safeStart)
-    .focusSection()
-  }
-
   @ViewBuilder
   private var content: some View {
     switch model.state {
     case .idle:
-      TVSearchMessage(title: "What do you want to watch?", detail: "Search videos, channels and playlists.")
+      VStack(alignment: .leading, spacing: 40) {
+        TVSearchMessage(title: "What do you want to watch?", detail: "Type with the keyboard or pick a recent search.")
+        if !model.history.isEmpty { recentSearches }
+      }
     case .loading:
       ProgressView().frame(maxWidth: .infinity).padding(.top, 120)
     case .empty:
@@ -80,8 +69,38 @@ struct TVSearchView: View {
     case let .failed(message):
       TVScreenFailure(message: message) { Task { await model.submit() } }
     case .loaded:
-      TVSearchResults(model: model, onOpen: onOpen, onOpenChannel: onOpenChannel, onOpenPlaylist: onOpenPlaylist)
+      TVSearchResults(model: model, onOpen: openResult, onOpenChannel: onOpenChannel, onOpenPlaylist: onOpenPlaylist)
     }
+  }
+}
+
+extension TVSearchView {
+  // Searches run while typing and skip the history; opening a result is what makes the term a recent search.
+  fileprivate func openResult(_ video: LiveVideoItem) {
+    let term = model.submittedQuery
+    Task { await model.record(term) }
+    onOpen(video)
+  }
+
+  fileprivate var recentSearches: some View {
+    VStack(alignment: .leading, spacing: 20) {
+      Text("RECENT SEARCHES")
+        .font(TVType.label)
+        .tracking(3.6)
+        .foregroundStyle(TVPalette.textMid)
+      HStack(spacing: 20) {
+        ForEach(model.history.prefix(6)) { item in
+          Button {
+            Task { await model.submit(item.term) }
+          } label: {
+            Label(item.term, systemImage: "clock.arrow.circlepath")
+          }
+          .buttonStyle(.tvPill)
+        }
+      }
+    }
+    .padding(.leading, TVDimens.safeStart)
+    .focusSection()
   }
 }
 
