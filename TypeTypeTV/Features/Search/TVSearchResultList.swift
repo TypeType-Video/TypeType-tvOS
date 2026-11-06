@@ -38,7 +38,7 @@ struct TVSearchResultList: View {
   private func row(_ result: LiveSearchResult) -> some View {
     switch result {
     case let .video(video):
-      TVResultRow(image: video.thumbnail, round: false, title: video.title, line: video.uploaderName,
+      TVResultRow(video: video, image: video.thumbnail, round: false, title: video.title, line: video.uploaderName,
                   detail: meta(video), badge: video.duration > 0 ? LiveVideoMetadataFormatter.duration(video.duration) : nil) {
         onOpen(video)
       }
@@ -65,6 +65,7 @@ struct TVSearchResultList: View {
 }
 
 private struct TVResultRow: View {
+  var video: LiveVideoItem?
   let image: URL?
   let round: Bool
   let title: String
@@ -72,9 +73,13 @@ private struct TVResultRow: View {
   let detail: String
   let badge: String?
   let onOpen: () -> Void
+  @State private var menuOpenedAt: Date?
+  @FocusState private var focused: Bool
 
   var body: some View {
-    Button(action: onOpen) {
+    let row = Button {
+      if !TVVideoMenuTarget.swallowsRelease(menuOpenedAt) { onOpen() }
+    } label: {
       HStack(spacing: 28) {
         ZStack(alignment: .bottomTrailing) {
           TVRemoteImage(url: image)
@@ -98,7 +103,9 @@ private struct TVResultRow: View {
       .frame(maxWidth: .infinity, alignment: .leading)
     }
     .buttonStyle(TVResultRowStyle())
+    .focused($focused)
     .accessibilityLabel(Text(verbatim: line.isEmpty ? title : "\(title), \(line)"))
+    if let video { row.tvVideoMenu(video, openedAt: $menuOpenedAt) { focused = true } } else { row }
   }
 }
 

@@ -23,6 +23,7 @@ struct TVShellView: View {
   @State private var libraryPath = NavigationPath()
   @State private var playing: LiveVideoItem?
   @State private var playbackEnded = 0
+  @State private var menuVideo: LiveVideoItem?
 
   var body: some View {
     TabView(selection: $tab) {
@@ -69,7 +70,22 @@ struct TVShellView: View {
         .tabItem { Label("Settings", systemImage: "gearshape") }
         .tag(TVTab.settings)
     }
+    .environment(\.tvVideoMenu) { menuVideo = $0 }
+    .environment(\.tvVideoMenuShown, menuVideo != nil)
+    .disabled(menuVideo != nil)
     .overlay { TVTopBarMarks(user: coordinator.currentUser) }
+    .overlay {
+      if let video = menuVideo {
+        TVVideoMenuPanel(
+          video: video, dependencies: coordinator.dependencies,
+          onPlay: { menuVideo = nil; playing = video },
+          onOpenChannel: { menuVideo = nil; openChannel(video.uploaderURL) },
+          onClose: { menuVideo = nil }
+        )
+        .transition(.move(edge: .trailing).combined(with: .opacity))
+      }
+    }
+    .animation(.easeOut(duration: 0.26), value: menuVideo?.canonicalID)
     .background(TVPalette.ink.ignoresSafeArea())
     .fullScreenCover(item: $playing) { video in
       TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies) {

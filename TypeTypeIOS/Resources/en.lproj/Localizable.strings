@@ -1164,3 +1164,7 @@
 "PODCASTS" = "PODCASTS";
 "Video previews" = "Video previews";
 "Plays a muted preview behind the home page. Turn it off on a slow box." = "Plays a muted preview behind the home page. Turn it off on a slow box.";
+"Open channel" = "Open channel";
+"Block this video" = "Block this video";
+"Block this channel" = "Block this channel";
+"Video options" = "Video options";

@@ -1164,3 +1164,7 @@
 "PODCASTS" = "PODCASTS";
 "Video previews" = "Aperçus vidéo";
 "Plays a muted preview behind the home page. Turn it off on a slow box." = "Lit un aperçu muet derrière l’accueil. À désactiver sur un boîtier lent.";
+"Open channel" = "Ouvrir la chaîne";
+"Block this video" = "Bloquer cette vidéo";
+"Block this channel" = "Bloquer cette chaîne";
+"Video options" = "Options de la vidéo";

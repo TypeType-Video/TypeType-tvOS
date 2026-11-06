@@ -8,10 +8,13 @@ struct TVVideoCard: View {
   var onFocus: (Bool) -> Void = { _ in }
   var externalFocus: FocusState<Bool>.Binding?
   @FocusState private var focused: Bool
+  @State private var menuOpenedAt: Date?
 
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
-      Button(action: onOpen) {
+      Button {
+        if !TVVideoMenuTarget.swallowsRelease(menuOpenedAt) { onOpen() }
+      } label: {
         ZStack(alignment: .bottomLeading) {
           TVRemoteImage(url: video.thumbnail)
           if video.duration > 0 {
@@ -34,6 +37,9 @@ struct TVVideoCard: View {
       }
       .buttonStyle(.card)
       .focused(externalFocus ?? $focused)
+      .tvVideoMenu(video, openedAt: $menuOpenedAt) {
+        if let externalFocus { externalFocus.wrappedValue = true } else { focused = true }
+      }
       .onChange(of: focused) { _, value in onFocus(value) }
       .accessibilityLabel(Text(verbatim: "\(video.title), \(video.uploaderName)"))
       VStack(alignment: .leading, spacing: 4) {

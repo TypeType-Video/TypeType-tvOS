@@ -112,7 +112,7 @@ struct TVVideoDetailView: View {
   }
 }
 
-private struct TVPlaylistPicker: View {
+struct TVPlaylistPicker: View {
   @ObservedObject var actions: LiveVideoQuickActionsViewModel
   let onClose: () -> Void
   @FocusState private var focused: String?
