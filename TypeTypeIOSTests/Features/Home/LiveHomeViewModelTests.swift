@@ -273,6 +273,10 @@ private final class HomeSettingsStub: LiveSettingsServiceProtocol {
 }
 
 private final class HomeFeedStub: HomeFeedServiceProtocol {
+  func shorts(limit: Int) async throws -> HomeRecommendationsPage {
+    HomeRecommendationsPage(items: [], nextCursor: nil, hasMore: false)
+  }
+
   struct Call {
     let serviceID: Int
     let intent: String

@@ -20,6 +20,31 @@ final class LiveShelfHomeLoaderTests: XCTestCase {
     XCTAssertEqual(home.shelves[0].progress["https://example.test/h"], 0.5)
   }
 
+  func testAddsUnreadNotificationsAndShortsAndHonoursTheHiddenRows() async throws {
+    var sources = LiveShelfHomeLoader.Sources(
+      recommendations: { [Self.video("r1"), Self.video("r2")] },
+      history: { [LiveHistoryItem(id: "h", url: "https://example.test/h", title: "Half", duration: 600, progress: 300, watchedAt: 5)] },
+      subscriptionFeed: { [] },
+      trending: { $0 == 0 ? [Self.video("t1")] : [] },
+      watchLater: { [] },
+      favorites: { [] }
+    )
+    sources.shorts = { [Self.video("s1", short: true)] }
+    sources.notifications = { [Self.video("n1")] }
+    let shown = try await LiveShelfHomeLoader(sources: sources).load()
+    XCTAssertEqual(shown.shelves.map(\.id), ["notifications", "continue", "trending", "shorts"])
+    XCTAssertEqual(shown.shelves.last?.videos.map(\.id), ["s1"])
+
+    var hidden = LiveSettings()
+    hidden.hideContinueWatching = true
+    hidden.hideHomeRecommendations = true
+    hidden.hideShorts = true
+    sources.settings = { hidden }
+    let trimmed = try await LiveShelfHomeLoader(sources: sources).load()
+    XCTAssertEqual(trimmed.shelves.map(\.id), ["notifications", "trending"])
+    XCTAssertEqual(trimmed.featured.map(\.id), ["t1"])
+  }
+
   func testFallsBackToTrendingWithoutRecommendations() async throws {
     let loader = LiveShelfHomeLoader(sources: .init(
       recommendations: { [] },
