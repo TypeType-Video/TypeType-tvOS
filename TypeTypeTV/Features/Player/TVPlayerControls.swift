@@ -10,6 +10,7 @@ enum TVPlayerFocus: Hashable {
   case audio
   case quality
   case info
+  case channel
   case more
 }
 
@@ -156,26 +157,15 @@ struct TVPlayerControls: View {
         .buttonStyle(.tvPill)
         .focused(focus, equals: .quality)
       }
+      if !controller.video.uploaderURL.isEmpty {
+        TVChannelAvatarButton(video: controller.video) { session.open(.channel) }
+          .focused(focus, equals: .channel)
+      }
       TVCircleButton(systemImage: "info.circle", label: "Description") { session.open(.info) }
         .focused(focus, equals: .info)
       TVCircleButton(systemImage: "ellipsis", label: "More options") { session.open(.menu) }
         .focused(focus, equals: .more)
     }
     .focusSection()
-  }
-}
-
-extension LivePlayerController {
-  var currentHeight: Int? {
-    let sources = availableVideoSources
-    if let selected = selectedVideoSourceID, let source = sources.first(where: { $0.selectionID == selected }) {
-      return source.effectiveHeight
-    }
-    return sources.map(\.effectiveHeight).max()
-  }
-
-  var qualityLabel: String {
-    guard selectedVideoSourceID != nil, let height = currentHeight else { return String(localized: "Auto") }
-    return "\(height)p"
   }
 }

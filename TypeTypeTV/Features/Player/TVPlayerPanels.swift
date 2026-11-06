@@ -50,6 +50,7 @@ struct TVPlayerPanel: View {
     case .queue: "Up next"
     case .captionStyle: "Subtitle style"
     case .info: "Description"
+    case .channel: ""
     }
   }
 
@@ -99,6 +100,8 @@ struct TVPlayerPanel: View {
           controller.setPlaybackRate(speed)
         }
       }
+    case .channel:
+      EmptyView()
     case .info:
       Text(verbatim: controller.video.title).font(TVType.title).foregroundStyle(TVPalette.textHigh)
       Text(verbatim: controller.video.uploaderName).font(TVType.meta).foregroundStyle(TVPalette.textMid)

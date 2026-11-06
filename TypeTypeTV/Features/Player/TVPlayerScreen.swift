@@ -4,13 +4,17 @@ struct TVPlayerScreen: View {
   let video: LiveVideoItem
   @ObservedObject var playback: LivePlaybackCoordinator
   let dependencies: AppDependencies
+  var onOpenChannel: (String) -> Void = { _ in }
   let onClose: () -> Void
 
   var body: some View {
     ZStack {
       Color.black.ignoresSafeArea()
       if let controller = playback.controller {
-        TVPlayerContent(controller: controller, playback: playback, dependencies: dependencies, onClose: close)
+        TVPlayerContent(controller: controller, playback: playback, dependencies: dependencies, onClose: close) { url in
+          close()
+          onOpenChannel(url)
+        }
           .id(ObjectIdentifier(controller))
       }
     }
@@ -28,6 +32,8 @@ struct TVPlayerContent: View {
   @ObservedObject var controller: LivePlayerController
   @ObservedObject var playback: LivePlaybackCoordinator
   let onClose: () -> Void
+  let onOpenChannel: (String) -> Void
+  let channelService: LiveChannelServiceProtocol
   @StateObject var session: TVPlayerSession
   @StateObject var actions: LiveVideoQuickActionsViewModel
   @StateObject var engagement: LiveVideoEngagementViewModel
@@ -41,13 +47,15 @@ struct TVPlayerContent: View {
 
   init(
     controller: LivePlayerController, playback: LivePlaybackCoordinator, dependencies: AppDependencies,
-    onClose: @escaping () -> Void
+    onClose: @escaping () -> Void, onOpenChannel: @escaping (String) -> Void
   ) {
     self.controller = controller
     self.playback = playback
     self.onClose = onClose
     hasChatService = dependencies.liveChatService != nil
     _chat = StateObject(wrappedValue: TVLiveChatModel(videoURL: controller.video.url, service: dependencies.liveChatService))
+    self.onOpenChannel = onOpenChannel
+    channelService = dependencies.channelService
     _session = StateObject(wrappedValue: TVPlayerSession(controller: controller))
     _actions = StateObject(wrappedValue: LiveVideoQuickActionsViewModel(video: controller.video, dependencies: dependencies))
     _engagement = StateObject(wrappedValue: LiveVideoEngagementViewModel(
@@ -86,7 +94,11 @@ struct TVPlayerContent: View {
       }
       if !session.controlsVisible, session.panel == nil, !countdownActive { TVSponsorNotice(controller: controller) }
       if let next = upNextVideo { TVUpNextCard(next: next, fill: upNextFill, secondsLeft: upNextSecondsLeft) }
-      if let panel = session.panel {
+      if session.panel == .channel {
+        TVPlayerChannelPanel(video: controller.video, service: channelService, engagement: engagement) {
+          onOpenChannel(controller.video.uploaderURL)
+        }
+      } else if let panel = session.panel {
         TVPlayerPanel(
           controller: controller, session: session, actions: actions, engagement: engagement,
           comments: comments, threads: threads, panel: panel, queue: related, onOpen: { playback.open($0) }
