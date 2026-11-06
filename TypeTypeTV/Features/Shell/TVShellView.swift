@@ -58,6 +58,9 @@ struct TVShellView: View {
         .tag(TVTab.settings)
     }
     .background(TVPalette.ink.ignoresSafeArea())
+    .fullScreenCover(item: $playing) { video in
+      TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator) { playing = nil }
+    }
   }
 
   private func open(_ video: LiveVideoItem) {
