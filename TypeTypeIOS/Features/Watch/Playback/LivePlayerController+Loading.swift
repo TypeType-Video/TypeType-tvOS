@@ -104,7 +104,8 @@ extension LivePlayerController {
   func restartAtCurrentPosition(autoplay: Bool? = nil) {
     guard let service, let stream else { return }
     let restartTime = position
-    let wasPlaying = autoplay ?? (player.timeControlStatus == .playing)
+    // The in-house player plays while the AVPlayer stays paused: the controller's state is the one that tells.
+    let wasPlaying = autoplay ?? (state == .playing || player.timeControlStatus == .playing)
     state = .loading
     loadGeneration += 1
     loadTask?.cancel()
