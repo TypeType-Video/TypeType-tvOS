@@ -107,7 +107,18 @@ struct TVVideoDetailView: View {
     if let videos = model.related, !videos.isEmpty {
       TVShelfRow(shelf: LiveHomeShelf(id: "related", title: String(localized: "MORE LIKE THIS"), videos: videos), onOpen: onOpen)
     } else if model.related == nil {
-      ProgressView().padding(.leading, TVDimens.safeStart)
+      // Android's RelatedSkeleton: the cards of the row before they arrive.
+      HStack(spacing: 40) {
+        ForEach(0..<5, id: \.self) { _ in
+          VStack(alignment: .leading, spacing: 20) {
+            RoundedRectangle(cornerRadius: TVDimens.cardRadius).fill(TVPalette.surfaceRaised).frame(width: 392, height: 220)
+            Capsule().fill(TVPalette.surfaceRaised).frame(width: 300, height: 24)
+          }
+        }
+      }
+      .frame(width: 1808, alignment: .leading)
+      .padding(.leading, TVDimens.safeStart)
+      .accessibilityHidden(true)
     }
   }
 }

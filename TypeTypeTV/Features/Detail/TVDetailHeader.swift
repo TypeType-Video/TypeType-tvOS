@@ -30,9 +30,18 @@ struct TVDetailHeader: View {
         Text(verbatim: meta(video)).font(TVType.meta).foregroundStyle(TVPalette.textMid)
       }
       channel(video)
-      Text(verbatim: model.description)
-        .font(TVType.body).foregroundStyle(TVPalette.textMid).lineLimit(3)
-        .frame(width: 1000, alignment: .leading)
+      if model.description.isEmpty, model.isLoading {
+        // Android's DescriptionSkeleton: the two lines the description will take.
+        VStack(alignment: .leading, spacing: 16) {
+          Capsule().fill(TVPalette.surfaceRaised).frame(width: 960, height: 24)
+          Capsule().fill(TVPalette.surfaceRaised).frame(width: 880, height: 24)
+        }
+        .accessibilityHidden(true)
+      } else {
+        Text(verbatim: model.description)
+          .font(TVType.body).foregroundStyle(TVPalette.textMid).lineLimit(3)
+          .frame(width: 1000, alignment: .leading)
+      }
       if let fraction = model.resumeFraction, let seconds = model.resumeSeconds {
         HStack(spacing: 20) {
           Capsule().fill(TVPalette.outline).frame(width: 240, height: 6)
