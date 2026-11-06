@@ -44,9 +44,8 @@ final class AppDependencies {
   let playbackService: LivePlaybackServiceProtocol?
   let watchProgress: LiveWatchProgressStore
   let imagePipeline: TypeTypeImagePipeline
-  let orientationLock: LiveOrientationLock
+  let platform: LivePlatformServices
   let crashReports: LiveCrashReportArchive
-  let backgroundRefresh: LiveBackgroundRefreshCoordinator
   lazy var connectivityMonitor = LiveConnectivityMonitor()
   @MainActor
   lazy var downloadCenter: LiveDownloadCenter = {
@@ -151,8 +150,7 @@ final class AppDependencies {
     playbackService: LivePlaybackServiceProtocol? = nil,
     watchProgress: LiveWatchProgressStore = LiveWatchProgressStore(),
     imagePipeline: TypeTypeImagePipeline = TypeTypeImagePipeline(),
-    orientationLock: LiveOrientationLock,
-    backgroundRefresh: LiveBackgroundRefreshCoordinator,
+    platform: LivePlatformServices,
     crashReports: LiveCrashReportArchive = LiveCrashReportArchive()
   ) {
     self.serverStore = serverStore
@@ -194,9 +192,8 @@ final class AppDependencies {
     self.playbackService = playbackService
     self.watchProgress = watchProgress
     self.imagePipeline = imagePipeline
-    self.orientationLock = orientationLock
+    self.platform = platform
     self.crashReports = crashReports
-    self.backgroundRefresh = backgroundRefresh
   }
 
   func diagnosticScope() -> LiveDiagnosticScope? {

@@ -3,8 +3,7 @@ import Foundation
 extension AppDependencies {
   @MainActor
   static func live(
-    orientationLock: LiveOrientationLock,
-    backgroundRefresh: LiveBackgroundRefreshCoordinator,
+    platform: LivePlatformServices,
     crashReports: LiveCrashReportArchive
   ) -> AppDependencies {
     let serverStore = ServerStore()
@@ -175,8 +174,7 @@ extension AppDependencies {
           serverStore.selectedServer()?.baseURL
         }
       ),
-      orientationLock: orientationLock,
-      backgroundRefresh: backgroundRefresh,
+      platform: platform,
       crashReports: crashReports
     )
   }

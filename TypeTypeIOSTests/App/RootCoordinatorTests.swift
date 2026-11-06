@@ -370,8 +370,10 @@ final class RootCoordinatorTests: XCTestCase {
       ),
       bugReportsService: LiveBugReportsService(apiClient: apiClient),
       importService: LiveImportService(apiClient: apiClient),
-      orientationLock: LiveOrientationLock(),
-      backgroundRefresh: LiveBackgroundRefreshCoordinator()
+      platform: LivePlatformServices(
+        orientationLock: LiveOrientationLock(),
+        backgroundRefresh: LiveBackgroundRefreshCoordinator()
+      )
     )
   }
 

@@ -48,7 +48,7 @@ extension LiveAuthenticatedAppView {
       coordinator.dependencies.watchProgress.seed(fromHistory: page)
     }
     notificationCenter.startPolling()
-    coordinator.dependencies.backgroundRefresh.scheduleRefresh()
+    coordinator.dependencies.platform.backgroundRefresh.scheduleRefresh()
     await applyDefaultLandingPage()
   }
 
@@ -79,7 +79,7 @@ extension LiveAuthenticatedAppView {
         await coordinator.reconnectIfNeeded()
       }
     } else if scenePhase == .background {
-      coordinator.dependencies.backgroundRefresh.scheduleRefresh()
+      coordinator.dependencies.platform.backgroundRefresh.scheduleRefresh()
     }
   }
 

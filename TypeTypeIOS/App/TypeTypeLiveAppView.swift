@@ -14,8 +14,10 @@ struct TypeTypeLiveAppView: View {
   ) {
     self.init(
       dependencies: .live(
-        orientationLock: orientationLock,
-        backgroundRefresh: backgroundRefresh,
+        platform: LivePlatformServices(
+          orientationLock: orientationLock,
+          backgroundRefresh: backgroundRefresh
+        ),
         crashReports: crashReports
       )
     )
@@ -23,7 +25,7 @@ struct TypeTypeLiveAppView: View {
 
   @MainActor
   init(dependencies: AppDependencies) {
-    dependencies.backgroundRefresh.configure(dependencies: dependencies)
+    dependencies.platform.backgroundRefresh.configure(dependencies: dependencies)
     _coordinator = StateObject(
       wrappedValue: RootCoordinator(dependencies: dependencies)
     )

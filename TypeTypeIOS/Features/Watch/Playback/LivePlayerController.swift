@@ -26,7 +26,9 @@ final class LivePlayerController: ObservableObject {
   var nativeFallbackUsed = false
   let airPlay = LiveAirPlayHandoff()
   @Published var isPresentingFullscreen = false
+#if os(iOS)
   lazy var fullscreen = LiveNativeFullscreenPresenter(controller: self)
+#endif
   @Published var isVideoDocked = false
   @Published var isOfflineContent = false
   @Published var preparation: LivePlaybackPreparation?
@@ -84,7 +86,9 @@ final class LivePlayerController: ObservableObject {
   let historyService: LiveHistoryServiceProtocol
   let watchProgress: LiveWatchProgressStore
   let appPreferences: LiveAppPreferencesStore
+#if os(iOS)
   let orientationLock: LiveOrientationLock
+#endif
   let playbackSessionReporter: LivePlaybackSessionReporter
   let bulletCommentStore = LiveBulletCommentStore()
   @Published var settings = LiveSettings()
@@ -129,7 +133,9 @@ final class LivePlayerController: ObservableObject {
     historyService = dependencies.historyService
     watchProgress = dependencies.watchProgress
     appPreferences = dependencies.appPreferences
-    orientationLock = dependencies.orientationLock
+#if os(iOS)
+    orientationLock = dependencies.platform.orientationLock
+#endif
     playbackSessionReporter = LivePlaybackSessionReporter(
       service: dependencies.sessionActivityService
     )

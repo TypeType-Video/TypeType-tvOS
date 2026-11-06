@@ -42,7 +42,9 @@ final class LivePictureInPictureDriver: NSObject, ObservableObject {
       nativeLayer = nil
       pipController = isAvailable ? AVPictureInPictureController(playerLayer: layer) : nil
       pipController?.delegate = self
+#if os(iOS)
       pipController?.canStartPictureInPictureAutomaticallyFromInline = false
+#endif
     }
     contentLayer?.player = player
     applyPoster()
@@ -70,8 +72,10 @@ final class LivePictureInPictureDriver: NSObject, ObservableObject {
       contentSource: .init(sampleBufferDisplayLayer: layer, playbackDelegate: playback)
     )
     controller.delegate = self
+#if os(iOS)
     // The system does the background hand-off: a manual start at .inactive loses the race against suspension.
     controller.canStartPictureInPictureAutomaticallyFromInline = true
+#endif
     AppLogger.playback
       .info("pip engine: native content installed")
     pipController = controller
