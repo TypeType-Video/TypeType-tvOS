@@ -70,6 +70,14 @@ final class TVPlayerSession: ObservableObject {
   }
 
   // The picture holds still while the target moves, and plays again from the chosen point after a short pause.
+  // Left after an automatic skip goes back to the start of the skipped part; it is not skipped again.
+  func undoSkip() -> Bool {
+    guard let controller, let notice = controller.sponsorBlockNotice, !notice.muted else { return false }
+    controller.sponsorBlockNotice = nil
+    controller.seek(to: notice.start)
+    return true
+  }
+
   func scrub(direction: Int) {
     guard let controller, !isLive else { return }
     if !scrub.isActive {

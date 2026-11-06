@@ -1126,3 +1126,6 @@
 "Server version" = "Version du serveur";
 "Sign out and connect to another TypeType server." = "Se déconnecter et se connecter à un autre serveur TypeType.";
 "The change could not be saved. Check the connection and try again." = "La modification n’a pas pu être enregistrée. Vérifiez la connexion et réessayez.";
+"%@ skipped" = "Passé : %@";
+"Back to watch it" = "Revenir pour le voir";
+"%@ skipped. Press left to watch it." = "Passé : %@. Appuyez à gauche pour le voir.";

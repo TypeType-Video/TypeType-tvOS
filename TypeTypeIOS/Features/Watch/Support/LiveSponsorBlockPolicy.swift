@@ -105,4 +105,5 @@ struct LiveSponsorBlockNotice: Equatable, Identifiable {
   let id = UUID()
   let category: String
   let muted: Bool
+  let start: TimeInterval
 }

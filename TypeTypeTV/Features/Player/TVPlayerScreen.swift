@@ -60,6 +60,7 @@ private struct TVPlayerContent: View {
         }
         .transition(.opacity)
       }
+      if !session.controlsVisible, session.panel == nil, !countdownActive { TVSponsorNotice(controller: controller) }
       if let panel = session.panel { TVPlayerPanel(controller: controller, session: session, panel: panel) }
       if case let .failed(message) = controller.state { failure(message) }
     }
@@ -101,7 +102,7 @@ private struct TVPlayerContent: View {
       .disabled(session.controlsVisible || session.panel != nil || countdownActive)
       .onMoveCommand { direction in
         switch direction {
-        case .left: session.scrub(direction: -1)
+        case .left: if !session.undoSkip() { session.scrub(direction: -1) }
         case .right: session.scrub(direction: 1)
         case .down: session.showControls(fromBelow: true)
         default: session.showControls()
