@@ -1191,3 +1191,6 @@
 "Unread notifications" = "Notifications non lues";
 "Mark all as read" = "Tout marquer comme lu";
 "Clear the new-video notifications of this account." = "Efface les notifications de nouvelles vidéos de ce compte.";
+"Unblock this video" = "Débloquer cette vidéo";
+"Unblock this channel" = "Débloquer cette chaîne";
+"The action could not be completed." = "L’action n’a pas pu aboutir.";

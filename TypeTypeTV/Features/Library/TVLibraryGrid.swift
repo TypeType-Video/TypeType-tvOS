@@ -48,11 +48,13 @@ struct TVLibraryGrid: View {
 
 struct TVLibraryPlaylist: View {
   @StateObject private var model: LivePlaylistDetailViewModel
+  let playlist: LivePlaylist
   let refresh: Int
   let onOpen: (LiveVideoItem) -> Void
 
   init(playlist: LivePlaylist, service: LivePlaylistsServiceProtocol, refresh: Int, onOpen: @escaping (LiveVideoItem) -> Void) {
     _model = StateObject(wrappedValue: LivePlaylistDetailViewModel(id: playlist.id, seed: playlist, service: service))
+    self.playlist = playlist
     self.refresh = refresh
     self.onOpen = onOpen
   }
@@ -65,6 +67,9 @@ struct TVLibraryPlaylist: View {
       onOpen: onOpen,
       onRetry: { Task { await model.reload() } }
     )
+    .environment(\.tvMenuPlaylist, TVMenuPlaylist(id: playlist.id, name: playlist.name) { _ in
+      Task { await model.reload() }
+    })
     .task { await model.prepare() }
     .onChange(of: refresh) { _, _ in Task { await model.reload() } }
   }

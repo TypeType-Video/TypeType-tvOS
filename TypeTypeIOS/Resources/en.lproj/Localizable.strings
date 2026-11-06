@@ -1191,3 +1191,6 @@
 "Unread notifications" = "Unread notifications";
 "Mark all as read" = "Mark all as read";
 "Clear the new-video notifications of this account." = "Clear the new-video notifications of this account.";
+"Unblock this video" = "Unblock this video";
+"Unblock this channel" = "Unblock this channel";
+"The action could not be completed." = "The action could not be completed.";

@@ -23,7 +23,7 @@ struct TVShellView: View {
   @State private var libraryPath = NavigationPath()
   @State private var playing: LiveVideoItem?
   @State private var playbackEnded = 0
-  @State private var menuVideo: LiveVideoItem?
+  @State private var menuRequest: TVVideoMenuRequest?
   @State private var contentScrolled = false
   @State private var librarySection = TVLibrarySection.history
   @State private var landed = false
@@ -98,24 +98,24 @@ struct TVShellView: View {
         .tag(TVTab.settings)
     }
     .environmentObject(account)
-    .environment(\.tvVideoMenu) { menuVideo = $0 }
-    .environment(\.tvVideoMenuShown, menuVideo != nil)
-    .disabled(menuVideo != nil)
+    .environment(\.tvVideoMenu) { menuRequest = $0 }
+    .environment(\.tvVideoMenuShown, menuRequest != nil)
+    .disabled(menuRequest != nil)
     .environment(\.tvContentScrolled) { scrolled in if contentScrolled != scrolled { contentScrolled = scrolled } }
     .onChange(of: tab) { _, _ in contentScrolled = false }
     .overlay { TVTopBarMarks(user: coordinator.currentUser, hidden: contentScrolled) }
     .overlay {
-      if let video = menuVideo {
+      if let request = menuRequest {
         TVVideoMenuPanel(
-          video: video, dependencies: coordinator.dependencies,
-          onPlay: { menuVideo = nil; playing = video },
-          onOpenChannel: { menuVideo = nil; openChannel(video.uploaderURL) },
-          onClose: { menuVideo = nil }
+          request: request, dependencies: coordinator.dependencies,
+          onPlay: { menuRequest = nil; playing = request.video },
+          onOpenChannel: { menuRequest = nil; openChannel(request.video.uploaderURL) },
+          onClose: { menuRequest = nil }
         )
         .transition(.move(edge: .trailing).combined(with: .opacity))
       }
     }
-    .animation(.easeOut(duration: 0.26), value: menuVideo?.canonicalID)
+    .animation(.easeOut(duration: 0.26), value: menuRequest?.video.canonicalID)
     .background(TVPalette.ink.ignoresSafeArea())
     .fullScreenCover(item: $playing) { video in
       TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies) {

@@ -1,78 +1,30 @@
 import SwiftUI
 
-// Opens the options of a video from anywhere in the app; the shell shows the panel over every tab.
-private struct TVVideoMenuKey: EnvironmentKey {
-  static let defaultValue: ((LiveVideoItem) -> Void)? = nil
-}
-
-private struct TVVideoMenuShownKey: EnvironmentKey {
-  static let defaultValue = false
-}
-
-extension EnvironmentValues {
-  var tvVideoMenu: ((LiveVideoItem) -> Void)? {
-    get { self[TVVideoMenuKey.self] }
-    set { self[TVVideoMenuKey.self] = newValue }
-  }
-
-  var tvVideoMenuShown: Bool {
-    get { self[TVVideoMenuShownKey.self] }
-    set { self[TVVideoMenuShownKey.self] = newValue }
-  }
-}
-
-// A long press on a video opens its options. The release of that press follows right after and must not open the
-// video too; the view that opened the menu takes the focus back once it closes, as on Android TV.
-struct TVVideoMenuTarget: ViewModifier {
-  let video: LiveVideoItem
-  @Binding var openedAt: Date?
-  let refocus: () -> Void
-  @Environment(\.tvVideoMenu) private var openMenu
-  @Environment(\.tvVideoMenuShown) private var menuShown
-
-  func body(content: Content) -> some View {
-    content
-      .simultaneousGesture(LongPressGesture(minimumDuration: 0.6).onEnded { _ in
-        guard let openMenu else { return }
-        openedAt = Date()
-        openMenu(video)
-      })
-      .onChange(of: menuShown) { _, shown in
-        guard !shown, openedAt != nil else { return }
-        openedAt = nil
-        Task { refocus() }
-      }
-  }
-
-  static func swallowsRelease(_ openedAt: Date?) -> Bool {
-    guard let openedAt else { return false }
-    return Date().timeIntervalSince(openedAt) < 0.8
-  }
-}
-
-extension View {
-  func tvVideoMenu(_ video: LiveVideoItem, openedAt: Binding<Date?>, refocus: @escaping () -> Void) -> some View {
-    modifier(TVVideoMenuTarget(video: video, openedAt: openedAt, refocus: refocus))
-  }
-}
-
 // Android TV's VideoMenuPanel: a long press on a card opens the same actions as the video page, without leaving
 // the row. The focus stays in the panel until Back closes it.
 struct TVVideoMenuPanel: View {
   @StateObject private var actions: LiveVideoQuickActionsViewModel
+  @StateObject private var blocking: LiveVideoBlocking
   @State private var pickingPlaylist = false
+  @State private var removeFailed = false
   @FocusState private var focus: String?
   let video: LiveVideoItem
+  let playlist: TVMenuPlaylist?
   let onPlay: () -> Void
   let onOpenChannel: () -> Void
   let onClose: () -> Void
 
   init(
-    video: LiveVideoItem, dependencies: AppDependencies, onPlay: @escaping () -> Void,
+    request: TVVideoMenuRequest, dependencies: AppDependencies, onPlay: @escaping () -> Void,
     onOpenChannel: @escaping () -> Void, onClose: @escaping () -> Void
   ) {
+    let video = request.video
     _actions = StateObject(wrappedValue: LiveVideoQuickActionsViewModel(video: video, dependencies: dependencies))
+    _blocking = StateObject(wrappedValue: LiveVideoBlocking(
+      video: video, service: dependencies.contentControlsService, hidden: dependencies.hiddenVideos
+    ))
     self.video = video
+    playlist = request.playlist
     self.onPlay = onPlay
     self.onOpenChannel = onOpenChannel
     self.onClose = onClose
@@ -96,26 +48,36 @@ struct TVVideoMenuPanel: View {
         if !video.uploaderURL.isEmpty { row("channel", "Open channel", "person.crop.circle", perform: onOpenChannel) }
         row("playlists", "Add to a playlist", "text.badge.plus") { pickingPlaylist = true }
           .disabled(!actions.isPrepared)
+        if let playlist {
+          // The card is gone once removed, so the menu closes without giving the focus back to it.
+          row("remove", "Remove from \(playlist.name)", "text.badge.minus") {
+            Task {
+              removeFailed = !(await actions.removeFromPlaylist(id: playlist.id))
+              guard !removeFailed else { return }
+              playlist.onRemoved(video)
+              onClose()
+            }
+          }
+          .disabled(actions.isBusy)
+        }
         row("later", actions.isInWatchLater ? "Remove from Watch later" : "Add to Watch later",
             actions.isInWatchLater ? "bookmark.fill" : "bookmark") { Task { await actions.toggleWatchLater() } }
           .disabled(!actions.isPrepared || actions.isBusy)
         row("favorite", actions.isFavorite ? "Remove from Favorites" : "Add to Favorites",
             actions.isFavorite ? "heart.fill" : "heart") { Task { await actions.toggleFavorite() } }
           .disabled(!actions.isPrepared || actions.isBusy)
-        row("block-video", "Block this video", "nosign") {
-          Task {
-            await actions.blockVideo()
-            onClose()
-          }
+        row("block-video", blocking.videoBlocked ? "Unblock this video" : "Block this video", "nosign") {
+          Task { await blocking.setVideoBlocked(!blocking.videoBlocked) }
         }
+        .disabled(!blocking.isLoaded)
         .padding(.top, 12)
         if !video.uploaderURL.isEmpty {
-          row("block-channel", "Block this channel", "person.crop.circle.badge.xmark") {
-            Task {
-              await actions.blockChannel()
-              onClose()
-            }
-          }
+          row("block-channel", blocking.channelBlocked ? "Unblock this channel" : "Block this channel",
+              "person.crop.circle.badge.xmark") { Task { await blocking.setChannelBlocked(!blocking.channelBlocked) } }
+            .disabled(!blocking.isLoaded)
+        }
+        if blocking.failed || removeFailed {
+          Text("The action could not be completed.").font(TVType.meta).foregroundStyle(TVPalette.accent).padding(.top, 8)
         }
         Spacer(minLength: 0)
       }
@@ -136,7 +98,9 @@ struct TVVideoMenuPanel: View {
     .onExitCommand { if !pickingPlaylist { onClose() } }
     .task {
       focus = "play"
-      await actions.prepare()
+      async let prepared: Void = actions.prepare()
+      async let loaded: Void = blocking.load()
+      _ = await (prepared, loaded)
     }
   }
 
