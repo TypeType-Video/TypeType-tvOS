@@ -11,6 +11,7 @@ struct TVVideoDetailView: View {
   let onOpenChannel: (String) -> Void
   @FocusState private var focus: TVDetailFocus?
   @EnvironmentObject private var account: TVAccountSettings
+  @Environment(\.dismiss) private var dismiss
 
   init(
     video: LiveVideoItem,
@@ -51,13 +52,19 @@ struct TVVideoDetailView: View {
       .tvReportsScroll()
       .disabled(pickingPlaylist)
       if pickingPlaylist {
-        TVPlaylistPicker(actions: actions) {
-          pickingPlaylist = false
-          Task { focus = .playlists }
-        }
+        TVPlaylistPicker(actions: actions) { closePlaylistPicker() }
       }
     }
     .tvContentEdges()
+    // Menu closes the picker only. Without a handler here the stack popped a whole route while the picker was open,
+    // so the picker took the video page with it.
+    .onExitCommand {
+      if pickingPlaylist {
+        closePlaylistPicker()
+      } else {
+        dismiss()
+      }
+    }
     .background(TVPalette.ink.ignoresSafeArea())
     .task {
       focus = .play
@@ -71,6 +78,11 @@ struct TVVideoDetailView: View {
 
   private func play() {
     onPlay(model.video, model.resumeFraction == nil ? nil : model.resumeSeconds)
+  }
+
+  private func closePlaylistPicker() {
+    pickingPlaylist = false
+    Task { focus = .playlists }
   }
 
   private var chapters: some View {
@@ -158,15 +170,19 @@ struct TVPlaylistPicker: View {
         .scrollClipDisabled()
       }
       .padding(.horizontal, 56)
-      .padding(.top, 180)
+      // 90 below the container: the column starts below the tab bar (see below), so the old 180 would sit a bar height
+      // too low.
+      .padding(.top, 90)
       .padding(.bottom, 56)
       .frame(width: 760)
       .frame(maxHeight: .infinity, alignment: .top)
       .background(TVPalette.surface.opacity(0.96))
     }
-    .ignoresSafeArea()
+    // The column is cut off under the top bar: it keeps the horizontal and bottom bleed but takes the top safe area, and
+    // the clip keeps list rows from drawing over the tab bar (the playlist list scrolls with clipping disabled).
+    .ignoresSafeArea(edges: [.horizontal, .bottom])
+    .clipShape(Rectangle())
     .focusSection()
-    .onExitCommand(perform: onClose)
     .onAppear { focused = actions.playlists.first?.id }
   }
 }

@@ -95,7 +95,16 @@ struct TVVideoMenuPanel: View {
       }
     }
     .ignoresSafeArea()
-    .onExitCommand { if !pickingPlaylist { onClose() } }
+    // One handler for both layers: the picker closes first, the panel second. With the picker closing itself too, this
+    // guard saw pickingPlaylist == false on the same press and closed the panel as well — one step back too far.
+    .onExitCommand {
+      if pickingPlaylist {
+        pickingPlaylist = false
+        Task { focus = "playlists" }
+      } else {
+        onClose()
+      }
+    }
     .task {
       focus = "play"
       async let prepared: Void = actions.prepare()
