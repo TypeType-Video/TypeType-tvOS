@@ -2,10 +2,17 @@ import SwiftUI
 
 struct TVHomeView: View {
   @StateObject private var model: LiveShelfHomeViewModel
+  let refresh: Int
   let onOpen: (LiveVideoItem) -> Void
   let onPlay: (LiveVideoItem) -> Void
 
-  init(dependencies: AppDependencies, onOpen: @escaping (LiveVideoItem) -> Void, onPlay: @escaping (LiveVideoItem) -> Void) {
+  init(
+    dependencies: AppDependencies,
+    refresh: Int,
+    onOpen: @escaping (LiveVideoItem) -> Void,
+    onPlay: @escaping (LiveVideoItem) -> Void
+  ) {
+    self.refresh = refresh
     _model = StateObject(
       wrappedValue: LiveShelfHomeViewModel(
         loader: LiveShelfHomeLoader(
@@ -34,6 +41,7 @@ struct TVHomeView: View {
     }
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.loadIfNeeded() }
+    .onChange(of: refresh) { _, _ in Task { await model.reload() } }
   }
 }
 

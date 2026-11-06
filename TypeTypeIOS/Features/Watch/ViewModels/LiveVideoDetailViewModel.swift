@@ -70,5 +70,10 @@ final class LiveVideoDetailViewModel: ObservableObject {
     }
   }
 
+  func refreshProgress() async {
+    guard let position = try? await progress(video.url) else { return }
+    resumeSeconds = position / 1_000
+  }
+
   private static let watchedMargin: Int64 = 30
 }

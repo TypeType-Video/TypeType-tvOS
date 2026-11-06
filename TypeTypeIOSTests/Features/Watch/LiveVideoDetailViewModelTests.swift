@@ -49,6 +49,21 @@ final class LiveVideoDetailViewModelTests: XCTestCase {
     XCTAssertNil(model.resumeSeconds)
   }
 
+  func testRefreshPicksUpTheNewResumePoint() async {
+    var position: Int64? = nil
+    let model = LiveVideoDetailViewModel(
+      video: LiveVideoItemFixture.make(),
+      stream: { _ in Self.stream(description: "", subscribers: -1, related: []) },
+      progress: { _ in position }
+    )
+    await model.load()
+    XCTAssertNil(model.resumeFraction)
+    position = 200_000
+    await model.refreshProgress()
+    XCTAssertEqual(model.resumeSeconds, 200)
+    XCTAssertNotNil(model.resumeFraction)
+  }
+
   private static func stream(description: String, subscribers: Int64, related: [LiveVideoItem]) -> LivePlaybackStream {
     LivePlaybackStream(
       id: "fixture", title: "Fixture", uploaderName: "Channel", uploaderURL: "", uploaderAvatarURL: "",

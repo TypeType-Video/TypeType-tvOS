@@ -20,12 +20,14 @@ struct TVShellView: View {
   @State private var searchPath = NavigationPath()
   @State private var libraryPath = NavigationPath()
   @State private var playing: LiveVideoItem?
+  @State private var playbackEnded = 0
 
   var body: some View {
     TabView(selection: $tab) {
       NavigationStack(path: $homePath) {
         TVHomeView(
           dependencies: coordinator.dependencies,
+          refresh: playbackEnded,
           onOpen: { open($0) },
           onPlay: { playing = $0 }
         )
@@ -59,7 +61,10 @@ struct TVShellView: View {
     }
     .background(TVPalette.ink.ignoresSafeArea())
     .fullScreenCover(item: $playing) { video in
-      TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator) { playing = nil }
+      TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator) {
+        playing = nil
+        playbackEnded += 1
+      }
     }
   }
 
@@ -79,6 +84,7 @@ struct TVShellView: View {
       TVVideoDetailView(
         video: video,
         dependencies: coordinator.dependencies,
+        refresh: playbackEnded,
         onPlay: { video, _ in playing = video },
         onOpen: { open($0) }
       )

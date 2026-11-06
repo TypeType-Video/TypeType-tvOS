@@ -3,6 +3,7 @@ import SwiftUI
 struct TVVideoDetailView: View {
   @StateObject private var model: LiveVideoDetailViewModel
   @StateObject private var actions: LiveVideoQuickActionsViewModel
+  let refresh: Int
   let onPlay: (LiveVideoItem, Int64?) -> Void
   let onOpen: (LiveVideoItem) -> Void
   @FocusState private var playFocused: Bool
@@ -10,11 +11,13 @@ struct TVVideoDetailView: View {
   init(
     video: LiveVideoItem,
     dependencies: AppDependencies,
+    refresh: Int,
     onPlay: @escaping (LiveVideoItem, Int64?) -> Void,
     onOpen: @escaping (LiveVideoItem) -> Void
   ) {
     _model = StateObject(wrappedValue: LiveVideoDetailViewModel(video: video, dependencies: dependencies))
     _actions = StateObject(wrappedValue: LiveVideoQuickActionsViewModel(video: video, dependencies: dependencies))
+    self.refresh = refresh
     self.onPlay = onPlay
     self.onOpen = onOpen
   }
@@ -41,6 +44,7 @@ struct TVVideoDetailView: View {
       async let state: Void = actions.prepare()
       _ = await (details, state)
     }
+    .onChange(of: refresh) { _, _ in Task { await model.refreshProgress() } }
   }
 
   @ViewBuilder
