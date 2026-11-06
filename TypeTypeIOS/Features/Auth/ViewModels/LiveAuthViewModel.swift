@@ -13,7 +13,7 @@ final class LiveAuthViewModel: ObservableObject {
   @Published private(set) var oidcStatus: OIDCStatus?
 
   private var didLoad = false
-  private var didAutoRedirect = false
+  var didAutoRedirect = false
 
   var canSubmit: Bool {
     let hasCredentials =
@@ -76,12 +76,6 @@ final class LiveAuthViewModel: ObservableObject {
         autoRedirect: instance.oidcAutoRedirect
       )
     }
-
-    guard oidcStatus?.autoRedirect == true, !didAutoRedirect else {
-      return
-    }
-    didAutoRedirect = true
-    await continueWithOIDC(using: coordinator)
   }
 
   func submit(using coordinator: RootCoordinator) async {
@@ -113,18 +107,11 @@ final class LiveAuthViewModel: ObservableObject {
     }
   }
 
-  func continueWithOIDC(using coordinator: RootCoordinator) async {
-    guard oidcEnabled else { return }
-    await perform {
-      try await coordinator.continueWithOIDC()
-    }
-  }
-
   func clearError() {
     errorMessage = nil
   }
 
-  private func perform(_ action: () async throws -> Void) async {
+  func perform(_ action: () async throws -> Void) async {
     guard !isLoading else { return }
     isLoading = true
     errorMessage = nil

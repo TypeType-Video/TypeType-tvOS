@@ -68,6 +68,7 @@ struct LiveAuthView: View {
     }
     .task {
       await viewModel.load(using: coordinator)
+      await viewModel.redirectToOIDCIfNeeded(using: coordinator)
     }
     .tint(isLight ? palette.accent : .white)
     .preferredColorScheme(isLight ? .light : .dark)
