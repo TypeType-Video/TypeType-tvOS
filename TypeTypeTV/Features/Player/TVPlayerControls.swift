@@ -66,7 +66,8 @@ struct TVPlayerControls: View {
       Button(action: session.togglePlay) {
         TVSeekBar(
           position: controller.position, duration: controller.duration, scrub: session.scrubSeconds,
-          chapters: controller.availableChapters, sponsors: controller.visibleSponsorBlockWindows
+          chapters: controller.availableChapters, sponsors: controller.visibleSponsorBlockWindows,
+          storyboard: LivePlaybackPreviewFrames.best(controller.stream?.previewFrames ?? [])
         )
       }
       .buttonStyle(TVBareButtonStyle())

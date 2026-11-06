@@ -6,6 +6,7 @@ struct TVSeekBar: View {
   let scrub: TimeInterval?
   var chapters: [LivePlaybackChapter] = []
   var sponsors: [LiveSponsorBlockWindow] = []
+  var storyboard: LivePlaybackPreviewFrames?
   @Environment(\.isFocused) private var isFocused
 
   var body: some View {
@@ -23,21 +24,19 @@ struct TVSeekBar: View {
             .frame(width: 40, height: 40)
             .offset(x: proxy.size.width * fraction - 20)
         }
-        if let scrub {
-          VStack(spacing: 2) {
-            if let chapter = chapters.last(where: { TimeInterval($0.startTimeSeconds) <= scrub }) {
-              Text(verbatim: chapter.title).font(TVType.meta).lineLimit(1)
-            }
-            Text(verbatim: TVTime.label(scrub)).font(TVType.meta).monospacedDigit()
-          }
-          .padding(.horizontal, 16)
-          .padding(.vertical, 8)
-          .background(.black.opacity(0.8), in: RoundedRectangle(cornerRadius: 10))
-          .frame(width: 420)
-          .offset(x: min(max(proxy.size.width * fraction - 210, 0), proxy.size.width - 420), y: -80)
-        }
       }
       .frame(height: proxy.size.height)
+      .overlay(alignment: .bottomLeading) {
+        if let scrub {
+          let half = TVSeekPreview.width / 2
+          TVSeekPreview(
+            position: scrub,
+            chapter: chapters.last { TimeInterval($0.startTimeSeconds) <= scrub }?.title,
+            storyboard: storyboard
+          )
+          .offset(x: min(max(proxy.size.width * fraction - half, 0), proxy.size.width - TVSeekPreview.width), y: -64)
+        }
+      }
       .animation(.easeOut(duration: 0.16), value: isFocused)
     }
     .frame(height: 68)
