@@ -1202,3 +1202,5 @@
 "Live chat is shown. Press to hide it." = "Le chat en direct est affiché. Appuyez pour le masquer.";
 "Live chat is hidden. Press to show it." = "Le chat en direct est masqué. Appuyez pour l’afficher.";
 "%@, shows the channel" = "%@, affiche la chaîne";
+"Animated profile picture" = "Photo de profil animée";
+"Plays an animated picture in the top bar. Turn it off on a slow box." = "Anime la photo de profil dans la barre du haut. À désactiver sur un boîtier lent.";

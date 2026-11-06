@@ -4,6 +4,7 @@ enum TVDeviceSetting {
   static let introKey = "tv.performance.intro"
   static let backdropKey = "tv.performance.backdrop"
   static let videoPreviewsKey = "tv.performance.video-previews"
+  static let animatedAvatarKey = "tv.performance.animated-avatar"
 }
 
 struct TVSettingRow: View {

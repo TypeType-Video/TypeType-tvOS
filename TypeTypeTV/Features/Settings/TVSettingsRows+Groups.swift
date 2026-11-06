@@ -17,6 +17,9 @@ extension TVSettingsRows {
     TVSettingRow(systemImage: "play.rectangle", title: "Video previews",
                  summary: "Plays a muted preview behind the home page. Turn it off on a slow box.",
                  trailing: .toggle(videoPreviews)) { videoPreviews.toggle() }
+    TVSettingRow(systemImage: "person.crop.circle.badge.clock", title: "Animated profile picture",
+                 summary: "Plays an animated picture in the top bar. Turn it off on a slow box.",
+                 trailing: .toggle(animatedAvatar)) { animatedAvatar.toggle() }
     TVSettingRow(systemImage: "photo", title: "Background picture",
                  summary: "Shows the selected video's picture behind the home and video pages. Turn it off on a slow box.",
                  trailing: .toggle(backdrop)) { backdrop.toggle() }

@@ -60,14 +60,38 @@ extension View {
 
 struct TVAccountBadge: View {
   let user: AuthUser?
+  @AppStorage(TVDeviceSetting.animatedAvatarKey) private var animates = true
+  @Environment(\.displayScale) private var displayScale
+  @State private var frames: TVAvatarFrames?
+  @State private var settled = true
+  @State private var settle: Task<Void, Never>?
 
   var body: some View {
     ZStack {
       Circle().fill(Color(hex24: 0x7F1D1D))
       Text(verbatim: Self.initials(user?.publicUsername)).font(TVType.label).foregroundStyle(TVPalette.accentSoft)
-      if let url = user?.avatarURL { TVRemoteImage(url: url).clipShape(Circle()) }
+      if let frames, animates {
+        TVAnimatedAvatar(frames: frames, playing: settled).clipShape(Circle())
+      } else if let url = user?.avatarURL {
+        TVRemoteImage(url: url).clipShape(Circle())
+      }
     }
     .frame(width: 64, height: 64)
+    .task(id: animates ? user?.avatarURL : nil) {
+      guard animates, let url = user?.avatarURL else { return frames = nil }
+      frames = await TVAvatarFrames.load(url, pixels: 64 * displayScale)
+    }
+    // Android TV's RemoteActivity: an animated picture redraws the screen on its own, so it waits while the
+    // focus moves and plays again two seconds after the last move.
+    .onReceive(NotificationCenter.default.publisher(for: UIFocusSystem.didUpdateNotification)) { _ in
+      guard frames != nil, animates else { return }
+      settled = false
+      settle?.cancel()
+      settle = Task {
+        guard (try? await Task.sleep(for: .seconds(2))) != nil else { return }
+        settled = true
+      }
+    }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(user?.publicUsername.map { Text("Signed in as \($0)") } ?? Text("Signed in"))
   }

@@ -1202,3 +1202,5 @@
 "Live chat is shown. Press to hide it." = "Live chat is shown. Press to hide it.";
 "Live chat is hidden. Press to show it." = "Live chat is hidden. Press to show it.";
 "%@, shows the channel" = "%@, shows the channel";
+"Animated profile picture" = "Animated profile picture";
+"Plays an animated picture in the top bar. Turn it off on a slow box." = "Plays an animated picture in the top bar. Turn it off on a slow box.";
