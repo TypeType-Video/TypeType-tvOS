@@ -5,6 +5,7 @@ struct TVHomeView: View {
   @StateObject private var preview: LivePreviewPlayer
   let refresh: Int
   let previewsAllowed: Bool
+  private let deArrow: LiveDeArrowStore
   let onOpen: (LiveVideoItem) -> Void
   let onPlay: (LiveVideoItem) -> Void
 
@@ -27,10 +28,12 @@ struct TVHomeView: View {
           search: dependencies.searchService,
           library: dependencies.libraryService,
           notifications: dependencies.notificationsService,
-          settings: dependencies.settingsService
+          settings: dependencies.settingsService,
+          deArrow: dependencies.deArrowStore
         )
       )
     )
+    deArrow = dependencies.deArrowStore
     self.onOpen = onOpen
     self.onPlay = onPlay
   }
@@ -50,7 +53,11 @@ struct TVHomeView: View {
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.loadIfNeeded() }
     .onChange(of: refresh) { _, _ in Task { await model.reload() } }
-    .onReceive(NotificationCenter.default.publisher(for: .liveSettingsDidChange)) { _ in Task { await model.reload() } }
+    .onReceive(NotificationCenter.default.publisher(for: .liveSettingsDidChange)) { _ in
+      // The DeArrow choices are settings too: the next load reads them again.
+      deArrow.invalidatePreferences()
+      Task { await model.reload() }
+    }
   }
 }
 
