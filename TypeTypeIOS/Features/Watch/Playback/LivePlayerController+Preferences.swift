@@ -147,6 +147,11 @@ extension LivePlayerController {
     updateSettings { $0.sponsorBlockMuteInsteadOfSkip = enabled }
   }
 
+  func setCaptionStyles(_ styles: LiveCaptionStyles) {
+    guard settings.captionStyles != styles else { return }
+    updateSettings { $0.captionStyles = styles }
+  }
+
   private func updateSettings(
     _ mutation: (inout LiveSettings) -> Void
   ) {
