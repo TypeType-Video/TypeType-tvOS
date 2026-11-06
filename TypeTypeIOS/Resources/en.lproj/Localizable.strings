@@ -1174,3 +1174,5 @@
 "Audio language, %@" = "Audio language, %@";
 "New from your subscriptions" = "New from your subscriptions";
 "SHORT" = "SHORT";
+"Comments on the video are shown. Press to hide them." = "Comments on the video are shown. Press to hide them.";
+"Comments on the video are hidden. Press to show them." = "Comments on the video are hidden. Press to show them.";

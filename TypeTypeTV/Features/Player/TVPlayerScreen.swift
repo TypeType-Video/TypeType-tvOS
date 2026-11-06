@@ -59,6 +59,9 @@ struct TVPlayerContent: View {
   var body: some View {
     ZStack {
       TVPlayerVideoSurface(controller: controller)
+      if controller.supportsBulletComments, controller.bulletCommentsEnabled {
+        LiveDanmakuOverlay(controller: controller).allowsHitTesting(false).ignoresSafeArea()
+      }
       if controller.audioOnly { TVAudioOnlyPoster(video: controller.video).transition(.opacity) }
       TVCaptionOverlay(controller: controller, subtitles: controller.nativeSubtitles, raised: session.controlsVisible)
       if isOpening { TVOpeningPoster(video: controller.video) }

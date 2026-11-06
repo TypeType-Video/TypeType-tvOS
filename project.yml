@@ -129,6 +129,9 @@ targets:
       - TypeTypeIOS/App/AppDependencies+Scope.swift
       - TypeTypeIOS/DesignSystem/Theme/Color+Hex.swift
       - TypeTypeIOS/DesignSystem/Components/LiveToastCenter.swift
+      - TypeTypeIOS/Features/Watch/Components/LiveDanmakuOverlay.swift
+      - TypeTypeIOS/Features/Watch/Components/LiveDanmakuCanvasView+Rendering.swift
+      - TypeTypeIOS/Features/Watch/Components/LiveDanmakuCanvasView+Timeline.swift
       - path: TypeTypeIOS/Resources
         excludes:
           - AppIcon.icon
