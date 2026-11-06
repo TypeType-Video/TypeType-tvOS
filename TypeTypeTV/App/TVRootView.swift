@@ -21,29 +21,9 @@ struct TVRootView: View {
       case .authentication:
         TVLoginView(coordinator: coordinator)
       case .authenticated:
-        TVSignedInPlaceholder(coordinator: coordinator)
+        TVShellView(coordinator: coordinator)
       }
     }
     .task { await coordinator.bootstrap() }
-  }
-}
-
-private struct TVSignedInPlaceholder: View {
-  @ObservedObject var coordinator: RootCoordinator
-
-  var body: some View {
-    ZStack {
-      TVPalette.ink.ignoresSafeArea()
-      VStack(spacing: 40) {
-        TVBrandLogo(markSize: 96)
-        Text(verbatim: coordinator.currentUser?.publicUsername ?? "")
-          .font(TVType.headline)
-          .foregroundStyle(TVPalette.textHigh)
-        Button("Sign out") {
-          Task { await coordinator.signOut() }
-        }
-        .buttonStyle(.tvPill)
-      }
-    }
   }
 }
