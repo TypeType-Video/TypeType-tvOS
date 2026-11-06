@@ -69,6 +69,7 @@ struct TVChannelView: View {
       .padding(.vertical, 60)
     }
     .scrollClipDisabled()
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.loadIfNeeded() }
   }
@@ -106,6 +107,7 @@ struct TVPlaylistView: View {
       .padding(.vertical, 60)
     }
     .scrollClipDisabled()
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.prepare() }
   }

@@ -48,6 +48,7 @@ struct TVLibraryView: View {
     .focusSection()
     .defaultFocus($railFocus, section, priority: .userInitiated)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task {
       async let lists: Void = collections.prepare()

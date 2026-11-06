@@ -55,6 +55,7 @@ struct TVVideoDetailView: View {
         }
       }
     }
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task {
       focus = .play

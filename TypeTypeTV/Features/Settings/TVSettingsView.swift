@@ -100,6 +100,7 @@ struct TVSettingsView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.load() }
     .onChange(of: railFocus) { previous, focused in

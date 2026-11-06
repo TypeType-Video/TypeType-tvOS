@@ -39,6 +39,7 @@ struct TVHomeView: View {
         TVHomeLoaded(home: home, onOpen: onOpen, onPlay: onPlay)
       }
     }
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.loadIfNeeded() }
     .onChange(of: refresh) { _, _ in Task { await model.reload() } }

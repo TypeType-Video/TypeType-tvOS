@@ -116,3 +116,12 @@ struct TVShellView: View {
     }
   }
 }
+
+extension View {
+  // tvOS insets tab content by its own 80 pt on each side; the screens already keep Android TV's 112 pt from the
+  // edge, so the system margin is dropped instead of adding up to 192 pt. Set on each screen: on the TabView
+  // content it has no effect.
+  func tvContentEdges() -> some View {
+    ignoresSafeArea(.container, edges: .horizontal)
+  }
+}
