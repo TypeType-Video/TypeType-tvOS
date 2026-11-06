@@ -4,6 +4,7 @@ struct TVServerSetupView: View {
   @ObservedObject var coordinator: RootCoordinator
   @StateObject private var model = ServerSetupViewModel()
   @FocusState private var addressFocused: Bool
+  @Environment(\.isEnabled) private var isEnabled
 
   var body: some View {
     TVAuthScaffold(
@@ -37,7 +38,9 @@ struct TVServerSetupView: View {
         }
       }
     }
-    .onAppear { addressFocused = true }
+    .onAppear { addressFocused = isEnabled }
+    // The screen appears under the startup intro, disabled: the field takes the focus once the intro is gone.
+    .onChange(of: isEnabled) { _, enabled in if enabled { addressFocused = true } }
   }
 
   private func connect() {
