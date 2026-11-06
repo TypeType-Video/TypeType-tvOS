@@ -87,6 +87,16 @@ struct TVShellView: View {
     }
   }
 
+  private func openChannel(_ url: String) {
+    switch tab {
+    case .home: homePath.append(TVRoute.channel(url))
+    case .subscriptions: subscriptionsPath.append(TVRoute.channel(url))
+    case .search: searchPath.append(TVRoute.channel(url))
+    case .library: libraryPath.append(TVRoute.channel(url))
+    case .settings: break
+    }
+  }
+
   @ViewBuilder
   private func destination(_ route: TVRoute) -> some View {
     switch route {
@@ -96,7 +106,8 @@ struct TVShellView: View {
         dependencies: coordinator.dependencies,
         refresh: playbackEnded,
         onPlay: { video, _ in playing = video },
-        onOpen: { open($0) }
+        onOpen: { open($0) },
+        onOpenChannel: { openChannel($0) }
       )
     case let .channel(url):
       TVChannelView(url: url, dependencies: coordinator.dependencies, onOpen: { open($0) })

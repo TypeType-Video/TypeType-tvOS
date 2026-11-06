@@ -3,23 +3,31 @@ import SwiftUI
 struct TVVideoDetailView: View {
   @StateObject private var model: LiveVideoDetailViewModel
   @StateObject private var actions: LiveVideoQuickActionsViewModel
+  @StateObject private var engagement: LiveVideoEngagementViewModel
+  @State private var pickingPlaylist = false
   let refresh: Int
   let onPlay: (LiveVideoItem, Int64?) -> Void
   let onOpen: (LiveVideoItem) -> Void
-  @FocusState private var playFocused: Bool
+  let onOpenChannel: (String) -> Void
+  @FocusState private var focus: TVDetailFocus?
 
   init(
     video: LiveVideoItem,
     dependencies: AppDependencies,
     refresh: Int,
     onPlay: @escaping (LiveVideoItem, Int64?) -> Void,
-    onOpen: @escaping (LiveVideoItem) -> Void
+    onOpen: @escaping (LiveVideoItem) -> Void,
+    onOpenChannel: @escaping (String) -> Void
   ) {
     _model = StateObject(wrappedValue: LiveVideoDetailViewModel(video: video, dependencies: dependencies))
     _actions = StateObject(wrappedValue: LiveVideoQuickActionsViewModel(video: video, dependencies: dependencies))
+    _engagement = StateObject(wrappedValue: LiveVideoEngagementViewModel(
+      video: video, allowsSubscription: true, service: dependencies.subscriptionsService
+    ))
     self.refresh = refresh
     self.onPlay = onPlay
     self.onOpen = onOpen
+    self.onOpenChannel = onOpenChannel
   }
 
   var body: some View {
@@ -27,138 +35,122 @@ struct TVVideoDetailView: View {
       TVBackdrop(video: model.video)
       ScrollView(.vertical) {
         VStack(alignment: .leading, spacing: 64) {
-          TVDetailHeader(model: model, actions: actions, playFocused: $playFocused) {
-            onPlay(model.video, model.resumeFraction == nil ? nil : model.resumeSeconds)
-          }
+          TVDetailHeader(
+            model: model, actions: actions, engagement: engagement, focus: $focus,
+            onPlay: play, onPlaylists: { pickingPlaylist = true },
+            onChannel: model.video.uploaderURL.isEmpty ? nil : { onOpenChannel(model.video.uploaderURL) }
+          )
+          if !model.chapters.isEmpty { chapters }
           related
         }
         .padding(.top, 40)
         .padding(.bottom, 112)
       }
       .scrollClipDisabled()
+      .disabled(pickingPlaylist)
+      if pickingPlaylist {
+        TVPlaylistPicker(actions: actions) {
+          pickingPlaylist = false
+          Task { focus = .playlists }
+        }
+      }
     }
     .background(TVPalette.ink.ignoresSafeArea())
     .task {
-      playFocused = true
+      focus = .play
       async let details: Void = model.load()
       async let state: Void = actions.prepare()
-      _ = await (details, state)
+      async let subscription: Void = engagement.prepare()
+      _ = await (details, state, subscription)
     }
     .onChange(of: refresh) { _, _ in Task { await model.refreshProgress() } }
+  }
+
+  private func play() {
+    onPlay(model.video, model.resumeFraction == nil ? nil : model.resumeSeconds)
+  }
+
+  private var chapters: some View {
+    VStack(alignment: .leading, spacing: 24) {
+      Text("CHAPTERS").font(TVType.label).tracking(3.6).foregroundStyle(TVPalette.textMid).padding(.leading, TVDimens.safeStart)
+      ScrollView(.horizontal) {
+        LazyHStack(alignment: .top, spacing: 40) {
+          ForEach(model.chapters) { chapter in
+            VStack(alignment: .leading, spacing: 16) {
+              Button(action: play) {
+                ZStack(alignment: .bottomLeading) {
+                  TVRemoteImage(url: chapter.previewURL.flatMap(URL.init(string:)) ?? model.video.thumbnail)
+                  Text(verbatim: TVTime.label(TimeInterval(chapter.startTimeSeconds)))
+                    .font(TVType.label).padding(.horizontal, 12).padding(.vertical, 6)
+                    .background(.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 8)).padding(14)
+                }
+                .frame(width: 584, height: 328)
+              }
+              .buttonStyle(.card)
+              .accessibilityLabel(Text(verbatim: "\(chapter.title), \(TVTime.label(TimeInterval(chapter.startTimeSeconds)))"))
+              Text(verbatim: chapter.title).font(TVType.title).foregroundStyle(TVPalette.textHigh).lineLimit(2)
+                .frame(width: 584, alignment: .leading).accessibilityHidden(true)
+            }
+          }
+        }
+        .padding(.horizontal, TVDimens.safeStart)
+        .padding(.vertical, 24)
+      }
+      .scrollClipDisabled()
+    }
+    .focusSection()
   }
 
   @ViewBuilder
   private var related: some View {
     if let videos = model.related, !videos.isEmpty {
-      TVShelfRow(
-        shelf: LiveHomeShelf(id: "related", title: String(localized: "MORE LIKE THIS"), videos: videos),
-        onOpen: onOpen
-      )
+      TVShelfRow(shelf: LiveHomeShelf(id: "related", title: String(localized: "MORE LIKE THIS"), videos: videos), onOpen: onOpen)
     } else if model.related == nil {
       ProgressView().padding(.leading, TVDimens.safeStart)
     }
   }
 }
 
-private struct TVDetailHeader: View {
-  @ObservedObject var model: LiveVideoDetailViewModel
+private struct TVPlaylistPicker: View {
   @ObservedObject var actions: LiveVideoQuickActionsViewModel
-  var playFocused: FocusState<Bool>.Binding
-  let onPlay: () -> Void
+  let onClose: () -> Void
+  @FocusState private var focused: String?
 
   var body: some View {
-    let video = model.video
-    VStack(alignment: .leading, spacing: 20) {
-      if let service = VideoService.hosting(video.url) {
-        Text(verbatim: service.name.uppercased())
-          .font(TVType.label)
-          .tracking(3.6)
-          .foregroundStyle(TVPalette.accent)
-      }
-      Text(verbatim: video.title)
-        .font(TVType.display)
-        .foregroundStyle(TVPalette.textHigh)
-        .lineLimit(2)
-        .frame(width: 1000, alignment: .leading)
-      Text(verbatim: meta(video))
-        .font(TVType.meta)
-        .foregroundStyle(TVPalette.textMid)
-      channel(video)
-      Text(verbatim: model.description)
-        .font(TVType.body)
-        .foregroundStyle(TVPalette.textMid)
-        .lineLimit(3)
-        .frame(width: 1000, alignment: .leading)
-      if let fraction = model.resumeFraction, let seconds = model.resumeSeconds {
-        HStack(spacing: 20) {
-          Capsule().fill(TVPalette.outline).frame(width: 240, height: 6)
-            .overlay(alignment: .leading) { Capsule().fill(TVPalette.accent).frame(width: 240 * fraction, height: 6) }
-          Text("\(LiveVideoMetadataFormatter.duration(max(video.duration - seconds, 0))) left")
-            .font(TVType.meta)
-            .foregroundStyle(TVPalette.textMid)
+    HStack {
+      Spacer()
+      VStack(alignment: .leading, spacing: 24) {
+        Text("Add to a playlist").font(TVType.headline).foregroundStyle(TVPalette.textHigh)
+        if actions.playlists.isEmpty {
+          Text("You have no playlist yet.").font(TVType.body).foregroundStyle(TVPalette.textMid)
         }
-        .accessibilityElement(children: .combine)
-      }
-      buttons(video)
-        .padding(.top, 16)
-    }
-    .padding(.leading, TVDimens.safeStart)
-  }
-
-  private func buttons(_ video: LiveVideoItem) -> some View {
-    HStack(spacing: 20) {
-      Button(action: onPlay) {
-        Label(playTitle(video), systemImage: "play.fill")
-      }
-      .buttonStyle(.tvPillEmphasized)
-      .focused(playFocused)
-      Button {
-        Task { await actions.toggleWatchLater() }
-      } label: {
-        Label(actions.isInWatchLater ? "Saved" : "Watch later", systemImage: actions.isInWatchLater ? "bookmark.fill" : "bookmark")
-      }
-      .buttonStyle(.tvPill)
-      .disabled(!actions.isPrepared || actions.isBusy)
-      Button {
-        Task { await actions.toggleFavorite() }
-      } label: {
-        Label(actions.isFavorite ? "Favorited" : "Favorite", systemImage: actions.isFavorite ? "heart.fill" : "heart")
-      }
-      .buttonStyle(.tvPill)
-      .disabled(!actions.isPrepared || actions.isBusy)
-    }
-  }
-
-  private func playTitle(_ video: LiveVideoItem) -> LocalizedStringKey {
-    if video.isLive { return "Watch live" }
-    return model.resumeFraction == nil ? "Play" : "Resume"
-  }
-
-  private func channel(_ video: LiveVideoItem) -> some View {
-    HStack(spacing: 20) {
-      TVRemoteImage(url: video.uploaderAvatar)
-        .frame(width: 64, height: 64)
-        .clipShape(Circle())
-      VStack(alignment: .leading, spacing: 4) {
-        Text(verbatim: video.uploaderName)
-          .font(TVType.title)
-          .foregroundStyle(TVPalette.textHigh)
-        if let count = model.subscriberCount {
-          Text(verbatim: LiveVideoMetadataFormatter.subscribers(count))
-            .font(TVType.meta)
-            .foregroundStyle(TVPalette.textMid)
+        ScrollView(.vertical) {
+          VStack(alignment: .leading, spacing: 14) {
+            ForEach(actions.playlists) { playlist in
+              Button {
+                Task { await actions.addToPlaylist(playlist) }
+                onClose()
+              } label: {
+                Label(playlist.name, systemImage: "music.note.list").frame(width: 560, alignment: .leading)
+              }
+              .buttonStyle(.tvPill)
+              .focused($focused, equals: playlist.id)
+            }
+          }
+          .padding(.vertical, 12)
         }
+        .scrollClipDisabled()
       }
+      .padding(.horizontal, 56)
+      .padding(.top, 180)
+      .padding(.bottom, 56)
+      .frame(width: 760)
+      .frame(maxHeight: .infinity, alignment: .top)
+      .background(TVPalette.surface.opacity(0.96))
     }
-    .accessibilityElement(children: .combine)
-  }
-
-  private func meta(_ video: LiveVideoItem) -> String {
-    var parts: [String] = []
-    if video.viewCount > 0 { parts.append(LiveVideoMetadataFormatter.views(video.viewCount)) }
-    let published = LiveVideoMetadataFormatter.publication(video)
-    if !published.isEmpty { parts.append(published) }
-    if video.duration > 0 { parts.append(LiveVideoMetadataFormatter.duration(video.duration)) }
-    return parts.joined(separator: " · ")
+    .ignoresSafeArea()
+    .focusSection()
+    .onExitCommand(perform: onClose)
+    .onAppear { focused = actions.playlists.first?.id }
   }
 }
