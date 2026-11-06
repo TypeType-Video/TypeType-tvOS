@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 
 // Android TV's PlaybackStatsOverlay with what the in-house player knows: the chosen video and audio formats, the
@@ -19,7 +20,11 @@ struct TVPlaybackStats: View {
     .background(TVPalette.ink.opacity(0.8), in: RoundedRectangle(cornerRadius: TVDimens.panelRadius))
     .task {
       while !Task.isCancelled {
-        buffer = await controller.nativePlayback?.player.bufferedAhead() ?? 0
+        if let native = controller.nativePlayback {
+          buffer = await native.player.bufferedAhead()
+        } else {
+          buffer = Self.bufferedAhead(controller.player)
+        }
         guard (try? await Task.sleep(for: .milliseconds(500))) != nil else { return }
       }
     }
@@ -38,18 +43,28 @@ struct TVPlaybackStats: View {
     return [
       "\(size)\(source.fps > 0 ? " \(source.fps) fps" : "")",
       source.codec ?? "",
-      source.bitrate.map(Self.bitrate) ?? "",
+      source.bitrate.flatMap(Self.bitrate) ?? "",
     ].filter { !$0.isEmpty }.joined(separator: "  ")
   }
 
   private var audio: String {
     guard let source = controller.preparation?.audio else { return "-" }
-    let parts = [source.codec ?? "", source.bitrate.map(Self.bitrate) ?? ""].filter { !$0.isEmpty }
+    let parts = [source.codec ?? "", source.bitrate.flatMap(Self.bitrate) ?? ""].filter { !$0.isEmpty }
     return parts.isEmpty ? "-" : parts.joined(separator: "  ")
   }
 
-  private static func bitrate(_ bits: Int) -> String {
-    bits >= 1_000_000 ? String(format: "%.1f Mbps", Double(bits) / 1_000_000) : "\(Int((Double(bits) / 1_000).rounded())) kbps"
+  // Some providers report kilobits, others bits; no figure rather than a wrong one when none is reported.
+  private static func bitrate(_ reported: Int) -> String? {
+    guard let bits = LiveProviderHLSVariants.bits(reported) else { return nil }
+    return bits >= 1_000_000 ? String(format: "%.1f Mbps", Double(bits) / 1_000_000) : "\(Int((Double(bits) / 1_000).rounded())) kbps"
+  }
+
+  // AVPlayer plays lives, NicoNico and offline videos: its loaded range around the playhead is the buffer.
+  private static func bufferedAhead(_ player: AVPlayer) -> TimeInterval {
+    let now = player.currentTime()
+    guard let range = player.currentItem?.loadedTimeRanges.map(\.timeRangeValue).first(where: { $0.containsTime(now) })
+    else { return 0 }
+    return max(range.end.seconds - now.seconds, 0)
   }
 }
 
