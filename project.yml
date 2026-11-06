@@ -98,7 +98,37 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - TypeTypeTV/App
+      - TypeTypeTV/DesignSystem
       - TypeTypeTV/Resources
+      - path: TypeTypeIOS/Core
+        excludes:
+          - "**/Demo*.swift"
+          - Background/LiveBackgroundRefreshCoordinator.swift
+      - path: TypeTypeIOS/Features
+        excludes:
+          - "**/Views/**"
+          - "**/Components/**"
+          - "**/Demo*.swift"
+          - "**/OIDCWebAuthenticationSession.swift"
+          - "**/LiveShareURLBuilder.swift"
+          - "**/OIDCAuthenticationCoordinator.swift"
+          - "**/LiveAuthViewModel.swift"
+          - "**/LiveCrashReporter.swift"
+          - "**/LiveLocalNotificationPoster.swift"
+          - "**/LiveSystemVolume.swift"
+          - "**/LiveNativeFullscreenPresenter.swift"
+          - "**/LiveOrientationLock.swift"
+          - "**/LivePlayerController+Fullscreen.swift"
+      - path: TypeTypeIOS/App/Root
+        excludes:
+          - RootCoordinator+OIDC.swift
+      - TypeTypeIOS/App/Routing/LiveIncomingMediaLink.swift
+      - TypeTypeIOS/App/AppDependencies.swift
+      - TypeTypeIOS/App/AppDependencies+Live.swift
+      - TypeTypeIOS/DesignSystem/Theme/Color+Hex.swift
+      - TypeTypeIOS/DesignSystem/Components/LiveToastCenter.swift
+      - TypeTypeIOS/Resources/en.lproj
+      - TypeTypeIOS/Resources/fr.lproj
     dependencies:
       - target: TypeTypePlayerKit
     info:
