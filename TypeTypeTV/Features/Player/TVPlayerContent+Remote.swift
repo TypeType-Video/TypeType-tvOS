@@ -31,9 +31,14 @@ extension TVPlayerContent {
     controller.position == 0 && (controller.state == .loading || controller.state == .idle)
   }
 
+  // The account's "More videos" switch, as on Android TV: off, the player has no related row and nothing plays next
+  // outside a queue.
   var related: [LiveVideoItem] {
-    controller.stream?.relatedStreams.filter { !$0.isShortFormContent && !$0.isLive } ?? []
+    guard !hidesRelated else { return [] }
+    return controller.stream?.relatedStreams.filter { !$0.isShortFormContent && !$0.isLive } ?? []
   }
+
+  var hidesRelated: Bool { controller.settings.hideRelatedVideos && !playback.queue.isActive }
 
   var nextVideo: LiveVideoItem? { related.first }
 

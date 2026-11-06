@@ -2,7 +2,7 @@ import SwiftUI
 
 extension TVPlayerContent {
   var upNextVideo: LiveVideoItem? {
-    guard controller.autoplayEnabled, !session.upNextDismissed, !session.controlsVisible, session.panel == nil,
+    guard controller.autoplayEnabled, !hidesRelated, !session.upNextDismissed, !session.controlsVisible, session.panel == nil,
       !session.scrub.isActive, !session.isLive, let next = playback.upcomingVideo,
       LiveUpNextTimeline.inWindow(position: controller.position, duration: controller.duration, window: upNextWindow)
     else { return nil }

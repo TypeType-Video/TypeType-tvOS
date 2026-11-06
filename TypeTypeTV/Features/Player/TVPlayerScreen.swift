@@ -103,7 +103,7 @@ struct TVPlayerContent: View {
     // Android opens the next video as soon as this one ends; Back on the Up next card stops that.
     .onChange(of: countdownActive) { _, active in
       guard active else { return }
-      if session.upNextDismissed { playback.cancelAutoplayCountdown() } else { playback.playUpcomingNow() }
+      if session.upNextDismissed || hidesRelated { playback.cancelAutoplayCountdown() } else { playback.playUpcomingNow() }
     }
     .onChange(of: session.relatedOpen) { _, open in
       if open { Task { relatedFocus = true } }

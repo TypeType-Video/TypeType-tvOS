@@ -10,6 +10,7 @@ struct TVVideoDetailView: View {
   let onOpen: (LiveVideoItem) -> Void
   let onOpenChannel: (String) -> Void
   @FocusState private var focus: TVDetailFocus?
+  @EnvironmentObject private var account: TVAccountSettings
 
   init(
     video: LiveVideoItem,
@@ -105,7 +106,9 @@ struct TVVideoDetailView: View {
 
   @ViewBuilder
   private var related: some View {
-    if let videos = model.related, !videos.isEmpty {
+    if account.hidesRelated {
+      EmptyView()
+    } else if let videos = model.related, !videos.isEmpty {
       TVShelfRow(shelf: LiveHomeShelf(id: "related", title: String(localized: "MORE LIKE THIS"), videos: videos), onOpen: onOpen)
     } else if model.related == nil {
       // Android's RelatedSkeleton: the cards of the row before they arrive.

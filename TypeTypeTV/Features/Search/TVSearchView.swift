@@ -7,6 +7,8 @@ struct TVSearchView: View {
   @FocusState private var firstKey: Bool
   @FocusState private var entry: String?
   @State private var focusResults = false
+  @State private var startedOnService = false
+  @EnvironmentObject private var account: TVAccountSettings
   let onOpen: (LiveVideoItem) -> Void
   let onOpenChannel: (LiveChannelResult) -> Void
   let onOpenPlaylist: (LivePlaylistResult) -> Void
@@ -46,7 +48,19 @@ struct TVSearchView: View {
         focusResults = false
         Task { entry = model.results.first?.id }
       }
-      .task { await model.prepare() }
+      .task {
+        await model.prepare()
+        await startOnDefaultService()
+      }
+  }
+
+  // "Search service" in the account settings: a new search looks there first, once per visit of the screen.
+  private func startOnDefaultService() async {
+    guard !startedOnService, let service = account.settings?.defaultService else { return }
+    startedOnService = true
+    if service != model.selectedServiceID, model.services.contains(where: { $0.id == service }) {
+      await model.selectService(service)
+    }
   }
 
   private var screen: some View {
