@@ -10,6 +10,7 @@ struct TVVideoCard: View {
   @FocusState private var focused: Bool
   @State private var menuOpenedAt: Date?
   @Environment(\.livePrewarm) private var prewarm
+  @Environment(\.tvHomePreviews) private var homePreviews
   @State private var prewarmTask: Task<Void, Never>?
 
   private var isFocused: Bool { externalFocus?.wrappedValue ?? focused }
@@ -89,6 +90,8 @@ extension TVVideoCard {
     prewarmTask = nil
     guard focused, !video.isLive, !video.url.isEmpty, let prewarm else { return }
     let isYouTube = video.url.contains("youtube.com") || video.url.contains("youtu.be")
+    // The home preview opens its own YouTube session for the focused card; a second one would only load the server.
+    if isYouTube, homePreviews { return }
     let delay: Duration = .milliseconds(isYouTube ? 600 : 250)
     let video = video
     // The prewarm closure belongs to the main actor.
@@ -130,5 +133,16 @@ struct TVShelfRow: View {
       .scrollClipDisabled()
     }
     .focusSection()
+  }
+}
+
+private struct TVHomePreviewsKey: EnvironmentKey {
+  static let defaultValue = false
+}
+
+extension EnvironmentValues {
+  var tvHomePreviews: Bool {
+    get { self[TVHomePreviewsKey.self] }
+    set { self[TVHomePreviewsKey.self] = newValue }
   }
 }
