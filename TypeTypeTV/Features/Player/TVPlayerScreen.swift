@@ -30,6 +30,8 @@ private struct TVPlayerContent: View {
   let onClose: () -> Void
   @StateObject private var session: TVPlayerSession
   @FocusState private var focus: TVPlayerFocus?
+  @FocusState private var relatedFocus: Bool
+  @State private var panelOrigin: TVPlayerFocus?
 
   init(controller: LivePlayerController, playback: LivePlaybackCoordinator, onClose: @escaping () -> Void) {
     self.controller = controller
@@ -48,8 +50,12 @@ private struct TVPlayerContent: View {
           TVPlayerControls(controller: controller, session: session, focus: $focus, onNext: nextVideo.map { next in { playback.open(next) } })
             .onMoveCommand { if $0 == .down, !session.relatedOpen, !related.isEmpty { session.relatedOpen = true } }
           if session.relatedOpen {
-            TVShelfRow(shelf: LiveHomeShelf(id: "more", title: String(localized: "MORE VIDEOS"), videos: related)) { playback.open($0) }
-              .padding(.bottom, 40)
+            TVShelfRow(
+              shelf: LiveHomeShelf(id: "more", title: String(localized: "MORE VIDEOS"), videos: related),
+              onOpen: { playback.open($0) },
+              firstCardFocus: $relatedFocus
+            )
+            .padding(.bottom, 40)
           }
         }
         .transition(.opacity)
@@ -58,9 +64,28 @@ private struct TVPlayerContent: View {
       if case let .failed(message) = controller.state { failure(message) }
     }
     .animation(.easeOut(duration: 0.2), value: session.controlsVisible)
-    .onExitCommand { if !session.back() { onClose() } }
-    .onChange(of: session.controlsVisible) { _, visible in
-      focus = visible ? (session.controlsFromBelow ? .play : .seek) : .catcher
+    .onExitCommand {
+      let hadPanel = session.panel != nil
+      guard session.back() else { return onClose() }
+      if !hadPanel { focus = restingFocus }
+    }
+    .onChange(of: session.controlsVisible) { _, _ in focus = restingFocus }
+    // Moving between controls counts as a press: the 4.5 s before they hide starts over.
+    .onChange(of: focus) { _, _ in session.touch() }
+    // The Up next card takes the screen and the focus while it counts down, as on Android TV.
+    .onChange(of: countdownActive) { _, active in
+      guard active else { return }
+      session.controlsVisible = false
+      session.relatedOpen = false
+      focus = nil
+    }
+    .onChange(of: session.relatedOpen) { _, open in
+      if open { Task { relatedFocus = true } }
+    }
+    // A closed panel gives the focus back to the control that opened it, as on Android TV.
+    .onChange(of: session.panel) { old, new in
+      if old == nil, new != nil { panelOrigin = focus }
+      if old != nil, new == nil { Task { focus = panelOrigin ?? .seek } }
     }
     .onAppear {
       focus = .seek
@@ -73,7 +98,7 @@ private struct TVPlayerContent: View {
     Button(action: session.togglePlay) { Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity) }
       .buttonStyle(TVBareButtonStyle())
       .focused($focus, equals: .catcher)
-      .disabled(session.controlsVisible || session.panel != nil)
+      .disabled(session.controlsVisible || session.panel != nil || countdownActive)
       .onMoveCommand { direction in
         switch direction {
         case .left: session.scrub(direction: -1)
@@ -85,6 +110,14 @@ private struct TVPlayerContent: View {
       .onPlayPauseCommand(perform: session.togglePlay)
       .accessibilityLabel(Text(verbatim: controller.video.title))
   }
+
+  private var restingFocus: TVPlayerFocus? {
+    if countdownActive { return nil }
+    guard session.controlsVisible else { return .catcher }
+    return session.controlsFromBelow ? .play : .seek
+  }
+
+  private var countdownActive: Bool { playback.autoplayCountdownRemaining != nil }
 
   private var isOpening: Bool {
     controller.position == 0 && (controller.state == .loading || controller.state == .idle)

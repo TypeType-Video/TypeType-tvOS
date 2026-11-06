@@ -6,6 +6,7 @@ struct TVVideoCard: View {
   var width: CGFloat = 392
   let onOpen: () -> Void
   var onFocus: (Bool) -> Void = { _ in }
+  var externalFocus: FocusState<Bool>.Binding?
   @FocusState private var focused: Bool
 
   var body: some View {
@@ -32,7 +33,7 @@ struct TVVideoCard: View {
         .frame(width: width, height: width * 9 / 16)
       }
       .buttonStyle(.card)
-      .focused($focused)
+      .focused(externalFocus ?? $focused)
       .onChange(of: focused) { _, value in onFocus(value) }
       .accessibilityLabel(Text(verbatim: "\(video.title), \(video.uploaderName)"))
       VStack(alignment: .leading, spacing: 4) {
@@ -55,6 +56,7 @@ struct TVShelfRow: View {
   let shelf: LiveHomeShelf
   let onOpen: (LiveVideoItem) -> Void
   var onFocusVideo: (LiveVideoItem) -> Void = { _ in }
+  var firstCardFocus: FocusState<Bool>.Binding?
 
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
@@ -70,7 +72,8 @@ struct TVShelfRow: View {
               video: video,
               progress: shelf.progress[video.canonicalID],
               onOpen: { onOpen(video) },
-              onFocus: { if $0 { onFocusVideo(video) } }
+              onFocus: { if $0 { onFocusVideo(video) } },
+              externalFocus: video.id == shelf.videos.first?.id ? firstCardFocus : nil
             )
           }
         }

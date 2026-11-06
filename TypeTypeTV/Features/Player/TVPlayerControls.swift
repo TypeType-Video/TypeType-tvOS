@@ -4,6 +4,9 @@ enum TVPlayerFocus: Hashable {
   case catcher
   case seek
   case play
+  case quality
+  case info
+  case more
 }
 
 struct TVPlayerControls: View {
@@ -98,9 +101,12 @@ struct TVPlayerControls: View {
           Label(controller.qualityLabel, systemImage: "4k.tv")
         }
         .buttonStyle(.tvPill)
+        .focused(focus, equals: .quality)
       }
       TVCircleButton(systemImage: "info.circle", label: "Description") { session.open(.info) }
+        .focused(focus, equals: .info)
       TVCircleButton(systemImage: "ellipsis", label: "More options") { session.open(.speed) }
+        .focused(focus, equals: .more)
     }
     .focusSection()
   }
