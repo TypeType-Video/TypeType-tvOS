@@ -11,13 +11,16 @@ enum TVLibrarySection: Hashable {
 struct TVLibraryView: View {
   @StateObject private var collections: LivePlaylistsViewModel
   @StateObject private var history: LiveHistoryViewModel
-  @State private var section = TVLibrarySection.history
+  @Binding var section: TVLibrarySection
   @FocusState private var railFocus: TVLibrarySection?
   let dependencies: AppDependencies
   let refresh: Int
   let onOpen: (LiveVideoItem) -> Void
 
-  init(dependencies: AppDependencies, refresh: Int, onOpen: @escaping (LiveVideoItem) -> Void) {
+  init(
+    dependencies: AppDependencies, refresh: Int, section: Binding<TVLibrarySection>, onOpen: @escaping (LiveVideoItem) -> Void
+  ) {
+    _section = section
     _collections = StateObject(
       wrappedValue: LivePlaylistsViewModel(
         playlistsService: dependencies.playlistsService,
