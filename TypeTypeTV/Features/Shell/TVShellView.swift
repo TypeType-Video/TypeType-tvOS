@@ -8,6 +8,7 @@ enum TVRoute: Hashable {
 
 enum TVTab: Hashable {
   case home
+  case subscriptions
   case search
   case library
   case settings
@@ -17,6 +18,7 @@ struct TVShellView: View {
   @ObservedObject var coordinator: RootCoordinator
   @State private var tab = TVTab.home
   @State private var homePath = NavigationPath()
+  @State private var subscriptionsPath = NavigationPath()
   @State private var searchPath = NavigationPath()
   @State private var libraryPath = NavigationPath()
   @State private var playing: LiveVideoItem?
@@ -35,6 +37,13 @@ struct TVShellView: View {
       }
       .tabItem { Label("Home", systemImage: "house") }
       .tag(TVTab.home)
+
+      NavigationStack(path: $subscriptionsPath) {
+        TVSubscriptionsView(dependencies: coordinator.dependencies, onOpen: { open($0) })
+          .navigationDestination(for: TVRoute.self, destination: destination)
+      }
+      .tabItem { Label("Subscriptions", systemImage: "play.square.stack") }
+      .tag(TVTab.subscriptions)
 
       NavigationStack(path: $searchPath) {
         TVSearchView(
@@ -71,6 +80,7 @@ struct TVShellView: View {
   private func open(_ video: LiveVideoItem) {
     switch tab {
     case .home: homePath.append(TVRoute.detail(video))
+    case .subscriptions: subscriptionsPath.append(TVRoute.detail(video))
     case .search: searchPath.append(TVRoute.detail(video))
     case .library: libraryPath.append(TVRoute.detail(video))
     case .settings: break

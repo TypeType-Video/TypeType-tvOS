@@ -1075,3 +1075,10 @@
 "Auto" = "Auto";
 "Playback speed" = "Playback speed";
 "MORE VIDEOS" = "MORE VIDEOS";
+"All" = "All";
+"All channels, shows every new video" = "All channels, shows every new video";
+"%@, shows only its videos" = "%@, shows only its videos";
+"No videos yet" = "No videos yet";
+"New videos from the channels you subscribe to appear here." = "New videos from the channels you subscribe to appear here.";
+"No subscriptions yet" = "No subscriptions yet";
+"Subscribe to a channel from its page to find it here." = "Subscribe to a channel from its page to find it here.";

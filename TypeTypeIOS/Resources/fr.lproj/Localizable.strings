@@ -1075,3 +1075,10 @@
 "Auto" = "Auto";
 "Playback speed" = "Vitesse de lecture";
 "MORE VIDEOS" = "PLUS DE VIDÉOS";
+"All" = "Tout";
+"All channels, shows every new video" = "Toutes les chaînes, chaque nouvelle vidéo";
+"%@, shows only its videos" = "%@, seulement ses vidéos";
+"No videos yet" = "Pas encore de vidéos";
+"New videos from the channels you subscribe to appear here." = "Les nouvelles vidéos de vos abonnements apparaissent ici.";
+"No subscriptions yet" = "Pas encore d’abonnements";
+"Subscribe to a channel from its page to find it here." = "Abonnez-vous à une chaîne depuis sa page pour la retrouver ici.";
