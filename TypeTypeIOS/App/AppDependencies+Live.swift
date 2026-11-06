@@ -175,6 +175,7 @@ extension AppDependencies {
           serverStore.selectedServer()?.baseURL
         }
       ),
+      liveChatService: LiveChatService(transport: URLSessionLiveChatTransport(client: client)),
       platform: platform,
       crashReports: crashReports
     )
