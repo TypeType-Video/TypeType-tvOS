@@ -50,6 +50,11 @@ struct TVLibraryView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
+    .onChange(of: railFocus) { previous, focused in
+      guard let focused else { return }
+      // Coming back from the grid lands on the open section, not on the entry level with the last card.
+      if previous == nil, focused != section { railFocus = section } else { section = focused }
+    }
     .task {
       async let lists: Void = collections.prepare()
       async let watched: Void = history.prepare()
@@ -65,11 +70,11 @@ struct TVLibraryView: View {
   }
 
   private var rail: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: 12) {
       Text("Library")
         .font(TVType.headline)
         .foregroundStyle(TVPalette.textHigh)
-        .padding(.bottom, 16)
+        .padding(.bottom, 28)
       railButton("History", systemImage: "clock.arrow.circlepath", section: .history)
       railButton("Favorites", systemImage: "heart", section: .favorites)
       railButton("Watch later", systemImage: "bookmark", section: .watchLater)
@@ -77,7 +82,7 @@ struct TVLibraryView: View {
         railButton(LocalizedStringKey(playlist.name), systemImage: "music.note.list", section: .playlist(playlist), verbatim: playlist.name)
       }
     }
-    .frame(width: 440, alignment: .leading)
+    .frame(width: 464, alignment: .leading)
     .focusSection()
   }
 
@@ -88,7 +93,7 @@ struct TVLibraryView: View {
     verbatim: String? = nil
   ) -> some View {
     Button {
-      section = target
+      railFocus = target
     } label: {
       Label {
         if let verbatim { Text(verbatim: verbatim) } else { Text(title) }
@@ -97,9 +102,7 @@ struct TVLibraryView: View {
       }
       .frame(maxWidth: .infinity, alignment: .leading)
     }
-    .buttonStyle(section == target ? .tvPillEmphasized : .tvPill)
-    .focused($railFocus, equals: target)
-    .accessibilityAddTraits(section == target ? .isSelected : [])
+    .tvRailItem(target, selection: $section, focus: $railFocus)
   }
 
   @ViewBuilder

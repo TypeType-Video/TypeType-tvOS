@@ -59,15 +59,13 @@ struct TVSettingsView: View {
   var body: some View {
     ZStack {
       HStack(alignment: .top, spacing: 64) {
-        VStack(alignment: .leading, spacing: 14) {
-          Text("Settings").font(TVType.headline).foregroundStyle(TVPalette.textHigh).padding(.bottom, 16)
+        VStack(alignment: .leading, spacing: 12) {
+          Text("Settings").font(TVType.headline).foregroundStyle(TVPalette.textHigh).padding(.bottom, 28)
           ForEach(TVSettingsGroup.allCases) { item in
             Button { railFocus = item } label: {
-              Label(item.title, systemImage: item.systemImage).frame(width: 360, alignment: .leading)
+              Label(item.title, systemImage: item.systemImage)
             }
-            .buttonStyle(item == group ? .tvPillEmphasized : .tvPill)
-            .focused($railFocus, equals: item)
-            .accessibilityAddTraits(item == group ? .isSelected : [])
+            .tvRailItem(item, selection: $group, focus: $railFocus)
           }
         }
         .focusSection()

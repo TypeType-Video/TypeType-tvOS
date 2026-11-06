@@ -25,6 +25,15 @@ struct TVLibraryGrid: View {
       .frame(maxWidth: .infinity)
       .padding(.top, 160)
     } else {
+      VStack(alignment: .leading, spacing: 24) {
+        Text("\(videos.count) videos").font(TVType.label).tracking(1.2).foregroundStyle(TVPalette.textMid)
+        grid
+      }
+    }
+  }
+
+  private var grid: some View {
+    Group {
       LazyVGrid(columns: columns, alignment: .leading, spacing: 56) {
         ForEach(Array(videos.enumerated()), id: \.element.canonicalID) { index, video in
           TVVideoCard(video: video, progress: progress[video.canonicalID], width: 360, onOpen: { onOpen(video) })
