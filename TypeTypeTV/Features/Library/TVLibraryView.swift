@@ -5,6 +5,7 @@ enum TVLibrarySection: Hashable {
   case favorites
   case watchLater
   case playlist(LivePlaylist)
+  case saved(LiveSavedPlaylist)
 }
 
 struct TVLibraryView: View {
@@ -78,8 +79,12 @@ struct TVLibraryView: View {
       railButton("History", systemImage: "clock.arrow.circlepath", section: .history)
       railButton("Favorites", systemImage: "heart", section: .favorites)
       railButton("Watch later", systemImage: "bookmark", section: .watchLater)
-      ForEach(collections.playlists) { playlist in
+      // Like Android TV: the account's playlists that hold videos, apart from its own Watch later, then the saved ones.
+      ForEach(collections.playlists.filter { $0.videoCount > 0 && $0.name.caseInsensitiveCompare("Watch later") != .orderedSame }) { playlist in
         railButton(LocalizedStringKey(playlist.name), systemImage: "music.note.list", section: .playlist(playlist), verbatim: playlist.name)
+      }
+      ForEach(collections.saved) { saved in
+        railButton(LocalizedStringKey(saved.title), systemImage: "books.vertical", section: .saved(saved), verbatim: saved.title)
       }
     }
     .frame(width: 464, alignment: .leading)
@@ -126,6 +131,9 @@ struct TVLibraryView: View {
     case let .playlist(playlist):
       TVLibraryPlaylist(playlist: playlist, service: dependencies.playlistsService, refresh: refresh, onOpen: onOpen)
         .id(playlist.id)
+    case let .saved(saved):
+      TVLibrarySaved(saved: saved, service: dependencies.playlistsService, onOpen: onOpen)
+        .id(saved.id)
     }
   }
 

@@ -69,3 +69,33 @@ struct TVLibraryPlaylist: View {
     .onChange(of: refresh) { _, _ in Task { await model.reload() } }
   }
 }
+
+// A saved playlist lives on the service; its videos come from there, like on Android TV.
+struct TVLibrarySaved: View {
+  @StateObject private var model: LivePublicPlaylistViewModel
+  let onOpen: (LiveVideoItem) -> Void
+
+  init(saved: LiveSavedPlaylist, service: LivePlaylistsServiceProtocol, onOpen: @escaping (LiveVideoItem) -> Void) {
+    _model = StateObject(wrappedValue: LivePublicPlaylistViewModel(
+      playlist: LivePlaylistResult(
+        id: saved.publicPlaylistID, title: saved.title, url: saved.url, thumbnailURL: saved.thumbnailURL,
+        uploaderName: saved.uploaderName, streamCount: saved.streamCount, playlistType: saved.playlistType
+      ),
+      service: service
+    ))
+    self.onOpen = onOpen
+  }
+
+  var body: some View {
+    TVLibraryGrid(
+      videos: model.videos,
+      isLoading: model.state == .loading && model.videos.isEmpty,
+      failure: model.errorMessage,
+      isLoadingMore: model.isLoadingMore,
+      onOpen: onOpen,
+      onNearEnd: { Task { await model.loadMore() } },
+      onRetry: { Task { await model.reload() } }
+    )
+    .task { await model.prepare() }
+  }
+}
