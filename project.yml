@@ -99,6 +99,7 @@ targets:
     sources:
       - TypeTypeTV/App
       - TypeTypeTV/DesignSystem
+      - TypeTypeTV/Features
       - TypeTypeTV/Resources
       - path: TypeTypeIOS/Core
         excludes:
@@ -112,7 +113,7 @@ targets:
           - "**/OIDCWebAuthenticationSession.swift"
           - "**/LiveShareURLBuilder.swift"
           - "**/OIDCAuthenticationCoordinator.swift"
-          - "**/LiveAuthViewModel.swift"
+          - "**/LiveAuthViewModel+OIDC.swift"
           - "**/LiveCrashReporter.swift"
           - "**/LiveLocalNotificationPoster.swift"
           - "**/LiveSystemVolume.swift"
@@ -125,10 +126,13 @@ targets:
       - TypeTypeIOS/App/Routing/LiveIncomingMediaLink.swift
       - TypeTypeIOS/App/AppDependencies.swift
       - TypeTypeIOS/App/AppDependencies+Live.swift
+      - TypeTypeIOS/App/AppDependencies+Scope.swift
       - TypeTypeIOS/DesignSystem/Theme/Color+Hex.swift
       - TypeTypeIOS/DesignSystem/Components/LiveToastCenter.swift
       - TypeTypeIOS/Resources/en.lproj
-      - TypeTypeIOS/Resources/fr.lproj
+      - path: TypeTypeIOS/Resources/fr.lproj
+        excludes:
+          - InfoPlist.strings
     dependencies:
       - target: TypeTypePlayerKit
     info:
