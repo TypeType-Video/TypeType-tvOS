@@ -1143,3 +1143,6 @@
 "Captions off. Press to turn them on." = "Captions off. Press to turn them on.";
 "Up next: %@, %@. Plays in %lld seconds. Press OK to play now, Back to cancel." = "Up next: %@, %@. Plays in %lld seconds. Press OK to play now, Back to cancel.";
 "Back" = "Back";
+"Space" = "Space";
+"Voice search" = "Voice search";
+"Search on %@. Press to change the service." = "Search on %@. Press to change the service.";
