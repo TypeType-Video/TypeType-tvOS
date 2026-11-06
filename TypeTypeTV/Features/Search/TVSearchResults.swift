@@ -44,7 +44,12 @@ struct TVSearchResults: View {
 
   private func row<Content: View>(title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
     VStack(alignment: .leading, spacing: 24) {
-      Text(title).font(TVType.title).foregroundStyle(TVPalette.textHigh).padding(.leading, TVDimens.safeStart)
+      Text(title)
+        .textCase(.uppercase)
+        .font(TVType.label)
+        .tracking(3.6)
+        .foregroundStyle(TVPalette.textMid)
+        .padding(.leading, TVDimens.safeStart)
       ScrollView(.horizontal) {
         LazyHStack(alignment: .top, spacing: 40, content: content)
           .padding(.horizontal, TVDimens.safeStart)

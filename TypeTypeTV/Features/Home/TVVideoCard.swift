@@ -58,9 +58,10 @@ struct TVShelfRow: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 24) {
-      Text(verbatim: shelf.title)
-        .font(TVType.title)
-        .foregroundStyle(TVPalette.textHigh)
+      Text(verbatim: shelf.title.uppercased())
+        .font(TVType.label)
+        .tracking(3.6)
+        .foregroundStyle(TVPalette.textMid)
         .padding(.leading, TVDimens.safeStart)
       ScrollView(.horizontal) {
         LazyHStack(alignment: .top, spacing: 40) {
