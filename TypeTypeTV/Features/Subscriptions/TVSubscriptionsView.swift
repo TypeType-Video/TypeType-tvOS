@@ -23,7 +23,10 @@ struct TVSubscriptionsView: View {
       } else {
         ScrollView(.vertical) {
           VStack(alignment: .leading, spacing: 40) {
-            TVChannelStrip(channels: model.channels, selected: $selected)
+            TVChannelStrip(
+              channels: model.channels.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending },
+              selected: $selected
+            )
             if let selected {
               TVChannelFeed(url: selected.channelURL, dependencies: dependencies, onOpen: onOpen)
                 .id(selected.channelURL)
@@ -87,14 +90,17 @@ private struct TVChannelFeed: View {
 struct TVChannelStrip: View {
   let channels: [LiveSubscription]
   @Binding var selected: LiveSubscription?
+  @FocusState private var focused: String?
+
+  private static let allID = "all"
 
   var body: some View {
     ScrollView(.horizontal) {
       LazyHStack(spacing: 32) {
-        chip(name: String(localized: "All"), description: String(localized: "All channels, shows every new video"),
+        chip(id: Self.allID, name: String(localized: "All"), description: String(localized: "All channels, shows every new video"),
              avatar: nil, isSelected: selected == nil) { selected = nil }
         ForEach(channels) { channel in
-          chip(name: channel.name, description: String(localized: "\(channel.name), shows only its videos"),
+          chip(id: channel.channelURL, name: channel.name, description: String(localized: "\(channel.name), shows only its videos"),
                avatar: URL(string: channel.avatarURL), isSelected: selected?.channelURL == channel.channelURL) {
             selected = channel
           }
@@ -105,9 +111,11 @@ struct TVChannelStrip: View {
     }
     .scrollClipDisabled()
     .focusSection()
+    // Coming into the strip lands on the chip that is selected, as on Android TV.
+    .defaultFocus($focused, selected?.channelURL ?? Self.allID, priority: .userInitiated)
   }
 
-  private func chip(name: String, description: String, avatar: URL?, isSelected: Bool, action: @escaping () -> Void) -> some View {
+  private func chip(id: String, name: String, description: String, avatar: URL?, isSelected: Bool, action: @escaping () -> Void) -> some View {
     VStack(spacing: 16) {
       Button(action: action) {
         ZStack {
@@ -126,6 +134,7 @@ struct TVChannelStrip: View {
         .overlay(Circle().stroke(isSelected ? TVPalette.accent : .clear, lineWidth: 6))
       }
       .buttonStyle(.borderless)
+      .focused($focused, equals: id)
       .accessibilityLabel(Text(verbatim: description))
       .accessibilityAddTraits(isSelected ? .isSelected : [])
       Text(verbatim: name)
