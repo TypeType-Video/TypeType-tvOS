@@ -1138,3 +1138,6 @@
 "Show more replies" = "Show more replies";
 "Hide the replies" = "Hide the replies";
 "Press OK to show the replies." = "Press OK to show the replies.";
+"Captions" = "Captions";
+"Captions on, %@. Press to turn them off." = "Captions on, %@. Press to turn them off.";
+"Captions off. Press to turn them on." = "Captions off. Press to turn them on.";

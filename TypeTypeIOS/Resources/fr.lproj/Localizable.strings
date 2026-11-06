@@ -1138,3 +1138,6 @@
 "Show more replies" = "Afficher plus de réponses";
 "Hide the replies" = "Masquer les réponses";
 "Press OK to show the replies." = "Appuyez sur OK pour afficher les réponses.";
+"Captions" = "Sous-titres";
+"Captions on, %@. Press to turn them off." = "Sous-titres activés, %@. Appuyez pour les désactiver.";
+"Captions off. Press to turn them on." = "Sous-titres désactivés. Appuyez pour les activer.";

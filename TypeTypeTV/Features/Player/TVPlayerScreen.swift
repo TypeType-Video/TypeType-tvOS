@@ -60,6 +60,7 @@ private struct TVPlayerContent: View {
   var body: some View {
     ZStack {
       TVPlayerVideoSurface(controller: controller)
+      TVCaptionOverlay(controller: controller, subtitles: controller.nativeSubtitles, raised: session.controlsVisible)
       if isOpening { TVOpeningPoster(video: controller.video) }
       catcher
       if session.controlsVisible, session.panel == nil {

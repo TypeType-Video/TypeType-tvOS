@@ -4,6 +4,7 @@ enum TVPlayerFocus: Hashable {
   case catcher
   case seek
   case play
+  case captions
   case quality
   case info
   case more
@@ -99,6 +100,20 @@ struct TVPlayerControls: View {
 
   private var preferenceRow: some View {
     HStack(spacing: 20) {
+      if let track = controller.captionTrack {
+        let on = controller.subtitlesEnabled
+        Button {
+          controller.setSubtitlesEnabled(!on)
+          session.touch()
+        } label: {
+          Label(on ? track.displayLanguageName : String(localized: "Captions"),
+                systemImage: on ? "captions.bubble.fill" : "captions.bubble")
+        }
+        .buttonStyle(on ? .tvPillEmphasized : .tvPill)
+        .focused(focus, equals: .captions)
+        .accessibilityLabel(on ? Text("Captions on, \(track.displayLanguageName). Press to turn them off.")
+                               : Text("Captions off. Press to turn them on."))
+      }
       if !controller.availableVideoSources.isEmpty {
         Button { session.open(.quality) } label: {
           Label(controller.qualityLabel, systemImage: "4k.tv")
