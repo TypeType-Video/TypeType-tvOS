@@ -38,6 +38,8 @@ struct TVPlayerMenuRows: View {
       row("playlists", "Add to a playlist", "text.badge.plus") { session.open(.playlists) }
         .disabled(!actions.isPrepared)
       row("speed", "Playback speed", "speedometer", value: speedLabel) { session.open(.speed) }
+      row("stats", "Playback statistics", "chart.bar.xaxis",
+          value: session.statsShown ? String(localized: "On") : String(localized: "Off")) { session.statsShown.toggle() }
       row("audio-only", "Audio only", "headphones",
           value: controller.audioOnly ? String(localized: "On") : String(localized: "Off")) {
         // Android TV keeps this choice for the open video only; the next one plays with its picture again.

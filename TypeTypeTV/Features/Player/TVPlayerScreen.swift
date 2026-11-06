@@ -62,6 +62,7 @@ struct TVPlayerContent: View {
       if controller.supportsBulletComments, controller.bulletCommentsEnabled {
         LiveDanmakuOverlay(controller: controller).allowsHitTesting(false).ignoresSafeArea()
       }
+      if session.statsShown { TVPlaybackStats(controller: controller) }
       if controller.audioOnly { TVAudioOnlyPoster(video: controller.video).transition(.opacity) }
       TVCaptionOverlay(controller: controller, subtitles: controller.nativeSubtitles, raised: session.controlsVisible)
       if isOpening { TVOpeningPoster(video: controller.video) }

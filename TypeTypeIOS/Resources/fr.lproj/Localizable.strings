@@ -1176,3 +1176,5 @@
 "SHORT" = "SHORT";
 "Comments on the video are shown. Press to hide them." = "Commentaires sur la vidéo affichés. Appuyez pour les masquer.";
 "Comments on the video are hidden. Press to show them." = "Commentaires sur la vidéo masqués. Appuyez pour les afficher.";
+"Playback statistics" = "Statistiques de lecture";
+"Buffer" = "Tampon";
