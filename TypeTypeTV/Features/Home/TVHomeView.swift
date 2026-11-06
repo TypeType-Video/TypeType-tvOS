@@ -6,6 +6,7 @@ struct TVHomeView: View {
   let refresh: Int
   let previewsAllowed: Bool
   private let deArrow: LiveDeArrowStore
+  private let hidden: LiveHiddenVideos
   let onOpen: (LiveVideoItem) -> Void
   let onPlay: (LiveVideoItem) -> Void
 
@@ -29,11 +30,13 @@ struct TVHomeView: View {
           library: dependencies.libraryService,
           notifications: dependencies.notificationsService,
           settings: dependencies.settingsService,
-          deArrow: dependencies.deArrowStore
+          deArrow: dependencies.deArrowStore,
+          contentControls: dependencies.contentControlsService
         )
       )
     )
     deArrow = dependencies.deArrowStore
+    hidden = dependencies.hiddenVideos
     self.onOpen = onOpen
     self.onPlay = onPlay
   }
@@ -46,7 +49,7 @@ struct TVHomeView: View {
       case let .failed(message):
         TVScreenFailure(message: message) { Task { await model.reload() } }
       case let .loaded(home):
-        TVHomeLoaded(home: home, preview: preview, previewsAllowed: previewsAllowed, onOpen: onOpen, onPlay: onPlay)
+        TVHomeLoaded(home: home, hidden: hidden, preview: preview, previewsAllowed: previewsAllowed, onOpen: onOpen, onPlay: onPlay)
       }
     }
     .tvContentEdges()
@@ -63,6 +66,8 @@ struct TVHomeView: View {
 
 private struct TVHomeLoaded: View {
   let home: LiveShelfHome
+  // What the reader blocks from a card's menu leaves the rows at once, before the next load.
+  @ObservedObject var hidden: LiveHiddenVideos
   @ObservedObject var preview: LivePreviewPlayer
   let previewsAllowed: Bool
   @AppStorage(TVDeviceSetting.videoPreviewsKey) private var previewsOn = true
@@ -73,6 +78,13 @@ private struct TVHomeLoaded: View {
   @State private var backdrop: LiveVideoItem?
 
   private static let rotation: Duration = .seconds(9)
+
+  private var visibleShelves: [LiveHomeShelf] {
+    home.shelves.compactMap { shelf in
+      let videos = hidden.visible(shelf.videos)
+      return videos.isEmpty ? nil : LiveHomeShelf(id: shelf.id, title: shelf.title, videos: videos, progress: shelf.progress)
+    }
+  }
   private static let backdropSettle: Duration = .milliseconds(260)
   private static let previewDelay: Duration = .seconds(2)
 
@@ -91,7 +103,7 @@ private struct TVHomeLoaded: View {
             onFocus: { focusedCard = nil }
           )
           .padding(.top, 60)
-          ForEach(home.shelves) { shelf in
+          ForEach(visibleShelves) { shelf in
             TVShelfRow(shelf: shelf, onOpen: onOpen, onFocusVideo: { focusedCard = $0 })
           }
         }
