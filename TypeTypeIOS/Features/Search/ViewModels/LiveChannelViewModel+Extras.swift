@@ -1,6 +1,15 @@
 import Foundation
 
 extension LiveChannelViewModel {
+  // Searches the channel's videos; an empty term goes back to the whole list.
+  func search(_ term: String) async {
+    let trimmed = term.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard trimmed != submittedQuery else { return }
+    query = trimmed
+    submittedQuery = trimmed
+    await reloadChannel()
+  }
+
   func loadPlaylists() async {
     requestID = UUID()
     state = .loading

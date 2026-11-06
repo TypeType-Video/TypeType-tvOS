@@ -150,6 +150,21 @@ final class LiveChannelViewModelTests: XCTestCase {
     XCTAssertEqual(push.updated?.channelURL, Self.url)
   }
 
+  func testSearchAsksForTheChannelSearchAndAnEmptyTermGoesBack() async {
+    let channel = ChannelServiceStub(channelPages: [Self.page(videos: []), Self.page(videos: []), Self.page(videos: [])])
+    let viewModel = makeViewModel(channel: channel, subscriptions: SubscriptionsServiceStub(values: []))
+    await viewModel.loadIfNeeded()
+
+    await viewModel.search("  rig ")
+    XCTAssertEqual(viewModel.submittedQuery, "rig")
+    XCTAssertNotEqual(channel.channelURLs.last, Self.url)
+    XCTAssertTrue(channel.channelURLs.last?.contains("rig") == true)
+
+    await viewModel.search("")
+    XCTAssertEqual(viewModel.submittedQuery, "")
+    XCTAssertEqual(channel.channelURLs.last, Self.url)
+  }
+
   private func makeViewModel(
     channel: ChannelServiceStub,
     subscriptions: SubscriptionsServiceStub,
@@ -214,6 +229,7 @@ private final class ChannelServiceStub: LiveChannelServiceProtocol {
   private var playlistPages: [LiveChannelPlaylistsPage]
   private var podcastPages: [LivePodcastPage]
   private var recordedPlaylistCalls: [Call] = []
+  private var recordedChannelURLs: [String] = []
 
   init(
     channelPages: [LiveChannelPage],
@@ -229,12 +245,17 @@ private final class ChannelServiceStub: LiveChannelServiceProtocol {
     lock.withLock { recordedPlaylistCalls }
   }
 
+  var channelURLs: [String] {
+    lock.withLock { recordedChannelURLs }
+  }
+
   func channel(
     url: String,
     nextPage: String?,
     sort: LiveChannelSort
   ) async throws -> LiveChannelPage {
     try lock.withLock {
+      recordedChannelURLs.append(url)
       guard !channelPages.isEmpty else {
         throw ChannelViewModelTestError.unavailable
       }
