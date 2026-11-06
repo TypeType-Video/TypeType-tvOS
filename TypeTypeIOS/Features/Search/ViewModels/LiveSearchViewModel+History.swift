@@ -67,6 +67,11 @@ extension LiveSearchViewModel {
     return ids
   }
 
+  func record(_ term: String, when allowed: Bool) async {
+    guard allowed else { return }
+    await record(term)
+  }
+
   func record(_ term: String) async {
     do {
       let item = try await historyService.add(term: term)

@@ -66,7 +66,7 @@ final class LiveSearchViewModel: ObservableObject {
       .store(in: &cancellables)
   }
 
-  func submit(_ value: String? = nil) async {
+  func submit(_ value: String? = nil, recordsHistory: Bool = true) async {
     let term = (value ?? query)
       .trimmingCharacters(in: .whitespacesAndNewlines)
     guard !term.isEmpty else {
@@ -96,7 +96,7 @@ final class LiveSearchViewModel: ObservableObject {
     }
     searchTask = task
     do {
-      async let historyUpdate: Void = record(term)
+      async let historyUpdate: Void = record(term, when: recordsHistory)
       let page = try await task.value
       guard requestID == currentRequest, !Task.isCancelled else {
         return
