@@ -96,6 +96,7 @@ final class TVPlayerSession: ObservableObject {
       direction: direction,
       duration: Int64(controller.duration * 1_000)
     )
+    controlsFromBelow = false
     controlsVisible = true
     touch()
     commitTask?.cancel()
