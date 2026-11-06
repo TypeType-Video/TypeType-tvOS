@@ -37,7 +37,7 @@ final class URLSessionLiveChatTransportTests: XCTestCase {
         URLComponents(url: request.url!, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "url" }?.value,
         "https://www.youtube.com/watch?v=live"
       )
-      XCTAssertEqual(request.value(forHTTPHeaderField: "Accept"), "text/event-stream")
+      XCTAssertEqual(request.value(forHTTPHeaderField: "Accept"), "text/event-stream, application/json")
       XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer access-token")
     }
     _ = try await transport().open(videoURL: "https://www.youtube.com/watch?v=live")
