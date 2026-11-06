@@ -2,6 +2,8 @@ import SwiftUI
 
 enum TVRoute: Hashable {
   case detail(LiveVideoItem)
+  case channel(String)
+  case playlist(LivePlaylistResult)
 }
 
 enum TVTab: Hashable {
@@ -24,7 +26,7 @@ struct TVShellView: View {
       NavigationStack(path: $homePath) {
         TVHomeView(
           dependencies: coordinator.dependencies,
-          onOpen: { homePath.append(TVRoute.detail($0)) },
+          onOpen: { open($0) },
           onPlay: { playing = $0 }
         )
         .navigationDestination(for: TVRoute.self, destination: destination)
@@ -33,8 +35,13 @@ struct TVShellView: View {
       .tag(TVTab.home)
 
       NavigationStack(path: $searchPath) {
-        TVComingSoon()
-          .navigationDestination(for: TVRoute.self, destination: destination)
+        TVSearchView(
+          dependencies: coordinator.dependencies,
+          onOpen: { open($0) },
+          onOpenChannel: { searchPath.append(TVRoute.channel($0.url)) },
+          onOpenPlaylist: { searchPath.append(TVRoute.playlist($0)) }
+        )
+        .navigationDestination(for: TVRoute.self, destination: destination)
       }
       .tabItem { Label("Search", systemImage: "magnifyingglass") }
       .tag(TVTab.search)
@@ -53,11 +60,29 @@ struct TVShellView: View {
     .background(TVPalette.ink.ignoresSafeArea())
   }
 
+  private func open(_ video: LiveVideoItem) {
+    switch tab {
+    case .home: homePath.append(TVRoute.detail(video))
+    case .search: searchPath.append(TVRoute.detail(video))
+    case .library: libraryPath.append(TVRoute.detail(video))
+    case .settings: break
+    }
+  }
+
   @ViewBuilder
   private func destination(_ route: TVRoute) -> some View {
     switch route {
     case let .detail(video):
-      TVComingSoon(title: video.title)
+      TVVideoDetailView(
+        video: video,
+        dependencies: coordinator.dependencies,
+        onPlay: { video, _ in playing = video },
+        onOpen: { open($0) }
+      )
+    case let .channel(url):
+      TVChannelView(url: url, dependencies: coordinator.dependencies, onOpen: { open($0) })
+    case let .playlist(playlist):
+      TVPlaylistView(playlist: playlist, dependencies: coordinator.dependencies, onOpen: { open($0) })
     }
   }
 }
