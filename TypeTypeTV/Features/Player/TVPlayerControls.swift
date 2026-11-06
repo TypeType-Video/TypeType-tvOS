@@ -63,7 +63,10 @@ struct TVPlayerControls: View {
       Text(verbatim: TVTime.label(session.scrubSeconds ?? controller.position))
         .font(TVType.meta).monospacedDigit().foregroundStyle(TVPalette.textHigh).frame(width: 130, alignment: .leading)
       Button(action: session.togglePlay) {
-        TVSeekBar(position: controller.position, duration: controller.duration, scrub: session.scrubSeconds)
+        TVSeekBar(
+          position: controller.position, duration: controller.duration, scrub: session.scrubSeconds,
+          chapters: controller.availableChapters, sponsors: controller.visibleSponsorBlockWindows
+        )
       }
       .buttonStyle(TVBareButtonStyle())
       .focused(focus, equals: .seek)
