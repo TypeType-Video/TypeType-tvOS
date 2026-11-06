@@ -4,8 +4,8 @@ enum LivePlaybackVideoCatalog {
   static func resolutionOptions(
     from sources: [LivePlaybackVideoSource]
   ) -> [LivePlaybackVideoSource] {
-    let playable = sources.filter { $0.height > 0 }
-    let grouped = Dictionary(grouping: playable, by: \.height)
+    let playable = sources.filter { $0.effectiveHeight > 0 }
+    let grouped = Dictionary(grouping: playable, by: \.effectiveHeight)
     return grouped.compactMap { _, variants in
       variants.max { lhs, rhs in
         let lhsBitrate = lhs.bitrate ?? 0
@@ -16,7 +16,7 @@ enum LivePlaybackVideoCatalog {
         return lhs.fps < rhs.fps
       }
     }
-    .sorted { $0.height < $1.height }
+    .sorted { $0.effectiveHeight < $1.effectiveHeight }
   }
 
   static func qualityLabel(for source: LivePlaybackVideoSource) -> String {

@@ -25,17 +25,50 @@ extension LivePlaybackService {
     )
     let codecOrdered = codecCandidates.isEmpty ? sources : codecCandidates
     let ordered = codecOrdered.sorted {
-      if $0.height != $1.height { return $0.height < $1.height }
+      if $0.effectiveHeight != $1.effectiveHeight { return $0.effectiveHeight < $1.effectiveHeight }
       let lhsRank = Self.codecEfficiencyRank($0.codec)
       let rhsRank = Self.codecEfficiencyRank($1.codec)
       if lhsRank != rhsRank { return lhsRank < rhsRank }
       return ($0.bitrate ?? 0) < ($1.bitrate ?? 0)
     }
     if let target {
-      return ordered.last(where: { $0.height <= target })
+      return ordered.last(where: { $0.effectiveHeight <= target })
         ?? ordered.first
     }
     return ordered.last
+  }
+
+  // When no quality was picked by hand, the master playlist offers the lighter qualities as well, so the
+  // player can drop to one when the connection is slow.
+  func providerHLSAlternates(
+    among videos: [LivePlaybackVideoSource],
+    selected: LivePlaybackVideoSource,
+    audio: LivePlaybackAudioSource,
+    preferences: LivePlaybackPreferences
+  ) -> [LiveProviderHLSVariant] {
+    guard preferences.videoSourceID == nil, preferences.videoItag == nil else { return [] }
+    let matching = filteredByCodec(videos, preferredCodec: preferences.preferredCodec)
+    return LiveProviderHLSVariants.alternates(
+      among: matching.isEmpty ? videos : matching,
+      selected: selected,
+      heightCap: qualityHeight(preferences.quality)
+    ).compactMap { source in
+      guard let url = URL(string: source.url),
+        let proxied = providerProxyURL(for: url, authenticated: true)
+      else { return nil }
+      return LiveProviderHLSVariant(
+        url: proxied,
+        bandwidth: LiveProviderHLSVariants.bandwidth(
+          videoBitrate: source.bitrate,
+          height: source.effectiveHeight,
+          audioBitrate: audio.bitrate
+        ),
+        resolution: LiveProviderHLSVariants.resolution(
+          width: source.width,
+          height: source.effectiveHeight
+        )
+      )
+    }
   }
 
   static func codecEfficiencyRank(_ codec: String?) -> Int {

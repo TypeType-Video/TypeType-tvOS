@@ -105,9 +105,16 @@ final class LivePlaybackHTTPServer: @unchecked Sendable {
       return nil
     }
     switch providerPlayback {
-    case let .separateProgressive(videoURL, audioURL),
-      let .separateHLS(videoURL, audioURL):
+    case let .separateProgressive(videoURL, audioURL):
       if targetURL == videoURL {
+        return .video
+      }
+      if targetURL == audioURL {
+        return .audio
+      }
+      return nil
+    case let .separateHLS(videoURL, audioURL, alternates):
+      if targetURL == videoURL || alternates.contains(where: { $0.url == targetURL }) {
         return .video
       }
       if targetURL == audioURL {

@@ -141,8 +141,8 @@ extension LivePlayerController {
       return candidates.max(by: Self.providerVideoAscending)
     }
     let noHigherThanCurrent = candidates.filter {
-      $0.height < current.height
-        || ($0.height == current.height
+      $0.effectiveHeight < current.effectiveHeight
+        || ($0.effectiveHeight == current.effectiveHeight
           && ($0.bitrate ?? 0) < (current.bitrate ?? 0))
     }
     return (noHigherThanCurrent.isEmpty ? candidates : noHigherThanCurrent)
@@ -169,8 +169,8 @@ extension LivePlayerController {
     _ lhs: LivePlaybackVideoSource,
     _ rhs: LivePlaybackVideoSource
   ) -> Bool {
-    if lhs.height != rhs.height {
-      return lhs.height < rhs.height
+    if lhs.effectiveHeight != rhs.effectiveHeight {
+      return lhs.effectiveHeight < rhs.effectiveHeight
     }
     return (lhs.bitrate ?? 0) < (rhs.bitrate ?? 0)
   }

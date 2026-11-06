@@ -176,7 +176,7 @@ final class LivePlayerController: ObservableObject {
     return compatible
       .filter { seen.insert($0.selectionID).inserted }
       .sorted {
-        if $0.height != $1.height { return $0.height < $1.height }
+        if $0.effectiveHeight != $1.effectiveHeight { return $0.effectiveHeight < $1.effectiveHeight }
         return ($0.bitrate ?? 0) < ($1.bitrate ?? 0)
       }
   }

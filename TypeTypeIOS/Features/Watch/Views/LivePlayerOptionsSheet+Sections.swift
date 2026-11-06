@@ -43,7 +43,7 @@ extension LivePlayerOptionsSheet {
               Text("Automatic").tag(Int?.none)
               ForEach(LivePlaybackVideoCatalog.resolutionOptions(from: controller.availableVideoSources)) { source in
                 Text(LivePlaybackVideoCatalog.detailLabel(for: source))
-                  .tag(Optional(source.height))
+                  .tag(Optional(source.effectiveHeight))
               }
             }
             .pickerStyle(.inline)

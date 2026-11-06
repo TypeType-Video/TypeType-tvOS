@@ -20,6 +20,8 @@ struct LivePlaybackVideoSource: Decodable, Hashable, Identifiable {
   let manifestURL: String?
 
   var id: String { selectionID }
+  // NicoNico lists several qualities that share itag, codec, height and bitrate (none of them reported): the
+  // address of an HLS playlist is what tells them apart, within one stream response.
   var selectionID: String {
     [
       String(itag),
@@ -27,12 +29,13 @@ struct LivePlaybackVideoSource: Decodable, Hashable, Identifiable {
       String(height),
       String(bitrate ?? 0),
       deliveryMethod,
+      isHLSDelivery ? url : "",
     ].joined(separator: ":")
   }
 
   var displayName: String {
     if !resolution.isEmpty { return resolution }
-    if height > 0 { return "\(height)p" }
+    if effectiveHeight > 0 { return "\(effectiveHeight)p" }
     return "Automatic"
   }
 
@@ -45,12 +48,45 @@ struct LivePlaybackVideoSource: Decodable, Hashable, Identifiable {
     deliveryMethod.caseInsensitiveCompare("sabr") == .orderedSame
   }
 
+  // NicoNico sends height 0 for some qualities and names them only in the label ("360p"): the label is the
+  // truth there, as in the web client.
+  var effectiveHeight: Int {
+    height > 0 ? height : Self.height(fromResolution: resolution)
+  }
+
+  var isHLSDelivery: Bool {
+    deliveryMethod.caseInsensitiveCompare("hls") == .orderedSame || isHLSPlaylist
+  }
+
+  // The number before the "p" of a label: "360p", "480P 清晰", "1080p60 HDR".
+  static func height(fromResolution label: String) -> Int {
+    let characters = Array(label)
+    var index = 0
+    while index < characters.count {
+      guard characters[index].isASCII, characters[index].isNumber else {
+        index += 1
+        continue
+      }
+      var end = index
+      while end < characters.count, characters[end].isASCII, characters[end].isNumber {
+        end += 1
+      }
+      var next = end
+      while next < characters.count, characters[next] == " " { next += 1 }
+      if next < characters.count, characters[next] == "p" || characters[next] == "P",
+        let height = Int(String(characters[index..<end])) {
+        return height
+      }
+      index = end
+    }
+    return 0
+  }
+
   var isAppleProviderVideo: Bool {
     guard mimeType.lowercased().hasPrefix("video/mp4") else {
       return false
     }
-    if deliveryMethod.caseInsensitiveCompare("hls") == .orderedSame
-      || isHLSPlaylist {
+    if isHLSDelivery {
       return true
     }
     let codec = codec?.lowercased() ?? ""
