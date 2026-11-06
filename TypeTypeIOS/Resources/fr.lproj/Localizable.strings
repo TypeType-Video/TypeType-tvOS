@@ -1129,3 +1129,5 @@
 "%@ skipped" = "Passé : %@";
 "Back to watch it" = "Revenir pour le voir";
 "%@ skipped. Press left to watch it." = "Passé : %@. Appuyez à gauche pour le voir.";
+"Subscribed to %@" = "Abonné à %@";
+"Subscribe to %@" = "S’abonner à %@";

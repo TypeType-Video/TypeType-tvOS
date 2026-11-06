@@ -108,7 +108,7 @@ struct TVPlayerControls: View {
       }
       TVCircleButton(systemImage: "info.circle", label: "Description") { session.open(.info) }
         .focused(focus, equals: .info)
-      TVCircleButton(systemImage: "ellipsis", label: "More options") { session.open(.speed) }
+      TVCircleButton(systemImage: "ellipsis", label: "More options") { session.open(.menu) }
         .focused(focus, equals: .more)
     }
     .focusSection()

@@ -4,8 +4,11 @@ import Foundation
 @MainActor
 final class TVPlayerSession: ObservableObject {
   enum Panel: Hashable {
+    case menu
+    case chapters
     case quality
     case speed
+    case playlists
     case info
   }
 
@@ -13,6 +16,9 @@ final class TVPlayerSession: ObservableObject {
   @Published private(set) var controlsFromBelow = false
   @Published var relatedOpen = false
   @Published var panel: Panel?
+  // The options row last chosen, so coming back from a section lands on it instead of at the top.
+  var menuEntry: String?
+  private var panelFromMenu = false
   @Published private(set) var scrub = LiveScrubState()
 
   private weak var controller: LivePlayerController?
@@ -132,8 +138,12 @@ final class TVPlayerSession: ObservableObject {
       scrub.cancel()
       resumeScrubbedPlayback()
     } else if panel != nil {
-      panel = nil
-      showControls()
+      if panelFromMenu, panel != .menu {
+        panelFromMenu = false
+        panel = .menu
+        return true
+      }
+      closePanel()
     } else if relatedOpen {
       relatedOpen = false
       showControls(fromBelow: true)
@@ -147,7 +157,16 @@ final class TVPlayerSession: ObservableObject {
 
   func open(_ target: Panel) {
     hideTask?.cancel()
+    panelFromMenu = panel == .menu
+    if target == .menu, panel == nil { menuEntry = nil }
     panel = target
+  }
+
+  func closePanel() {
+    panelFromMenu = false
+    menuEntry = nil
+    panel = nil
+    showControls()
   }
 
   var isLive: Bool {

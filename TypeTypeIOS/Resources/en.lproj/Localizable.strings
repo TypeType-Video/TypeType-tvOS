@@ -1129,3 +1129,5 @@
 "%@ skipped" = "%@ skipped";
 "Back to watch it" = "Back to watch it";
 "%@ skipped. Press left to watch it." = "%@ skipped. Press left to watch it.";
+"Subscribed to %@" = "Subscribed to %@";
+"Subscribe to %@" = "Subscribe to %@";
