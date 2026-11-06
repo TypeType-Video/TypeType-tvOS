@@ -66,7 +66,8 @@ extension LivePlaybackService {
         resolution: LiveProviderHLSVariants.resolution(
           width: source.width,
           height: source.effectiveHeight
-        )
+        ),
+        codecs: LiveProviderHLSVariants.codecs(video: source.codec, audio: audio.codec)
       )
     }
   }

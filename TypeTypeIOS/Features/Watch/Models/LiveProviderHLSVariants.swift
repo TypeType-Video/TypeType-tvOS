@@ -5,6 +5,7 @@ struct LiveProviderHLSVariant: Equatable {
   let url: URL
   let bandwidth: Int
   let resolution: String?
+  var codecs = ""
 }
 
 // The master playlist lists every quality, so the player starts with the best one and drops to a lighter one
@@ -57,6 +58,11 @@ enum LiveProviderHLSVariants {
     case 360...: return 800_000
     default: return 500_000
     }
+  }
+
+  // Listed the same way for every variant: Apple wants CODECS on all of them or on none.
+  static func codecs(video: String?, audio: String?) -> String {
+    [video, audio].compactMap { $0?.isEmpty == false ? $0 : nil }.joined(separator: ",")
   }
 
   static func resolution(width: Int, height: Int) -> String? {

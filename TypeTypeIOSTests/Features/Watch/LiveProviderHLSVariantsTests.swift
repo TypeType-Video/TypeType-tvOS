@@ -123,4 +123,10 @@ final class LiveProviderHLSVariantsTests: XCTestCase {
     XCTAssertNil(LiveProviderHLSVariants.resolution(width: 0, height: 360))
     XCTAssertEqual(LiveProviderHLSVariants.resolution(width: 640, height: 360), "640x360")
   }
+
+  func testEveryVariantListsItsCodecsTheSameWay() {
+    XCTAssertEqual(LiveProviderHLSVariants.codecs(video: "avc1.64001E", audio: "mp4a.40.2"), "avc1.64001E,mp4a.40.2")
+    XCTAssertEqual(LiveProviderHLSVariants.codecs(video: nil, audio: ""), "")
+    XCTAssertEqual(LiveProviderHLSVariants.codecs(video: "", audio: "mp4a.40.2"), "mp4a.40.2")
+  }
 }

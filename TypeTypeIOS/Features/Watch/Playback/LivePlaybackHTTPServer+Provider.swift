@@ -63,7 +63,7 @@ extension LivePlaybackHTTPServer {
         LiveProviderHLSVariants.streamInfo(
           bandwidth: alternate.bandwidth,
           resolution: alternate.resolution,
-          codecs: "",
+          codecs: alternate.codecs,
           hasSubtitles: hasSubtitles
         )
       )
@@ -114,15 +114,7 @@ extension LivePlaybackHTTPServer {
   }
 
   private var providerCodecs: String {
-    [
-      preparation.video?.codec,
-      preparation.audio?.codec,
-    ]
-    .compactMap { value in
-      guard let value, !value.isEmpty else { return nil }
-      return value
-    }
-    .joined(separator: ",")
+    LiveProviderHLSVariants.codecs(video: preparation.video?.codec, audio: preparation.audio?.codec)
   }
 
   private var providerResolution: String? {
