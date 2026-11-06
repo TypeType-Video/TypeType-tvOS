@@ -1063,3 +1063,15 @@
 "Videos you save or watch show up here." = "Les vidéos que vous enregistrez ou regardez apparaissent ici.";
 "%@ views" = "%@ vues";
 "%@ subscribers" = "%@ abonnés";
+"UP NEXT" = "À SUIVRE";
+"Play now" = "Lire maintenant";
+"Playing in %lld s" = "Lecture dans %lld s";
+"Seek bar" = "Barre de lecture";
+"Start over" = "Recommencer";
+"Back 10 seconds" = "Reculer de 10 secondes";
+"Forward 10 seconds" = "Avancer de 10 secondes";
+"Next video" = "Vidéo suivante";
+"More options" = "Plus d’options";
+"Auto" = "Auto";
+"Playback speed" = "Vitesse de lecture";
+"MORE VIDEOS" = "PLUS DE VIDÉOS";

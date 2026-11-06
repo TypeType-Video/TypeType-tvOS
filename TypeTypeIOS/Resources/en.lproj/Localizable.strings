@@ -1063,3 +1063,15 @@
 "Videos you save or watch show up here." = "Videos you save or watch show up here.";
 "%@ views" = "%@ views";
 "%@ subscribers" = "%@ subscribers";
+"UP NEXT" = "UP NEXT";
+"Play now" = "Play now";
+"Playing in %lld s" = "Playing in %lld s";
+"Seek bar" = "Seek bar";
+"Start over" = "Start over";
+"Back 10 seconds" = "Back 10 seconds";
+"Forward 10 seconds" = "Forward 10 seconds";
+"Next video" = "Next video";
+"More options" = "More options";
+"Auto" = "Auto";
+"Playback speed" = "Playback speed";
+"MORE VIDEOS" = "MORE VIDEOS";
