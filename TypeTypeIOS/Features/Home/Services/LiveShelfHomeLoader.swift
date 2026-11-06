@@ -15,6 +15,8 @@ final class LiveShelfHomeLoader {
     var settings: () async throws -> LiveSettings = { LiveSettings() }
     // DeArrow's community titles and thumbnails, laid over every video of the home at once.
     var brand: ([LiveVideoItem]) async -> [LiveVideoItem] = { $0 }
+    // The account's blocked videos and channels, left out of every row as Android TV's ContentFilter does.
+    var blocked: () async throws -> LiveBlockedSets = { LiveBlockedSets() }
   }
 
   private let sources: Sources
@@ -31,7 +33,8 @@ final class LiveShelfHomeLoader {
     library: LiveLibraryServiceProtocol,
     notifications: LiveNotificationsServiceProtocol? = nil,
     settings: LiveSettingsServiceProtocol? = nil,
-    deArrow: LiveDeArrowStore? = nil
+    deArrow: LiveDeArrowStore? = nil,
+    contentControls: LiveContentControlsServiceProtocol? = nil
   ) {
     self.init(
       sources: Sources(
@@ -47,7 +50,13 @@ final class LiveShelfHomeLoader {
           return page.items.filter { !$0.read }.map(\.video)
         },
         settings: { try await settings?.settings() ?? LiveSettings() },
-        brand: { videos in await deArrow?.branded(videos) ?? videos }
+        brand: { videos in await deArrow?.branded(videos) ?? videos },
+        blocked: {
+          guard let contentControls else { return LiveBlockedSets() }
+          async let videos = contentControls.items(kind: .blockedVideos)
+          async let channels = contentControls.items(kind: .blockedChannels)
+          return try await LiveBlockedSets(videos: Set(videos.map(\.url)), channels: Set(channels.map(\.url)))
+        }
       )
     )
   }
@@ -65,6 +74,7 @@ final class LiveShelfHomeLoader {
     async let shorts = Self.attempt(sources.shorts)
     async let unread = Self.attempt(sources.notifications)
     async let settings = Self.attempt(sources.settings)
+    async let blockedSets = Self.attempt(sources.blocked)
 
     let recommendedResult = await recommended
     let watchedResult = await watched
@@ -77,16 +87,19 @@ final class LiveShelfHomeLoader {
 
     // Like Android TV's ContentVisibility: the rows the account turned off are left out.
     let visibility = await settings.value ?? LiveSettings()
-    let recommendedVideos = visibility.hideHomeRecommendations ? [] : recommendedResult.value ?? []
-    let trendingVideos = trendingResult.value ?? []
+    let blocked = await blockedSets.value ?? LiveBlockedSets()
+    func allowed(_ videos: [LiveVideoItem]?) -> [LiveVideoItem] { blocked.filter(videos ?? []) }
+    let recommendedVideos = visibility.hideHomeRecommendations ? [] : allowed(recommendedResult.value)
+    let trendingVideos = allowed(trendingResult.value)
     let source = recommendedVideos.isEmpty ? trendingVideos : recommendedVideos
     let described = source.filter { !($0.shortDescription ?? "").isEmpty }
     let featured = Array((described.isEmpty ? source : described).prefix(Self.featuredCount))
     let featuredIDs = Set(featured.map(\.canonicalID))
     let inProgress = visibility.hideContinueWatching ? [] : LiveHomeViewModel.inProgress(watchedResult.value ?? [])
+      .filter { blocked.allows($0.video) }
 
     let shelves = [
-      Self.shelf("notifications", String(localized: "New from your subscriptions"), await unread.value ?? []),
+      Self.shelf("notifications", String(localized: "New from your subscriptions"), allowed(await unread.value)),
       LiveHomeShelf(
         id: "continue",
         title: String(localized: "Continue watching"),
@@ -94,13 +107,13 @@ final class LiveShelfHomeLoader {
         progress: Dictionary(inProgress.map { ($0.video.canonicalID, $0.progressFraction) }, uniquingKeysWith: { a, _ in a })
       ),
       Self.shelf("recommended", String(localized: "Recommended for you"), recommendedVideos.filter { !featuredIDs.contains($0.canonicalID) }),
-      Self.shelf("subscriptions", String(localized: "From your subscriptions"), feedResult.value ?? []),
+      Self.shelf("subscriptions", String(localized: "From your subscriptions"), allowed(feedResult.value)),
       Self.shelf("trending", String(localized: "Trending now"), trendingVideos),
-      Self.shelf("watch-later", String(localized: "Watch later"), await later.value ?? []),
-      Self.shorts(visibility.hideShorts ? [] : await shorts.value ?? []),
-      Self.shelf("trending-bilibili", String(localized: "Trending on BiliBili"), await bilibili.value ?? []),
-      Self.shelf("trending-niconico", String(localized: "Trending on NicoNico"), await niconico.value ?? []),
-      Self.shelf("favorites", String(localized: "Favorites"), await favorites.value ?? []),
+      Self.shelf("watch-later", String(localized: "Watch later"), allowed(await later.value)),
+      Self.shorts(visibility.hideShorts ? [] : allowed(await shorts.value)),
+      Self.shelf("trending-bilibili", String(localized: "Trending on BiliBili"), allowed(await bilibili.value)),
+      Self.shelf("trending-niconico", String(localized: "Trending on NicoNico"), allowed(await niconico.value)),
+      Self.shelf("favorites", String(localized: "Favorites"), allowed(await favorites.value)),
     ].filter { !$0.videos.isEmpty }
 
     let heroes = featured.isEmpty ? Array(shelves.first?.videos.prefix(1) ?? []) : featured
