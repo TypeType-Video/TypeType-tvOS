@@ -11,7 +11,6 @@ struct TVSearchScope: View {
   var body: some View {
     ScrollView(.horizontal) {
       chips
-        .padding(.horizontal, TVDimens.safeStart)
         .padding(.vertical, 24)
     }
     .scrollClipDisabled()
@@ -24,14 +23,16 @@ struct TVSearchScope: View {
     }
   }
 
+  // One source button that moves to the next service, as on Android TV, then the kinds of that service.
   private var chips: some View {
     HStack(spacing: 20) {
-      ForEach(model.services, id: \.id) { service in
-        Button(service.name) { Task { await model.selectService(service.id) } }
-          .buttonStyle(service.id == model.selectedServiceID ? .tvPillEmphasized : .tvPill)
-          .accessibilityAddTraits(service.id == model.selectedServiceID ? .isSelected : [])
+      if let current = model.services.first(where: { $0.id == model.selectedServiceID }) {
+        Button { Task { await cycleService() } } label: {
+          Label(current.name, systemImage: "arrow.triangle.2.circlepath")
+        }
+        .buttonStyle(.tvPillEmphasized)
+        .accessibilityLabel(Text("Search on \(current.name). Press to change the service."))
       }
-      Rectangle().fill(TVPalette.outline).frame(width: 2, height: 48).padding(.horizontal, 8)
       ForEach(model.visibleContentFilters.filter { Self.kinds.contains(Self.key($0)) }) { filter in
         let selected = filter.value == effectiveFilter
         Button {
@@ -46,6 +47,11 @@ struct TVSearchScope: View {
         .accessibilityAddTraits(selected ? .isSelected : [])
       }
     }
+  }
+
+  private func cycleService() async {
+    guard let index = model.services.firstIndex(where: { $0.id == model.selectedServiceID }), !model.services.isEmpty else { return }
+    await model.selectService(model.services[(index + 1) % model.services.count].id)
   }
 
   private var effectiveFilter: String? { model.selectedContentFilter }

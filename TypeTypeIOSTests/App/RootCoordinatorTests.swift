@@ -570,6 +570,10 @@ private final class RootResetPasswordStub:
 }
 
 private final class RootHomeFeedStub: HomeFeedServiceProtocol {
+  func shorts(limit: Int) async throws -> HomeRecommendationsPage {
+    HomeRecommendationsPage(items: [], nextCursor: nil, hasMore: false)
+  }
+
   func recommendations(
     serviceID: Int,
     intent: String,

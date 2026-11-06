@@ -37,9 +37,11 @@ struct TVSubscriptionsView: View {
           .padding(.vertical, 40)
         }
         .scrollClipDisabled()
+        .tvReportsScroll()
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.prepare() }
   }

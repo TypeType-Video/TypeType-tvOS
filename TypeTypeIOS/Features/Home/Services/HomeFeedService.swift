@@ -7,6 +7,7 @@ protocol HomeFeedServiceProtocol {
     limit: Int,
     cursor: String?
   ) async throws -> HomeRecommendationsPage
+  func shorts(limit: Int) async throws -> HomeRecommendationsPage
 }
 
 final class HomeFeedService: HomeFeedServiceProtocol {
@@ -40,6 +41,21 @@ final class HomeFeedService: HomeFeedServiceProtocol {
         path: "/recommendations/home",
         method: .get,
         queryItems: queryItems,
+        requiresAuth: true
+      ),
+      as: HomeRecommendationsPage.self
+    )
+  }
+
+  func shorts(limit: Int) async throws -> HomeRecommendationsPage {
+    try await apiClient.request(
+      APIEndpoint(
+        path: "/recommendations/shorts",
+        method: .get,
+        queryItems: [
+          URLQueryItem(name: "service", value: "0"),
+          URLQueryItem(name: "limit", value: String(min(max(limit, 1), 60))),
+        ],
         requiresAuth: true
       ),
       as: HomeRecommendationsPage.self

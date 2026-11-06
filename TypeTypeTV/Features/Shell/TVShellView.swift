@@ -23,13 +23,42 @@ struct TVShellView: View {
   @State private var libraryPath = NavigationPath()
   @State private var playing: LiveVideoItem?
   @State private var playbackEnded = 0
+  @State private var menuRequest: TVVideoMenuRequest?
+  @State private var contentScrolled = false
+  @State private var librarySection = TVLibrarySection.history
+  @State private var landed = false
+  @StateObject private var account: TVAccountSettings
 
+  init(coordinator: RootCoordinator) {
+    self.coordinator = coordinator
+    _account = StateObject(wrappedValue: TVAccountSettings(service: coordinator.dependencies.settingsService))
+  }
+
+  // The tabs appear once the first screen is known: a selection changed by code after the tab bar is drawn moves the
+  // content but leaves the bar highlighting the old tab. This happens under the intro, like Android's blank start.
   var body: some View {
+    Group {
+      if landed { tabs } else { TVPalette.ink.ignoresSafeArea() }
+    }
+    .task {
+      // Whichever comes first: the settings, or two seconds, after which a slow server leaves the app on Home.
+      await withTaskGroup(of: Void.self) { group in
+        group.addTask { await account.load() }
+        group.addTask { _ = try? await Task.sleep(for: .seconds(2)) }
+        await group.next()
+        land()
+        await group.waitForAll()
+      }
+    }
+  }
+
+  private var tabs: some View {
     TabView(selection: $tab) {
       NavigationStack(path: $homePath) {
         TVHomeView(
           dependencies: coordinator.dependencies,
           refresh: playbackEnded,
+          previewsAllowed: tab == .home && homePath.isEmpty && playing == nil,
           onOpen: { open($0) },
           onPlay: { playing = $0 }
         )
@@ -58,7 +87,7 @@ struct TVShellView: View {
       .tag(TVTab.search)
 
       NavigationStack(path: $libraryPath) {
-        TVLibraryView(dependencies: coordinator.dependencies, refresh: playbackEnded, onOpen: { open($0) })
+        TVLibraryView(dependencies: coordinator.dependencies, refresh: playbackEnded, section: $librarySection, onOpen: { open($0) })
           .navigationDestination(for: TVRoute.self, destination: destination)
       }
       .tabItem { Label("Library", systemImage: "square.stack") }
@@ -68,6 +97,25 @@ struct TVShellView: View {
         .tabItem { Label("Settings", systemImage: "gearshape") }
         .tag(TVTab.settings)
     }
+    .environmentObject(account)
+    .environment(\.tvVideoMenu) { menuRequest = $0 }
+    .environment(\.tvVideoMenuShown, menuRequest != nil)
+    .disabled(menuRequest != nil)
+    .environment(\.tvContentScrolled) { scrolled in if contentScrolled != scrolled { contentScrolled = scrolled } }
+    .onChange(of: tab) { _, _ in contentScrolled = false }
+    .overlay { TVTopBarMarks(user: coordinator.currentUser, hidden: contentScrolled) }
+    .overlay {
+      if let request = menuRequest {
+        TVVideoMenuPanel(
+          request: request, dependencies: coordinator.dependencies,
+          onPlay: { menuRequest = nil; playing = request.video },
+          onOpenChannel: { menuRequest = nil; openChannel(request.video.uploaderURL) },
+          onClose: { menuRequest = nil }
+        )
+        .transition(.move(edge: .trailing).combined(with: .opacity))
+      }
+    }
+    .animation(.easeOut(duration: 0.26), value: menuRequest?.video.canonicalID)
     .background(TVPalette.ink.ignoresSafeArea())
     .environment(\.livePrewarm) { video in
       coordinator.dependencies.playbackPrewarmer?.prewarm(video)
@@ -80,22 +128,29 @@ struct TVShellView: View {
     }
   }
 
-  private func open(_ video: LiveVideoItem) {
-    switch tab {
-    case .home: homePath.append(TVRoute.detail(video))
-    case .subscriptions: subscriptionsPath.append(TVRoute.detail(video))
-    case .search: searchPath.append(TVRoute.detail(video))
-    case .library: libraryPath.append(TVRoute.detail(video))
-    case .settings: break
+  // The account's "Start on" setting: Home, or one of the library sections, chosen once when the app opens.
+  private func land() {
+    guard !landed else { return }
+    defer { landed = true }
+    switch account.settings?.defaultLandingPage {
+    case "history": librarySection = .history
+    case "favorites": librarySection = .favorites
+    case "watch-later": librarySection = .watchLater
+    default: return
     }
+    tab = .library
   }
 
-  private func openChannel(_ url: String) {
+  private func open(_ video: LiveVideoItem) { push(.detail(video)) }
+
+  private func openChannel(_ url: String) { push(.channel(url)) }
+
+  private func push(_ route: TVRoute) {
     switch tab {
-    case .home: homePath.append(TVRoute.channel(url))
-    case .subscriptions: subscriptionsPath.append(TVRoute.channel(url))
-    case .search: searchPath.append(TVRoute.channel(url))
-    case .library: libraryPath.append(TVRoute.channel(url))
+    case .home: homePath.append(route)
+    case .subscriptions: subscriptionsPath.append(route)
+    case .search: searchPath.append(route)
+    case .library: libraryPath.append(route)
     case .settings: break
     }
   }
@@ -113,9 +168,19 @@ struct TVShellView: View {
         onOpenChannel: { openChannel($0) }
       )
     case let .channel(url):
-      TVChannelView(url: url, dependencies: coordinator.dependencies, onOpen: { open($0) })
+      TVChannelScreen(url: url, dependencies: coordinator.dependencies, onOpen: { open($0) },
+                      onOpenPlaylist: { push(.playlist($0)) })
     case let .playlist(playlist):
       TVPlaylistView(playlist: playlist, dependencies: coordinator.dependencies, onOpen: { open($0) })
     }
+  }
+}
+
+extension View {
+  // tvOS insets tab content by its own 80 pt on each side; the screens already keep Android TV's 112 pt from the
+  // edge, so the system margin is dropped instead of adding up to 192 pt. Set on each screen: on the TabView
+  // content it has no effect.
+  func tvContentEdges() -> some View {
+    ignoresSafeArea(.container, edges: .horizontal)
   }
 }

@@ -14,6 +14,9 @@ extension TVSettingsRows {
 
   @ViewBuilder
   var performance: some View {
+    TVSettingRow(systemImage: "play.rectangle", title: "Video previews",
+                 summary: "Plays a muted preview behind the home page. Turn it off on a slow box.",
+                 trailing: .toggle(videoPreviews)) { videoPreviews.toggle() }
     TVSettingRow(systemImage: "photo", title: "Background picture",
                  summary: "Shows the selected video's picture behind the home and video pages. Turn it off on a slow box.",
                  trailing: .toggle(backdrop)) { backdrop.toggle() }
@@ -32,6 +35,15 @@ extension TVSettingsRows {
     if let user = coordinator.currentUser {
       TVSettingRow(systemImage: "person", title: "Signed in as", trailing: .value(user.publicUsername ?? user.role.title))
       TVSettingRow(systemImage: "person.badge.key", title: "Role", trailing: .value(user.role.title))
+    }
+    if let unread = model.unreadNotifications {
+      TVSettingRow(systemImage: "bell.badge", title: "Unread notifications", trailing: .value(String(unread)))
+      if unread > 0 {
+        TVSettingRow(systemImage: "checkmark.circle", title: "Mark all as read",
+                     summary: "Clear the new-video notifications of this account.") {
+          Task { await model.markNotificationsRead() }
+        }
+      }
     }
     TVSettingRow(systemImage: "rectangle.portrait.and.arrow.right", title: "Sign out",
                  summary: "Remove this session from the television.") {

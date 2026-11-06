@@ -8,6 +8,7 @@ struct TVSettingsRows: View {
   var rowFocus: FocusState<String?>.Binding
   @AppStorage(TVDeviceSetting.introKey) var intro = "full"
   @AppStorage(TVDeviceSetting.backdropKey) var backdrop = true
+  @AppStorage(TVDeviceSetting.videoPreviewsKey) var videoPreviews = true
 
   private static let qualities = ["auto", "2160p", "1440p", "1080p", "720p", "480p", "360p"]
   private static let speeds: [Double] = [0.75, 1, 1.25, 1.5, 2]

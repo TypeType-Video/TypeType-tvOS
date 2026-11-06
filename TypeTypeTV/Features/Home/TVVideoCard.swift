@@ -8,6 +8,7 @@ struct TVVideoCard: View {
   var onFocus: (Bool) -> Void = { _ in }
   var externalFocus: FocusState<Bool>.Binding?
   @FocusState private var focused: Bool
+  @State private var menuOpenedAt: Date?
   @Environment(\.livePrewarm) private var prewarm
   @State private var prewarmTask: Task<Void, Never>?
 
@@ -15,9 +16,18 @@ struct TVVideoCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
-      Button(action: onOpen) {
+      Button {
+        if !TVVideoMenuTarget.swallowsRelease(menuOpenedAt) { onOpen() }
+      } label: {
         ZStack(alignment: .bottomLeading) {
           TVRemoteImage(url: video.thumbnail)
+          if video.isShortFormContent {
+            Text("SHORT").font(TVType.label).foregroundStyle(TVPalette.textHigh)
+              .padding(.horizontal, 12).padding(.vertical, 6)
+              .background(TVPalette.accent, in: RoundedRectangle(cornerRadius: 8))
+              .padding(14)
+              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+          }
           if video.duration > 0 {
             Text(verbatim: LiveVideoMetadataFormatter.duration(video.duration))
               .font(TVType.label)
@@ -38,6 +48,9 @@ struct TVVideoCard: View {
       }
       .buttonStyle(.card)
       .focused(externalFocus ?? $focused)
+      .tvVideoMenu(video, openedAt: $menuOpenedAt) {
+        if let externalFocus { externalFocus.wrappedValue = true } else { focused = true }
+      }
       .onChange(of: focused) { _, value in onFocus(value) }
       .onChange(of: isFocused) { _, value in schedulePrewarm(value) }
       .onDisappear { prewarmTask?.cancel() }
@@ -46,8 +59,8 @@ struct TVVideoCard: View {
         Text(verbatim: video.title)
           .font(TVType.title)
           .foregroundStyle(TVPalette.textHigh)
-          .lineLimit(2)
-        Text(verbatim: video.uploaderName)
+          .lineLimit(1)
+        Text(verbatim: meta)
           .font(TVType.meta)
           .foregroundStyle(TVPalette.textMid)
           .lineLimit(1)
@@ -55,6 +68,15 @@ struct TVVideoCard: View {
       .frame(width: width, alignment: .leading)
       .accessibilityHidden(true)
     }
+  }
+
+  // Android TV's card line: the channel, then the views, or the viewers of a live.
+  private var meta: String {
+    guard video.viewCount > 0 else { return video.uploaderName }
+    let count = video.isLive
+      ? String(localized: "\(video.viewCount.formatted(.number.notation(.compactName))) watching")
+      : LiveVideoMetadataFormatter.views(video.viewCount)
+    return [video.uploaderName, count].filter { !$0.isEmpty }.joined(separator: " · ")
   }
 }
 

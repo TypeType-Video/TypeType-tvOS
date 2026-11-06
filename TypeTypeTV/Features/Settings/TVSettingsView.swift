@@ -52,22 +52,21 @@ struct TVSettingsView: View {
     self.coordinator = coordinator
     _model = StateObject(wrappedValue: LiveTVSettingsModel(
       settingsService: coordinator.dependencies.settingsService,
-      contentControls: coordinator.dependencies.contentControlsService
+      contentControls: coordinator.dependencies.contentControlsService,
+      notifications: coordinator.dependencies.notificationsService
     ))
   }
 
   var body: some View {
     ZStack {
       HStack(alignment: .top, spacing: 64) {
-        VStack(alignment: .leading, spacing: 14) {
-          Text("Settings").font(TVType.headline).foregroundStyle(TVPalette.textHigh).padding(.bottom, 16)
+        VStack(alignment: .leading, spacing: 12) {
+          Text("Settings").font(TVType.headline).foregroundStyle(TVPalette.textHigh).padding(.bottom, 28)
           ForEach(TVSettingsGroup.allCases) { item in
             Button { railFocus = item } label: {
-              Label(item.title, systemImage: item.systemImage).frame(width: 360, alignment: .leading)
+              Label(item.title, systemImage: item.systemImage)
             }
-            .buttonStyle(item == group ? .tvPillEmphasized : .tvPill)
-            .focused($railFocus, equals: item)
-            .accessibilityAddTraits(item == group ? .isSelected : [])
+            .tvRailItem(item, selection: $group, focus: $railFocus)
           }
         }
         .focusSection()
@@ -80,8 +79,10 @@ struct TVSettingsView: View {
             }
           }
           .padding(.vertical, 20)
+          .padding(.horizontal, 24)
         }
-        .scrollClipDisabled()
+        // Clipped to the column like Android's settings list: rows scrolling up must not pass over the tab bar.
+        .padding(.horizontal, -24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .focusSection()
       }
@@ -100,6 +101,7 @@ struct TVSettingsView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.load() }
     .onChange(of: railFocus) { previous, focused in

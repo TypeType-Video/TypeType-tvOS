@@ -25,6 +25,15 @@ struct TVLibraryGrid: View {
       .frame(maxWidth: .infinity)
       .padding(.top, 160)
     } else {
+      VStack(alignment: .leading, spacing: 24) {
+        Text("\(videos.count) videos").font(TVType.label).tracking(1.2).foregroundStyle(TVPalette.textMid)
+        grid
+      }
+    }
+  }
+
+  private var grid: some View {
+    Group {
       LazyVGrid(columns: columns, alignment: .leading, spacing: 56) {
         ForEach(Array(videos.enumerated()), id: \.element.canonicalID) { index, video in
           TVVideoCard(video: video, progress: progress[video.canonicalID], width: 360, onOpen: { onOpen(video) })
@@ -39,11 +48,13 @@ struct TVLibraryGrid: View {
 
 struct TVLibraryPlaylist: View {
   @StateObject private var model: LivePlaylistDetailViewModel
+  let playlist: LivePlaylist
   let refresh: Int
   let onOpen: (LiveVideoItem) -> Void
 
   init(playlist: LivePlaylist, service: LivePlaylistsServiceProtocol, refresh: Int, onOpen: @escaping (LiveVideoItem) -> Void) {
     _model = StateObject(wrappedValue: LivePlaylistDetailViewModel(id: playlist.id, seed: playlist, service: service))
+    self.playlist = playlist
     self.refresh = refresh
     self.onOpen = onOpen
   }
@@ -56,7 +67,40 @@ struct TVLibraryPlaylist: View {
       onOpen: onOpen,
       onRetry: { Task { await model.reload() } }
     )
+    .environment(\.tvMenuPlaylist, TVMenuPlaylist(id: playlist.id, name: playlist.name) { _ in
+      Task { await model.reload() }
+    })
     .task { await model.prepare() }
     .onChange(of: refresh) { _, _ in Task { await model.reload() } }
+  }
+}
+
+// A saved playlist lives on the service; its videos come from there, like on Android TV.
+struct TVLibrarySaved: View {
+  @StateObject private var model: LivePublicPlaylistViewModel
+  let onOpen: (LiveVideoItem) -> Void
+
+  init(saved: LiveSavedPlaylist, service: LivePlaylistsServiceProtocol, onOpen: @escaping (LiveVideoItem) -> Void) {
+    _model = StateObject(wrappedValue: LivePublicPlaylistViewModel(
+      playlist: LivePlaylistResult(
+        id: saved.publicPlaylistID, title: saved.title, url: saved.url, thumbnailURL: saved.thumbnailURL,
+        uploaderName: saved.uploaderName, streamCount: saved.streamCount, playlistType: saved.playlistType
+      ),
+      service: service
+    ))
+    self.onOpen = onOpen
+  }
+
+  var body: some View {
+    TVLibraryGrid(
+      videos: model.videos,
+      isLoading: model.state == .loading && model.videos.isEmpty,
+      failure: model.errorMessage,
+      isLoadingMore: model.isLoadingMore,
+      onOpen: onOpen,
+      onNearEnd: { Task { await model.loadMore() } },
+      onRetry: { Task { await model.reload() } }
+    )
+    .task { await model.prepare() }
   }
 }

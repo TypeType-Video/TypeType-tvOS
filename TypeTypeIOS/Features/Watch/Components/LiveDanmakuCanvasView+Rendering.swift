@@ -14,10 +14,10 @@ extension LiveDanmakuCanvasView {
         && controller.activeSponsorBlockWindow(
           at: controller.precisePosition
         ) != nil
-    let topInset = avoidsSponsorBanner
+    let topInset = (avoidsSponsorBanner
       ? min(64, bounds.height * 0.3)
-      : 0
-    let laneCount = avoidsSponsorBanner ? 6 : 8
+      : 0) + bounds.height * Self.topMargin
+    let laneCount = avoidsSponsorBanner ? Self.lanes - 2 : Self.lanes
     let comments = visibleComments(
       at: milliseconds,
       controller: controller
@@ -105,7 +105,7 @@ extension LiveDanmakuCanvasView {
   ) {
     let fontSize = CGFloat(max(
       10,
-      20 * comment.relativeFontSize * sizeMultiplier
+      Self.baseFontSize * comment.relativeFontSize * sizeMultiplier
     ))
     label.text = comment.text
     label.font = .systemFont(ofSize: fontSize, weight: .bold)
@@ -124,8 +124,8 @@ extension LiveDanmakuCanvasView {
   ) {
     let availableHeight = max(bounds.height - topInset, 1)
     let laneHeight = min(
-      max(availableHeight / CGFloat(laneCount), 22),
-      36
+      max(availableHeight * Self.laneArea / CGFloat(laneCount), 22),
+      Self.maxLaneHeight
     )
     let elapsed =
       milliseconds - Double(comment.durationMilliseconds)
@@ -146,4 +146,22 @@ extension LiveDanmakuCanvasView {
       )
     }
   }
+}
+
+extension LiveDanmakuCanvasView {
+  #if os(tvOS)
+  // Android TV's danmaku at TV scale: 30 sp text (a normal comment is 0.7 of the base) on nine lanes in the upper
+  // 62 % of the picture.
+  static let baseFontSize: Double = 86
+  static let lanes = 9
+  static let laneArea: CGFloat = 0.62
+  static let maxLaneHeight: CGFloat = 80
+  static let topMargin: CGFloat = 0.05
+  #else
+  static let baseFontSize: Double = 20
+  static let lanes = 8
+  static let laneArea: CGFloat = 1
+  static let maxLaneHeight: CGFloat = 36
+  static let topMargin: CGFloat = 0
+  #endif
 }

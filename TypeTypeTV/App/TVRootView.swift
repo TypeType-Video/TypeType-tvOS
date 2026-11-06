@@ -25,6 +25,8 @@ struct TVRootView: View {
         TVServerSetupView(coordinator: coordinator)
       case .authentication:
         TVLoginView(coordinator: coordinator)
+      case .authenticated where coordinator.isUsingOfflineSession:
+        TVReconnectView(coordinator: coordinator)
       case .authenticated:
         TVShellView(coordinator: coordinator)
       }

@@ -5,18 +5,22 @@ enum TVLibrarySection: Hashable {
   case favorites
   case watchLater
   case playlist(LivePlaylist)
+  case saved(LiveSavedPlaylist)
 }
 
 struct TVLibraryView: View {
   @StateObject private var collections: LivePlaylistsViewModel
   @StateObject private var history: LiveHistoryViewModel
-  @State private var section = TVLibrarySection.history
+  @Binding var section: TVLibrarySection
   @FocusState private var railFocus: TVLibrarySection?
   let dependencies: AppDependencies
   let refresh: Int
   let onOpen: (LiveVideoItem) -> Void
 
-  init(dependencies: AppDependencies, refresh: Int, onOpen: @escaping (LiveVideoItem) -> Void) {
+  init(
+    dependencies: AppDependencies, refresh: Int, section: Binding<TVLibrarySection>, onOpen: @escaping (LiveVideoItem) -> Void
+  ) {
+    _section = section
     _collections = StateObject(
       wrappedValue: LivePlaylistsViewModel(
         playlistsService: dependencies.playlistsService,
@@ -39,6 +43,7 @@ struct TVLibraryView: View {
           .padding(.vertical, 24)
       }
       .scrollClipDisabled()
+      .tvReportsScroll()
       // The whole column takes the focus: from a section low in the rail, Right still reaches a short grid.
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
       .focusSection()
@@ -48,7 +53,13 @@ struct TVLibraryView: View {
     .focusSection()
     .defaultFocus($railFocus, section, priority: .userInitiated)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
+    .onChange(of: railFocus) { previous, focused in
+      guard let focused else { return }
+      // Coming back from the grid lands on the open section, not on the entry level with the last card.
+      if previous == nil, focused != section { railFocus = section } else { section = focused }
+    }
     .task {
       async let lists: Void = collections.prepare()
       async let watched: Void = history.prepare()
@@ -64,19 +75,23 @@ struct TVLibraryView: View {
   }
 
   private var rail: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: 12) {
       Text("Library")
         .font(TVType.headline)
         .foregroundStyle(TVPalette.textHigh)
-        .padding(.bottom, 16)
+        .padding(.bottom, 28)
       railButton("History", systemImage: "clock.arrow.circlepath", section: .history)
       railButton("Favorites", systemImage: "heart", section: .favorites)
       railButton("Watch later", systemImage: "bookmark", section: .watchLater)
-      ForEach(collections.playlists) { playlist in
+      // Like Android TV: the account's playlists that hold videos, apart from its own Watch later, then the saved ones.
+      ForEach(collections.playlists.filter { $0.videoCount > 0 && $0.name.caseInsensitiveCompare("Watch later") != .orderedSame }) { playlist in
         railButton(LocalizedStringKey(playlist.name), systemImage: "music.note.list", section: .playlist(playlist), verbatim: playlist.name)
       }
+      ForEach(collections.saved) { saved in
+        railButton(LocalizedStringKey(saved.title), systemImage: "books.vertical", section: .saved(saved), verbatim: saved.title)
+      }
     }
-    .frame(width: 440, alignment: .leading)
+    .frame(width: 464, alignment: .leading)
     .focusSection()
   }
 
@@ -87,7 +102,7 @@ struct TVLibraryView: View {
     verbatim: String? = nil
   ) -> some View {
     Button {
-      section = target
+      railFocus = target
     } label: {
       Label {
         if let verbatim { Text(verbatim: verbatim) } else { Text(title) }
@@ -96,9 +111,7 @@ struct TVLibraryView: View {
       }
       .frame(maxWidth: .infinity, alignment: .leading)
     }
-    .buttonStyle(section == target ? .tvPillEmphasized : .tvPill)
-    .focused($railFocus, equals: target)
-    .accessibilityAddTraits(section == target ? .isSelected : [])
+    .tvRailItem(target, selection: $section, focus: $railFocus)
   }
 
   @ViewBuilder
@@ -122,6 +135,9 @@ struct TVLibraryView: View {
     case let .playlist(playlist):
       TVLibraryPlaylist(playlist: playlist, service: dependencies.playlistsService, refresh: refresh, onOpen: onOpen)
         .id(playlist.id)
+    case let .saved(saved):
+      TVLibrarySaved(saved: saved, service: dependencies.playlistsService, onOpen: onOpen)
+        .id(saved.id)
     }
   }
 
