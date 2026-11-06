@@ -69,6 +69,9 @@ struct TVShellView: View {
         .tag(TVTab.settings)
     }
     .background(TVPalette.ink.ignoresSafeArea())
+    .environment(\.livePrewarm) { video in
+      coordinator.dependencies.playbackPrewarmer?.prewarm(video)
+    }
     .fullScreenCover(item: $playing) { video in
       TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies) {
         playing = nil

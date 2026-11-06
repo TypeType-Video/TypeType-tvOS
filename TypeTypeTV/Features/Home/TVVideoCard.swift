@@ -8,6 +8,10 @@ struct TVVideoCard: View {
   var onFocus: (Bool) -> Void = { _ in }
   var externalFocus: FocusState<Bool>.Binding?
   @FocusState private var focused: Bool
+  @Environment(\.livePrewarm) private var prewarm
+  @State private var prewarmTask: Task<Void, Never>?
+
+  private var isFocused: Bool { externalFocus?.wrappedValue ?? focused }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
@@ -35,6 +39,8 @@ struct TVVideoCard: View {
       .buttonStyle(.card)
       .focused(externalFocus ?? $focused)
       .onChange(of: focused) { _, value in onFocus(value) }
+      .onChange(of: isFocused) { _, value in schedulePrewarm(value) }
+      .onDisappear { prewarmTask?.cancel() }
       .accessibilityLabel(Text(verbatim: "\(video.title), \(video.uploaderName)"))
       VStack(alignment: .leading, spacing: 4) {
         Text(verbatim: video.title)
@@ -48,6 +54,25 @@ struct TVVideoCard: View {
       }
       .frame(width: width, alignment: .leading)
       .accessibilityHidden(true)
+    }
+  }
+}
+
+extension TVVideoCard {
+  // The focus rests on a card for a moment before the reader presses it: the instance prepares the stream
+  // meanwhile, as the web client does when a card is hovered. YouTube opens a whole session, so it waits a
+  // little longer than the providers, whose stream is a plain request.
+  private func schedulePrewarm(_ focused: Bool) {
+    prewarmTask?.cancel()
+    prewarmTask = nil
+    guard focused, !video.isLive, !video.url.isEmpty, let prewarm else { return }
+    let isYouTube = video.url.contains("youtube.com") || video.url.contains("youtu.be")
+    let delay: Duration = .milliseconds(isYouTube ? 600 : 250)
+    let video = video
+    // The prewarm closure belongs to the main actor.
+    prewarmTask = Task { @MainActor in
+      try? await Task.sleep(for: delay)
+      if !Task.isCancelled { prewarm(video) }
     }
   }
 }
