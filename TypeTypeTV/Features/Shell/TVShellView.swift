@@ -49,7 +49,7 @@ struct TVShellView: View {
       .tag(TVTab.search)
 
       NavigationStack(path: $libraryPath) {
-        TVComingSoon()
+        TVLibraryView(dependencies: coordinator.dependencies, refresh: playbackEnded, onOpen: { open($0) })
           .navigationDestination(for: TVRoute.self, destination: destination)
       }
       .tabItem { Label("Library", systemImage: "square.stack") }
@@ -93,20 +93,5 @@ struct TVShellView: View {
     case let .playlist(playlist):
       TVPlaylistView(playlist: playlist, dependencies: coordinator.dependencies, onOpen: { open($0) })
     }
-  }
-}
-
-struct TVComingSoon: View {
-  var title: String?
-
-  var body: some View {
-    VStack(spacing: 24) {
-      TVBrandLogo(markSize: 72)
-      if let title {
-        Text(verbatim: title).font(TVType.title).foregroundStyle(TVPalette.textMid)
-      }
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(TVPalette.ink.ignoresSafeArea())
   }
 }
