@@ -4,14 +4,16 @@ struct LiveRemoteImage: View {
   @Environment(\.themePalette) private var palette
   let url: URL?
   let contentMode: ContentMode
+  let size: LiveImageSize
   @State private var loaded: Loaded?
   @State private var failedURL: URL?
   @Environment(\.displayScale) private var displayScale
   @Environment(\.imagePipeline) private var pipeline
 
-  init(url: URL?, contentMode: ContentMode = .fill) {
+  init(url: URL?, contentMode: ContentMode = .fill, size: LiveImageSize = .card) {
     self.url = url
     self.contentMode = contentMode
+    self.size = size
   }
 
   var body: some View {
@@ -54,7 +56,7 @@ struct LiveRemoteImage: View {
   }
 
   private func cached(_ pixels: CGFloat) -> UIImage? {
-    guard let url = LiveImageURLResolver.resolve(url), pixels > 0 else { return nil }
+    guard let url = LiveImageURLResolver.resolve(url, size: size), pixels > 0 else { return nil }
     return pipeline.cachedImage(for: url, maxPixelSize: pixels)
   }
 
@@ -63,7 +65,7 @@ struct LiveRemoteImage: View {
   private func load(_ pixels: CGFloat) async {
     let requested = url
     guard pixels > 0 else { return }
-    guard let resolved = LiveImageURLResolver.resolve(requested) else {
+    guard let resolved = LiveImageURLResolver.resolve(requested, size: size) else {
       failedURL = requested
       return
     }

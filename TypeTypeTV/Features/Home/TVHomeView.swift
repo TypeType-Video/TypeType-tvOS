@@ -100,7 +100,7 @@ struct TVBackdrop: View {
   var body: some View {
     ZStack {
       if shown {
-        TVRemoteImage(url: video.thumbnail)
+        TVRemoteImage(url: video.thumbnail, size: .poster)
           .id(video.canonicalID)
           .transition(.opacity)
       }

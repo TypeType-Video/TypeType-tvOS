@@ -5,7 +5,7 @@ struct TVOpeningPoster: View {
 
   var body: some View {
     ZStack(alignment: .bottomLeading) {
-      TVRemoteImage(url: video.thumbnail).opacity(0.5)
+      TVRemoteImage(url: video.thumbnail, size: .poster).opacity(0.5)
       LinearGradient(colors: [.clear, TVPalette.ink], startPoint: .center, endPoint: .bottom)
       VStack(alignment: .leading, spacing: 20) {
         ProgressView()

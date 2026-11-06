@@ -75,7 +75,7 @@ struct LiveAudioOnlyPoster: View {
   }
 
   private func artwork(width: CGFloat) -> some View {
-    LiveRemoteImage(url: posterURL)
+    LiveRemoteImage(url: posterURL, size: .poster)
       .frame(width: width, height: width * 9 / 16)
       .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
       .shadow(color: .black.opacity(0.4), radius: 12, y: 6)
