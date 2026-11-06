@@ -110,7 +110,7 @@ struct TVPlayerControls: View {
       if let track = controller.captionTrack {
         let on = controller.subtitlesEnabled
         Button {
-          controller.setSubtitlesEnabled(!on)
+          controller.cycleCaptions()
           session.touch()
         } label: {
           Label(on ? track.displayLanguageName : String(localized: "Captions"),
@@ -118,7 +118,7 @@ struct TVPlayerControls: View {
         }
         .buttonStyle(on ? .tvPillEmphasized : .tvPill)
         .focused(focus, equals: .captions)
-        .accessibilityLabel(on ? Text("Captions on, \(track.displayLanguageName). Press to turn them off.")
+        .accessibilityLabel(on ? Text("Captions on, \(track.displayLanguageName). Press for the next language.")
                                : Text("Captions off. Press to turn them on."))
       }
       if controller.supportsBulletComments {

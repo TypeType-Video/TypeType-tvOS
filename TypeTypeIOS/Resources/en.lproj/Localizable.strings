@@ -1139,7 +1139,6 @@
 "Hide the replies" = "Hide the replies";
 "Press OK to show the replies." = "Press OK to show the replies.";
 "Captions" = "Captions";
-"Captions on, %@. Press to turn them off." = "Captions on, %@. Press to turn them off.";
 "Captions off. Press to turn them on." = "Captions off. Press to turn them on.";
 "Up next: %@, %@. Plays in %lld seconds. Press OK to play now, Back to cancel." = "Up next: %@, %@. Plays in %lld seconds. Press OK to play now, Back to cancel.";
 "Back" = "Back";
@@ -1202,5 +1201,6 @@
 "Live chat is shown. Press to hide it." = "Live chat is shown. Press to hide it.";
 "Live chat is hidden. Press to show it." = "Live chat is hidden. Press to show it.";
 "%@, shows the channel" = "%@, shows the channel";
+"Captions on, %@. Press for the next language." = "Captions on, %@. Press for the next language.";
 "Animated profile picture" = "Animated profile picture";
 "Plays an animated picture in the top bar. Turn it off on a slow box." = "Plays an animated picture in the top bar. Turn it off on a slow box.";

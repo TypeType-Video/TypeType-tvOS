@@ -90,24 +90,6 @@ extension LivePlayerController {
     imageMode = mode
   }
 
-  func setSubtitlesEnabled(_ enabled: Bool) {
-    subtitlesEnabled = enabled
-    updateSettings { $0.subtitlesEnabled = enabled }
-    if let item = player.currentItem {
-      configureSubtitles(for: item)
-    }
-    reloadNativeSubtitles()
-  }
-
-  func selectSubtitleLanguage(_ language: String) {
-    selectedSubtitleLanguage = language
-    updateSettings { $0.defaultSubtitleLanguage = language }
-    if let item = player.currentItem {
-      configureSubtitles(for: item)
-    }
-    reloadNativeSubtitles()
-  }
-
   func setSponsorBlockMode(_ mode: String) {
     guard LiveSponsorBlockMode(rawValue: mode) != nil else { return }
     sponsorBlockMode = mode
@@ -147,12 +129,7 @@ extension LivePlayerController {
     updateSettings { $0.sponsorBlockMuteInsteadOfSkip = enabled }
   }
 
-  func setCaptionStyles(_ styles: LiveCaptionStyles) {
-    guard settings.captionStyles != styles else { return }
-    updateSettings { $0.captionStyles = styles }
-  }
-
-  private func updateSettings(
+  func updateSettings(
     _ mutation: (inout LiveSettings) -> Void
   ) {
     mutation(&settings)
