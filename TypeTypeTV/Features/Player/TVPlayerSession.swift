@@ -48,7 +48,13 @@ final class TVPlayerSession: ObservableObject {
   }
 
   func togglePlay() {
-    controller?.togglePlayback()
+    guard let controller else { return }
+    // At the end, Play starts the video over; resuming there would end it at once and restart the Up next countdown.
+    if controller.state != .playing, controller.duration > 0, controller.position >= controller.duration - 1 {
+      controller.replay()
+    } else {
+      controller.togglePlayback()
+    }
     showControls()
   }
 
