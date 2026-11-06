@@ -62,7 +62,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
 
-      - name: Build unsigned Apple TV app
+      - name: Build unsigned tvOS app
         run: |
           xcodebuild build \
             -quiet \

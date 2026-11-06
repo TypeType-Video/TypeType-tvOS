@@ -18,14 +18,14 @@ final class DeviceLoginServiceTests: XCTestCase {
       XCTAssertEqual(request.url?.path, "/api/auth/device/start")
       let body = try XCTUnwrap(URLProtocolStub.bodyData(from: request))
       let payload = try JSONSerialization.jsonObject(with: body) as? [String: String]
-      XCTAssertEqual(payload?["deviceName"], "Apple TV")
+      XCTAssertEqual(payload?["deviceName"], "Living room TV")
       return try Self.response(
         request,
         status: 200,
         body: #"{"deviceCode":"dc","userCode":"ABCD-EFGH","expiresIn":600,"interval":5}"#
       )
     }
-    let started = try await makeService().start(deviceName: "Apple TV")
+    let started = try await makeService().start(deviceName: "Living room TV")
     XCTAssertEqual(started, DeviceLoginStart(deviceCode: "dc", userCode: "ABCD-EFGH", expiresIn: 600, interval: 5))
   }
 

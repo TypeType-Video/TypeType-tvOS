@@ -39,7 +39,7 @@ final class LiveImageURLResolverTests: XCTestCase {
     )
   }
 
-  // The server sends http avatars; ATS only allows local networking, so they never loaded on Apple TV.
+  // The server sends http avatars; ATS only allows local networking, so they never loaded on tvOS.
   func testHTTPAndSchemeRelativeAddressesBecomeHTTPS() {
     XCTAssertEqual(
       resolved("http://i2.hdslb.com/bfs/face/def.jpg"),

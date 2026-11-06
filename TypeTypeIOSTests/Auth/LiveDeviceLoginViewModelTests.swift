@@ -85,7 +85,7 @@ final class LiveDeviceLoginViewModelTests: XCTestCase {
     LiveDeviceLoginViewModel(
       service: service,
       apiBase: try XCTUnwrap(URL(string: "https://example.test/api")),
-      deviceName: "Apple TV",
+      deviceName: "Living room TV",
       now: { clock.now },
       wait: { clock.advance($0) }
     )
