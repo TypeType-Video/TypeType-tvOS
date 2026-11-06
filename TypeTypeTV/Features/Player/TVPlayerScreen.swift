@@ -72,7 +72,9 @@ private struct TVPlayerContent: View {
       }
       if !session.controlsVisible, session.panel == nil, !countdownActive { TVSponsorNotice(controller: controller) }
       if let panel = session.panel { TVPlayerPanel(controller: controller, session: session, actions: actions, engagement: engagement, panel: panel) }
-      if case let .failed(message) = controller.state { failure(message) }
+      if case let .failed(message) = controller.state {
+        TVPlayerFailure(message: message, onRetry: controller.retry, onClose: onClose)
+      }
     }
     .animation(.easeOut(duration: 0.2), value: session.controlsVisible)
     .onExitCommand {
@@ -144,17 +146,4 @@ private struct TVPlayerContent: View {
   }
 
   private var nextVideo: LiveVideoItem? { related.first }
-
-  private func failure(_ message: String) -> some View {
-    VStack(spacing: 32) {
-      Text(verbatim: message).font(TVType.body).foregroundStyle(TVPalette.textHigh).multilineTextAlignment(.center)
-        .frame(maxWidth: 1100)
-      HStack(spacing: 24) {
-        Button("Try again") { controller.retry() }.buttonStyle(.tvPillEmphasized)
-        Button("Close", action: onClose).buttonStyle(.tvPill)
-      }
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Color.black.opacity(0.85))
-  }
 }
