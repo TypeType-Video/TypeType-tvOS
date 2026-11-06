@@ -43,7 +43,11 @@ struct TVHeroBlock: View {
       }
       .frame(width: 860, height: 424, alignment: .bottomLeading)
       .id(video.canonicalID)
-      .transition(.opacity.combined(with: .move(edge: .bottom)))
+      // Android's hero text: the new one rises by a fourteenth of its box and fades in after the old one fades out.
+      .transition(.asymmetric(
+        insertion: .opacity.combined(with: .offset(y: 30)).animation(.easeOut(duration: 0.42).delay(0.12)),
+        removal: .opacity.animation(.easeOut(duration: 0.2))
+      ))
       HStack(spacing: 24) {
         Button(action: onPlay) { Label("Play", systemImage: "play.fill") }
           .buttonStyle(.tvPillEmphasized)

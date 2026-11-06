@@ -39,7 +39,8 @@ struct TVSettingRow: View {
   var body: some View {
     Button { action?() } label: {
       HStack(spacing: 28) {
-        Image(systemName: systemImage).font(.system(size: 30)).frame(width: 48)
+        Image(systemName: systemImage).font(.system(size: 26, weight: .medium))
+          .frame(width: 64, height: 64).background(TVPalette.glass, in: Circle())
         VStack(alignment: .leading, spacing: 6) {
           title.font(TVType.title)
           if let summary { Text(summary).font(TVType.meta).opacity(0.7).lineLimit(2) }

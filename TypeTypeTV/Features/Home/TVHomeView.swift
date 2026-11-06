@@ -125,6 +125,18 @@ struct TVBackdrop: View {
         startPoint: .top,
         endPoint: .bottom
       )
+      // Android's NavScrim: nearly opaque behind the tab bar, so a bright picture never shows through it.
+      LinearGradient(
+        stops: [
+          .init(color: TVPalette.ink.opacity(0.97), location: 0),
+          .init(color: TVPalette.ink.opacity(0.92), location: 0.6),
+          .init(color: .clear, location: 1),
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+      )
+      .frame(height: 230)
+      .frame(maxHeight: .infinity, alignment: .top)
     }
     .animation(.easeOut(duration: 0.45), value: video.canonicalID)
     .ignoresSafeArea()

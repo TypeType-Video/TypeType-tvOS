@@ -40,8 +40,8 @@ struct TVVideoCard: View {
         Text(verbatim: video.title)
           .font(TVType.title)
           .foregroundStyle(TVPalette.textHigh)
-          .lineLimit(2)
-        Text(verbatim: video.uploaderName)
+          .lineLimit(1)
+        Text(verbatim: meta)
           .font(TVType.meta)
           .foregroundStyle(TVPalette.textMid)
           .lineLimit(1)
@@ -49,6 +49,15 @@ struct TVVideoCard: View {
       .frame(width: width, alignment: .leading)
       .accessibilityHidden(true)
     }
+  }
+
+  // Android TV's card line: the channel, then the views, or the viewers of a live.
+  private var meta: String {
+    guard video.viewCount > 0 else { return video.uploaderName }
+    let count = video.isLive
+      ? String(localized: "\(video.viewCount.formatted(.number.notation(.compactName))) watching")
+      : LiveVideoMetadataFormatter.views(video.viewCount)
+    return [video.uploaderName, count].filter { !$0.isEmpty }.joined(separator: " · ")
   }
 }
 
