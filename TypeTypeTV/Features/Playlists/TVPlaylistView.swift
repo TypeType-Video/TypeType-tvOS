@@ -33,6 +33,7 @@ struct TVPlaylistView: View {
         .padding(.bottom, 96)
       }
       .scrollClipDisabled()
+      .tvReportsScroll()
     }
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())

@@ -39,6 +39,7 @@ struct TVChannelScreen: View {
         .padding(.bottom, 96)
       }
       .scrollClipDisabled()
+      .tvReportsScroll()
       .disabled(searching || menuOpen)
       if searching, let page = model.channel {
         TVChannelSearchPanel(channelName: page.name, initial: model.submittedQuery,

@@ -40,6 +40,7 @@ struct TVLibraryView: View {
           .padding(.vertical, 24)
       }
       .scrollClipDisabled()
+      .tvReportsScroll()
       // The whole column takes the focus: from a section low in the rail, Right still reaches a short grid.
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
       .focusSection()

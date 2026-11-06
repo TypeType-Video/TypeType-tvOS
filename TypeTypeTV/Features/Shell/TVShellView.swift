@@ -24,6 +24,7 @@ struct TVShellView: View {
   @State private var playing: LiveVideoItem?
   @State private var playbackEnded = 0
   @State private var menuVideo: LiveVideoItem?
+  @State private var contentScrolled = false
 
   var body: some View {
     TabView(selection: $tab) {
@@ -73,7 +74,9 @@ struct TVShellView: View {
     .environment(\.tvVideoMenu) { menuVideo = $0 }
     .environment(\.tvVideoMenuShown, menuVideo != nil)
     .disabled(menuVideo != nil)
-    .overlay { TVTopBarMarks(user: coordinator.currentUser) }
+    .environment(\.tvContentScrolled) { scrolled in if contentScrolled != scrolled { contentScrolled = scrolled } }
+    .onChange(of: tab) { _, _ in contentScrolled = false }
+    .overlay { TVTopBarMarks(user: coordinator.currentUser, hidden: contentScrolled) }
     .overlay {
       if let video = menuVideo {
         TVVideoMenuPanel(

@@ -47,6 +47,7 @@ struct TVVideoDetailView: View {
         .padding(.bottom, 112)
       }
       .scrollClipDisabled()
+      .tvReportsScroll()
       .disabled(pickingPlaylist)
       if pickingPlaylist {
         TVPlaylistPicker(actions: actions) {

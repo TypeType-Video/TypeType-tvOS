@@ -4,6 +4,7 @@ import SwiftUI
 // place for them, so they sit level with it, above every tab.
 struct TVTopBarMarks: View {
   let user: AuthUser?
+  let hidden: Bool
 
   var body: some View {
     HStack {
@@ -16,7 +17,44 @@ struct TVTopBarMarks: View {
     .padding(.top, 56)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     .ignoresSafeArea()
+    .opacity(hidden ? 0 : 1)
+    .animation(.easeOut(duration: 0.25), value: hidden)
     .allowsHitTesting(false)
+  }
+}
+
+// tvOS slides its tab bar away once the content scrolls; the screens say when, so the logo and the account leave
+// with it instead of staying over the rows.
+private struct TVContentScrolledKey: EnvironmentKey {
+  static let defaultValue: (Bool) -> Void = { _ in }
+}
+
+extension EnvironmentValues {
+  var tvContentScrolled: (Bool) -> Void {
+    get { self[TVContentScrolledKey.self] }
+    set { self[TVContentScrolledKey.self] = newValue }
+  }
+}
+
+private struct TVScrollReporter: ViewModifier {
+  @Environment(\.tvContentScrolled) private var report
+
+  func body(content: Content) -> some View {
+    if #available(tvOS 18.0, *) {
+      content
+        .onScrollGeometryChange(for: Bool.self) { $0.contentOffset.y + $0.contentInsets.top > 40 } action: { _, scrolled in
+          report(scrolled)
+        }
+        .onAppear { report(false) }
+    } else {
+      content
+    }
+  }
+}
+
+extension View {
+  func tvReportsScroll() -> some View {
+    modifier(TVScrollReporter())
   }
 }
 

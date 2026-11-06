@@ -37,6 +37,7 @@ struct TVSubscriptionsView: View {
           .padding(.vertical, 40)
         }
         .scrollClipDisabled()
+        .tvReportsScroll()
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
