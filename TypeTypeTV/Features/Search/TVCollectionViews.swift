@@ -22,59 +22,6 @@ struct TVVideoGrid: View {
   }
 }
 
-struct TVChannelView: View {
-  @StateObject private var model: LiveChannelViewModel
-  let onOpen: (LiveVideoItem) -> Void
-
-  init(url: String, dependencies: AppDependencies, onOpen: @escaping (LiveVideoItem) -> Void) {
-    _model = StateObject(
-      wrappedValue: LiveChannelViewModel(
-        channelURL: url,
-        channelService: dependencies.channelService,
-        subscriptionsService: dependencies.subscriptionsService
-      )
-    )
-    self.onOpen = onOpen
-  }
-
-  var body: some View {
-    ScrollView(.vertical) {
-      VStack(alignment: .leading, spacing: 48) {
-        if let channel = model.channel {
-          HStack(spacing: 32) {
-            TVRemoteImage(url: channel.avatar).frame(width: 140, height: 140).clipShape(Circle())
-            VStack(alignment: .leading, spacing: 8) {
-              Text(verbatim: channel.name).font(TVType.headline).foregroundStyle(TVPalette.textHigh)
-              if channel.subscriberCount > 0 {
-                Text(verbatim: LiveVideoMetadataFormatter.subscribers(channel.subscriberCount))
-                  .font(TVType.meta)
-                  .foregroundStyle(TVPalette.textMid)
-              }
-            }
-          }
-          .padding(.leading, TVDimens.safeStart)
-          .accessibilityElement(children: .combine)
-        }
-        switch model.state {
-        case .idle, .loading:
-          ProgressView().frame(maxWidth: .infinity).padding(.top, 80)
-        case let .failed(message):
-          TVScreenFailure(message: message) { Task { await model.reloadChannel() } }
-        case .empty, .loaded:
-          TVVideoGrid(videos: model.videos, isLoadingMore: model.isLoadingMore, onOpen: onOpen) {
-            Task { await model.loadMore() }
-          }
-        }
-      }
-      .padding(.vertical, 60)
-    }
-    .scrollClipDisabled()
-    .tvContentEdges()
-    .background(TVPalette.ink.ignoresSafeArea())
-    .task { await model.loadIfNeeded() }
-  }
-}
-
 struct TVPlaylistView: View {
   @StateObject private var model: LivePublicPlaylistViewModel
   let onOpen: (LiveVideoItem) -> Void

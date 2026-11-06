@@ -1148,3 +1148,17 @@
 "Search on %@. Press to change the service." = "Recherche sur %@. Appuyez pour changer de service.";
 "Signed in as %@" = "Connecté en tant que %@";
 "Signed in" = "Connecté";
+"Verified channel" = "Chaîne vérifiée";
+"Sort: %@" = "Tri : %@";
+"Searching for %@. OK changes the search." = "Recherche de %@. OK change la recherche.";
+"Clear the search" = "Effacer la recherche";
+"Newest" = "Plus récentes";
+"Popular" = "Populaires";
+"Oldest" = "Plus anciennes";
+"Search %@" = "Rechercher dans %@";
+"Block this channel?" = "Bloquer cette chaîne ?";
+"Its videos will disappear from the home, search and related lists on all your devices." = "Ses vidéos disparaîtront de l’accueil, de la recherche et des suggestions sur tous vos appareils.";
+"Unblock channel" = "Débloquer la chaîne";
+"Nothing to show here yet." = "Rien à afficher pour l’instant.";
+"No video of this channel matches “%@”." = "Aucune vidéo de cette chaîne ne correspond à « %@ ».";
+"PODCASTS" = "PODCASTS";

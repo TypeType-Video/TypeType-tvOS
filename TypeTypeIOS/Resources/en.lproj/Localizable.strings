@@ -1148,3 +1148,17 @@
 "Search on %@. Press to change the service." = "Search on %@. Press to change the service.";
 "Signed in as %@" = "Signed in as %@";
 "Signed in" = "Signed in";
+"Verified channel" = "Verified channel";
+"Sort: %@" = "Sort: %@";
+"Searching for %@. OK changes the search." = "Searching for %@. OK changes the search.";
+"Clear the search" = "Clear the search";
+"Newest" = "Newest";
+"Popular" = "Popular";
+"Oldest" = "Oldest";
+"Search %@" = "Search %@";
+"Block this channel?" = "Block this channel?";
+"Its videos will disappear from the home, search and related lists on all your devices." = "Its videos will disappear from the home, search and related lists on all your devices.";
+"Unblock channel" = "Unblock channel";
+"Nothing to show here yet." = "Nothing to show here yet.";
+"No video of this channel matches “%@”." = "No video of this channel matches “%@”.";
+"PODCASTS" = "PODCASTS";

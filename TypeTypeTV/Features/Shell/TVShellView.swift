@@ -78,22 +78,16 @@ struct TVShellView: View {
     }
   }
 
-  private func open(_ video: LiveVideoItem) {
-    switch tab {
-    case .home: homePath.append(TVRoute.detail(video))
-    case .subscriptions: subscriptionsPath.append(TVRoute.detail(video))
-    case .search: searchPath.append(TVRoute.detail(video))
-    case .library: libraryPath.append(TVRoute.detail(video))
-    case .settings: break
-    }
-  }
+  private func open(_ video: LiveVideoItem) { push(.detail(video)) }
 
-  private func openChannel(_ url: String) {
+  private func openChannel(_ url: String) { push(.channel(url)) }
+
+  private func push(_ route: TVRoute) {
     switch tab {
-    case .home: homePath.append(TVRoute.channel(url))
-    case .subscriptions: subscriptionsPath.append(TVRoute.channel(url))
-    case .search: searchPath.append(TVRoute.channel(url))
-    case .library: libraryPath.append(TVRoute.channel(url))
+    case .home: homePath.append(route)
+    case .subscriptions: subscriptionsPath.append(route)
+    case .search: searchPath.append(route)
+    case .library: libraryPath.append(route)
     case .settings: break
     }
   }
@@ -111,7 +105,8 @@ struct TVShellView: View {
         onOpenChannel: { openChannel($0) }
       )
     case let .channel(url):
-      TVChannelView(url: url, dependencies: coordinator.dependencies, onOpen: { open($0) })
+      TVChannelScreen(url: url, dependencies: coordinator.dependencies, onOpen: { open($0) },
+                      onOpenPlaylist: { push(.playlist($0)) })
     case let .playlist(playlist):
       TVPlaylistView(playlist: playlist, dependencies: coordinator.dependencies, onOpen: { open($0) })
     }
