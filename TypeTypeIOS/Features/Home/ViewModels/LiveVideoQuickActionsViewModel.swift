@@ -100,6 +100,15 @@ final class LiveVideoQuickActionsViewModel: ObservableObject {
     }
   }
 
+  func removeFromPlaylist(id: String) async -> Bool {
+    var removed = false
+    await perform {
+      try await playlistsService.removeVideo(id: id, videoURL: video.url)
+      removed = true
+    }
+    return removed
+  }
+
   func toggleWatched() async {
     await perform {
       if let historyItem {
