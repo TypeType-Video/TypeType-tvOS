@@ -226,7 +226,7 @@ extension LivePlayerController {
     else {
       return nil
     }
-    return source.height
+    return source.effectiveHeight
   }
 
   func selectVideoResolution(_ height: Int?) {
@@ -235,7 +235,7 @@ extension LivePlayerController {
       return
     }
     let candidates = availableVideoSources.filter {
-      $0.height == height
+      $0.effectiveHeight == height
     }
     guard let best = candidates.max(by: {
       ($0.bitrate ?? 0) < ($1.bitrate ?? 0)

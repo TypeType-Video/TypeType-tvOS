@@ -250,7 +250,7 @@ final class LiveServerMediaPreparationTests: XCTestCase {
       preferences: preferences
     )
 
-    guard case let .separateHLS(videoURL, audioURL)? = preparation.providerPlayback else {
+    guard case let .separateHLS(videoURL, audioURL, _)? = preparation.providerPlayback else {
       return XCTFail("NicoNico should play separate HLS tracks.")
     }
     XCTAssertEqual(videoURL.path, "/api/media/m1_video")

@@ -143,7 +143,13 @@ extension LivePlaybackService {
       }
       providerPlayback = .separateHLS(
         videoURL: proxiedVideo,
-        audioURL: proxiedAudio
+        audioURL: proxiedAudio,
+        alternates: providerHLSAlternates(
+          among: videos,
+          selected: video,
+          audio: audio,
+          preferences: preferences
+        )
       )
       usesAuthenticatedLoader = true
     } else if videoMethod == "progressive",

@@ -117,6 +117,9 @@ struct TVShellView: View {
     }
     .animation(.easeOut(duration: 0.26), value: menuRequest?.video.canonicalID)
     .background(TVPalette.ink.ignoresSafeArea())
+    .environment(\.livePrewarm) { video in
+      coordinator.dependencies.playbackPrewarmer?.prewarm(video)
+    }
     .fullScreenCover(item: $playing) { video in
       TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies) {
         playing = nil

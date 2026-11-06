@@ -44,6 +44,8 @@ extension LivePlayerController {
       }
       guard !Task.isCancelled else { return }
       stream = loadedStream
+      streamLoadedAt = Date()
+      streamRefreshClaim = LiveStreamRefreshClaim()
       onMetadataResolved?(video.resolving(with: loadedStream))
       isLoadingFullMetadata = true
       afterFirstFrame { [weak self] in self?.loadFullMetadata(using: service) }

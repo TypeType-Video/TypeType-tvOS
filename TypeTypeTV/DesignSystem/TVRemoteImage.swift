@@ -2,6 +2,8 @@ import SwiftUI
 
 struct TVRemoteImage: View {
   let url: URL?
+  // A full-screen backdrop asks Bilibili for a larger picture than a card does.
+  var size: LiveImageSize = .card
   @State private var loaded: (url: URL?, image: UIImage)?
   @Environment(\.displayScale) private var displayScale
   @Environment(\.imagePipeline) private var pipeline
@@ -33,13 +35,13 @@ struct TVRemoteImage: View {
   // Never another URL's picture: a reused card would show the previous video until the new one arrives.
   private func shownImage(_ pixels: CGFloat) -> UIImage? {
     if let loaded, loaded.url == url { return loaded.image }
-    guard let resolved = LiveImageURLResolver.resolve(url), pixels > 0 else { return nil }
+    guard let resolved = LiveImageURLResolver.resolve(url, size: size), pixels > 0 else { return nil }
     return pipeline.cachedImage(for: resolved, maxPixelSize: pixels)
   }
 
   private func load(_ pixels: CGFloat) async {
     let requested = url
-    guard pixels > 0, let resolved = LiveImageURLResolver.resolve(requested) else { return }
+    guard pixels > 0, let resolved = LiveImageURLResolver.resolve(requested, size: size) else { return }
     if pipeline.cachedImage(for: resolved, maxPixelSize: pixels) != nil { return }
     guard let image = await pipeline.image(for: resolved, maxPixelSize: pixels),
       !Task.isCancelled, requested == url

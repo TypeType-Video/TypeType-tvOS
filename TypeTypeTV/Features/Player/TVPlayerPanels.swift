@@ -82,7 +82,7 @@ struct TVPlayerPanel: View {
       }
       ForEach(LivePlaybackVideoCatalog.resolutionOptions(from: controller.availableVideoSources).reversed(), id: \.selectionID) { source in
         choice(LivePlaybackVideoCatalog.qualityLabel(for: source), selected: isSelected(source)) {
-          controller.selectVideoResolution(source.height)
+          controller.selectVideoResolution(source.effectiveHeight)
         }
       }
     case .audio:
@@ -111,7 +111,7 @@ struct TVPlayerPanel: View {
 
   private func isSelected(_ source: LivePlaybackVideoSource) -> Bool {
     guard let selected = controller.selectedVideoSourceID else { return false }
-    return controller.availableVideoSources.first { $0.selectionID == selected }?.height == source.height
+    return controller.availableVideoSources.first { $0.selectionID == selected }?.effectiveHeight == source.effectiveHeight
   }
 
   private func choice(_ label: String, selected: Bool, action: @escaping () -> Void) -> some View {

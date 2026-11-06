@@ -129,7 +129,7 @@ extension LivePlayerView {
     case .idle, .loading:
       ZStack {
         if !controller.extrasReleased, let poster = posterURL {
-          LiveRemoteImage(url: poster)
+          LiveRemoteImage(url: poster, size: .poster)
             .opacity(0.55)
         }
         ProgressView()

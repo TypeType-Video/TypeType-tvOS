@@ -8,7 +8,7 @@ extension LivePlaybackHTTPServer {
   }
 
   func warmProviderHLSStart() {
-    guard case let .separateHLS(videoURL, audioURL)? = preparation.providerPlayback else { return }
+    guard case let .separateHLS(videoURL, audioURL, _)? = preparation.providerPlayback else { return }
     warmTracks([
       register(target: .upstream(videoURL), pathExtension: "m3u8"),
       register(target: .upstream(audioURL), pathExtension: "m3u8"),

@@ -156,9 +156,9 @@ extension LivePlayerController {
   var currentHeight: Int? {
     let sources = availableVideoSources
     if let selected = selectedVideoSourceID, let source = sources.first(where: { $0.selectionID == selected }) {
-      return source.height
+      return source.effectiveHeight
     }
-    return sources.map(\.height).max()
+    return sources.map(\.effectiveHeight).max()
   }
 
   var qualityLabel: String {

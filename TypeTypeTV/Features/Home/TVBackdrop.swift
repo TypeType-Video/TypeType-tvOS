@@ -25,7 +25,7 @@ struct TVBackdrop: View {
       // screen never shows an empty surface.
       if let preview { TVPreviewVideoView(playback: preview) }
       if shown, !previewShowing {
-        TVRemoteImage(url: artwork)
+        TVRemoteImage(url: artwork, size: .poster)
           .id(key)
           .transition(.opacity)
       }

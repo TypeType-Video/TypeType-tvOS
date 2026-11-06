@@ -3,7 +3,7 @@ import Foundation
 extension LivePlaybackHTTPServer {
   func providerMasterPlaylist() throws -> String {
     guard let providerPlayback = preparation.providerPlayback,
-      case let .separateHLS(videoURL, audioURL) = providerPlayback
+      case let .separateHLS(videoURL, audioURL, alternates) = providerPlayback
     else {
       throw LivePlaybackFailure.invalidPlaylist
     }
@@ -36,22 +36,39 @@ extension LivePlaybackHTTPServer {
     ]
     lines.append(contentsOf: providerSubtitleDeclarations())
 
-    var attributes = [
-      "BANDWIDTH=\(providerBandwidth)",
-      "AUDIO=\"provider-audio\"",
-    ]
-    let codecs = providerCodecs
-    if !codecs.isEmpty {
-      attributes.append("CODECS=\"\(codecs)\"")
-    }
-    if let resolution = providerResolution {
-      attributes.append("RESOLUTION=\(resolution)")
-    }
-    if !preparation.subtitles.isEmpty {
-      attributes.append("SUBTITLES=\"subs\"")
-    }
-    lines.append("#EXT-X-STREAM-INF:\(attributes.joined(separator: ","))")
+    let hasSubtitles = !preparation.subtitles.isEmpty
+    lines.append(
+      LiveProviderHLSVariants.streamInfo(
+        bandwidth: providerBandwidth,
+        resolution: providerResolution,
+        codecs: providerCodecs,
+        hasSubtitles: hasSubtitles
+      )
+    )
     lines.append(localVideoURL.absoluteString)
+    // The chosen quality comes first, so the player starts with it; the others let it drop when the
+    // connection is slow.
+    for alternate in alternates {
+      let route = register(
+        target: .upstream(alternate.url),
+        pathExtension: "m3u8"
+      )
+      guard let localAlternateURL = localURL(
+        routeID: route,
+        extension: "m3u8"
+      ) else {
+        throw LivePlaybackFailure.localPlaybackUnavailable
+      }
+      lines.append(
+        LiveProviderHLSVariants.streamInfo(
+          bandwidth: alternate.bandwidth,
+          resolution: alternate.resolution,
+          codecs: alternate.codecs,
+          hasSubtitles: hasSubtitles
+        )
+      )
+      lines.append(localAlternateURL.absoluteString)
+    }
     lines.append("")
     return lines.joined(separator: "\n")
   }
@@ -87,32 +104,24 @@ extension LivePlaybackHTTPServer {
     }
   }
 
+  // Estimated the same way for the chosen quality and for the alternates, so the player ranks them right.
   private var providerBandwidth: Int {
-    let video = preparation.video?.bitrate ?? 1_500_000
-    let rawAudio = preparation.audio?.bitrate ?? 128_000
-    let audio = rawAudio < 10_000 ? rawAudio * 1_000 : rawAudio
-    return max(video + audio, 256_000)
+    LiveProviderHLSVariants.bandwidth(
+      videoBitrate: preparation.video?.bitrate,
+      height: preparation.video?.effectiveHeight ?? 0,
+      audioBitrate: preparation.audio?.bitrate
+    )
   }
 
   private var providerCodecs: String {
-    [
-      preparation.video?.codec,
-      preparation.audio?.codec,
-    ]
-    .compactMap { value in
-      guard let value, !value.isEmpty else { return nil }
-      return value
-    }
-    .joined(separator: ",")
+    LiveProviderHLSVariants.codecs(video: preparation.video?.codec, audio: preparation.audio?.codec)
   }
 
   private var providerResolution: String? {
-    guard let video = preparation.video,
-      video.width > 0,
-      video.height > 0
-    else {
-      return nil
-    }
-    return "\(video.width)x\(video.height)"
+    guard let video = preparation.video else { return nil }
+    return LiveProviderHLSVariants.resolution(
+      width: video.width,
+      height: video.effectiveHeight
+    )
   }
 }

@@ -106,6 +106,7 @@ private struct TVHomeLoaded: View {
     }
     // Like Android TV: two seconds on the same picture start its muted preview; any move or leaving the screen
     // stops it before the next one.
+    .environment(\.tvHomePreviews, previewsAllowed && previewsOn)
     .task(id: PreviewKey(video: (backdrop ?? hero).canonicalID, allowed: previewsAllowed && previewsOn)) {
       preview.stop()
       guard previewsAllowed, previewsOn, (try? await Task.sleep(for: Self.previewDelay)) != nil else { return }

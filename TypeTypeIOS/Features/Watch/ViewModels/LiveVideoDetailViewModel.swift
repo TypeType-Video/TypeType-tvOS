@@ -64,7 +64,7 @@ final class LiveVideoDetailViewModel: ObservableObject {
       subscriberCount = details.uploaderSubscriberCount > 0 ? details.uploaderSubscriberCount : nil
       category = details.category.flatMap { $0.isEmpty ? nil : $0 }
       chapters = details.chapters
-      bestHeight = details.allVideoSources.map(\.height).max()
+      bestHeight = details.allVideoSources.map(\.effectiveHeight).max()
       related = LiveHomeViewModel.uniqueVisibleVideos(
         details.relatedStreams.filter { !$0.isShortFormContent && $0.canonicalID != video.canonicalID }
       )

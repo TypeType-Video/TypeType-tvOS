@@ -99,7 +99,9 @@ enum LivePlayerImageMode: String, CaseIterable, Identifiable {
 
 enum LiveProviderPlayback {
   case separateProgressive(videoURL: URL, audioURL: URL)
-  case separateHLS(videoURL: URL, audioURL: URL)
+  // `alternates` are the lighter qualities the master playlist offers next to `videoURL`, for the player to
+  // switch to when the connection is slow. Empty when one quality was asked for.
+  case separateHLS(videoURL: URL, audioURL: URL, alternates: [LiveProviderHLSVariant])
 }
 
 struct LivePlaybackPreparation {

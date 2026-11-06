@@ -9,6 +9,11 @@ struct TVVideoCard: View {
   var externalFocus: FocusState<Bool>.Binding?
   @FocusState private var focused: Bool
   @State private var menuOpenedAt: Date?
+  @Environment(\.livePrewarm) private var prewarm
+  @Environment(\.tvHomePreviews) private var homePreviews
+  @State private var prewarmTask: Task<Void, Never>?
+
+  private var isFocused: Bool { externalFocus?.wrappedValue ?? focused }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
@@ -48,6 +53,8 @@ struct TVVideoCard: View {
         if let externalFocus { externalFocus.wrappedValue = true } else { focused = true }
       }
       .onChange(of: focused) { _, value in onFocus(value) }
+      .onChange(of: isFocused) { _, value in schedulePrewarm(value) }
+      .onDisappear { prewarmTask?.cancel() }
       .accessibilityLabel(Text(verbatim: "\(video.title), \(video.uploaderName)"))
       VStack(alignment: .leading, spacing: 4) {
         Text(verbatim: video.title)
@@ -71,6 +78,27 @@ struct TVVideoCard: View {
       ? String(localized: "\(video.viewCount.formatted(.number.notation(.compactName))) watching")
       : LiveVideoMetadataFormatter.views(video.viewCount)
     return [video.uploaderName, count].filter { !$0.isEmpty }.joined(separator: " · ")
+  }
+}
+
+extension TVVideoCard {
+  // The focus rests on a card for a moment before the reader presses it: the instance prepares the stream
+  // meanwhile, as the web client does when a card is hovered. YouTube opens a whole session, so it waits a
+  // little longer than the providers, whose stream is a plain request.
+  private func schedulePrewarm(_ focused: Bool) {
+    prewarmTask?.cancel()
+    prewarmTask = nil
+    guard focused, !video.isLive, !video.url.isEmpty, let prewarm else { return }
+    let isYouTube = video.url.contains("youtube.com") || video.url.contains("youtu.be")
+    // The home preview opens its own YouTube session for the focused card; a second one would only load the server.
+    if isYouTube, homePreviews { return }
+    let delay: Duration = .milliseconds(isYouTube ? 600 : 250)
+    let video = video
+    // The prewarm closure belongs to the main actor.
+    prewarmTask = Task { @MainActor in
+      try? await Task.sleep(for: delay)
+      if !Task.isCancelled { prewarm(video) }
+    }
   }
 }
 
@@ -105,5 +133,16 @@ struct TVShelfRow: View {
       .scrollClipDisabled()
     }
     .focusSection()
+  }
+}
+
+private struct TVHomePreviewsKey: EnvironmentKey {
+  static let defaultValue = false
+}
+
+extension EnvironmentValues {
+  var tvHomePreviews: Bool {
+    get { self[TVHomePreviewsKey.self] }
+    set { self[TVHomePreviewsKey.self] = newValue }
   }
 }
