@@ -1162,3 +1162,5 @@
 "Nothing to show here yet." = "Rien à afficher pour l’instant.";
 "No video of this channel matches “%@”." = "Aucune vidéo de cette chaîne ne correspond à « %@ ».";
 "PODCASTS" = "PODCASTS";
+"Video previews" = "Aperçus vidéo";
+"Plays a muted preview behind the home page. Turn it off on a slow box." = "Lit un aperçu muet derrière l’accueil. À désactiver sur un boîtier lent.";

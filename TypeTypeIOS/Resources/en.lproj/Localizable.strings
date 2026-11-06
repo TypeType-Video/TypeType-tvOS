@@ -1162,3 +1162,5 @@
 "Nothing to show here yet." = "Nothing to show here yet.";
 "No video of this channel matches “%@”." = "No video of this channel matches “%@”.";
 "PODCASTS" = "PODCASTS";
+"Video previews" = "Video previews";
+"Plays a muted preview behind the home page. Turn it off on a slow box." = "Plays a muted preview behind the home page. Turn it off on a slow box.";

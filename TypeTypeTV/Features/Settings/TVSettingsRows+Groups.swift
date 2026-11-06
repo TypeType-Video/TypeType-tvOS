@@ -14,6 +14,9 @@ extension TVSettingsRows {
 
   @ViewBuilder
   var performance: some View {
+    TVSettingRow(systemImage: "play.rectangle", title: "Video previews",
+                 summary: "Plays a muted preview behind the home page. Turn it off on a slow box.",
+                 trailing: .toggle(videoPreviews)) { videoPreviews.toggle() }
     TVSettingRow(systemImage: "photo", title: "Background picture",
                  summary: "Shows the selected video's picture behind the home and video pages. Turn it off on a slow box.",
                  trailing: .toggle(backdrop)) { backdrop.toggle() }

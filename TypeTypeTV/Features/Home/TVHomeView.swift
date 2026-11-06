@@ -2,17 +2,22 @@ import SwiftUI
 
 struct TVHomeView: View {
   @StateObject private var model: LiveShelfHomeViewModel
+  @StateObject private var preview: LivePreviewPlayer
   let refresh: Int
+  let previewsAllowed: Bool
   let onOpen: (LiveVideoItem) -> Void
   let onPlay: (LiveVideoItem) -> Void
 
   init(
     dependencies: AppDependencies,
     refresh: Int,
+    previewsAllowed: Bool,
     onOpen: @escaping (LiveVideoItem) -> Void,
     onPlay: @escaping (LiveVideoItem) -> Void
   ) {
     self.refresh = refresh
+    self.previewsAllowed = previewsAllowed
+    _preview = StateObject(wrappedValue: LivePreviewPlayer(service: dependencies.playbackService))
     _model = StateObject(
       wrappedValue: LiveShelfHomeViewModel(
         loader: LiveShelfHomeLoader(
@@ -36,7 +41,7 @@ struct TVHomeView: View {
       case let .failed(message):
         TVScreenFailure(message: message) { Task { await model.reload() } }
       case let .loaded(home):
-        TVHomeLoaded(home: home, onOpen: onOpen, onPlay: onPlay)
+        TVHomeLoaded(home: home, preview: preview, previewsAllowed: previewsAllowed, onOpen: onOpen, onPlay: onPlay)
       }
     }
     .tvContentEdges()
@@ -48,6 +53,9 @@ struct TVHomeView: View {
 
 private struct TVHomeLoaded: View {
   let home: LiveShelfHome
+  @ObservedObject var preview: LivePreviewPlayer
+  let previewsAllowed: Bool
+  @AppStorage(TVDeviceSetting.videoPreviewsKey) private var previewsOn = true
   let onOpen: (LiveVideoItem) -> Void
   let onPlay: (LiveVideoItem) -> Void
   @State private var heroIndex = 0
@@ -56,11 +64,12 @@ private struct TVHomeLoaded: View {
 
   private static let rotation: Duration = .seconds(9)
   private static let backdropSettle: Duration = .milliseconds(260)
+  private static let previewDelay: Duration = .seconds(2)
 
   var body: some View {
     let hero = home.featured[min(heroIndex, home.featured.count - 1)]
     ZStack(alignment: .topLeading) {
-      TVBackdrop(video: backdrop ?? hero)
+      TVBackdrop(video: backdrop ?? hero, preview: preview.playback, previewShowing: preview.showsFrames)
       ScrollView(.vertical) {
         LazyVStack(alignment: .leading, spacing: 52) {
           TVHeroBlock(
@@ -80,8 +89,8 @@ private struct TVHomeLoaded: View {
       }
       .scrollClipDisabled()
     }
-    .task(id: focusedCard == nil) {
-      guard focusedCard == nil, home.featured.count > 1 else { return }
+    .task(id: focusedCard == nil && !preview.showsFrames) {
+      guard focusedCard == nil, !preview.showsFrames, home.featured.count > 1 else { return }
       while (try? await Task.sleep(for: Self.rotation)) != nil {
         heroIndex = (heroIndex + 1) % home.featured.count
       }
@@ -91,66 +100,14 @@ private struct TVHomeLoaded: View {
       if focusedCard != nil, (try? await Task.sleep(for: Self.backdropSettle)) == nil { return }
       backdrop = focusedCard ?? hero
     }
-  }
-}
-
-struct TVBackdrop: View {
-  let artwork: URL?
-  let key: String
-  @AppStorage(TVDeviceSetting.backdropKey) private var shown = true
-
-  init(video: LiveVideoItem) {
-    artwork = video.thumbnail
-    key = video.canonicalID
-  }
-
-  init(artwork: URL?, key: String) {
-    self.artwork = artwork
-    self.key = key
-  }
-
-  var body: some View {
-    ZStack {
-      if shown {
-        TVRemoteImage(url: artwork)
-          .id(key)
-          .transition(.opacity)
-      }
-      LinearGradient(
-        stops: [
-          .init(color: TVPalette.ink.opacity(0.96), location: 0),
-          .init(color: TVPalette.ink.opacity(0.78), location: 0.42),
-          .init(color: TVPalette.ink.opacity(0.18), location: 0.78),
-          .init(color: .clear, location: 1),
-        ],
-        startPoint: .leading,
-        endPoint: .trailing
-      )
-      LinearGradient(
-        stops: [
-          .init(color: TVPalette.ink.opacity(0.55), location: 0),
-          .init(color: .clear, location: 0.22),
-          .init(color: TVPalette.ink.opacity(0.55), location: 0.58),
-          .init(color: TVPalette.ink, location: 1),
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-      )
-      // Android's NavScrim: nearly opaque behind the tab bar, so a bright picture never shows through it.
-      LinearGradient(
-        stops: [
-          .init(color: TVPalette.ink.opacity(0.97), location: 0),
-          .init(color: TVPalette.ink.opacity(0.92), location: 0.6),
-          .init(color: .clear, location: 1),
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-      )
-      .frame(height: 230)
-      .frame(maxHeight: .infinity, alignment: .top)
+    // Like Android TV: two seconds on the same picture start its muted preview; any move or leaving the screen
+    // stops it before the next one.
+    .task(id: PreviewKey(video: (backdrop ?? hero).canonicalID, allowed: previewsAllowed && previewsOn)) {
+      preview.stop()
+      guard previewsAllowed, previewsOn, (try? await Task.sleep(for: Self.previewDelay)) != nil else { return }
+      preview.show(backdrop ?? hero)
     }
-    .animation(.easeOut(duration: 0.45), value: key)
-    .ignoresSafeArea()
+    .onDisappear { preview.stop() }
   }
 }
 
@@ -170,4 +127,9 @@ struct TVScreenFailure: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
+}
+
+private struct PreviewKey: Hashable {
+  let video: String
+  let allowed: Bool
 }

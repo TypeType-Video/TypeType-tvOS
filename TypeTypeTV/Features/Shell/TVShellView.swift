@@ -30,6 +30,7 @@ struct TVShellView: View {
         TVHomeView(
           dependencies: coordinator.dependencies,
           refresh: playbackEnded,
+          previewsAllowed: tab == .home && homePath.isEmpty && playing == nil,
           onOpen: { open($0) },
           onPlay: { playing = $0 }
         )
