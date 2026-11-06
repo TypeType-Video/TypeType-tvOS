@@ -104,6 +104,7 @@ extension AppDependencies {
       serverProbeService: ServerProbeService(),
       authService: authService,
       oidcService: OIDCService(apiClient: client),
+      deviceLoginService: LiveDeviceLoginService(apiClient: client),
       resetPasswordService: ResetPasswordService(apiClient: client),
       homeFeedService: HomeFeedService(apiClient: client),
       recommenderFeedbackService: LiveRecommenderFeedbackService(apiClient: client),

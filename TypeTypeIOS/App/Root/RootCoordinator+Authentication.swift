@@ -22,6 +22,13 @@ extension RootCoordinator {
     completeAuthentication(result)
   }
 
+  func signInWithDevice(accessToken: String) async throws {
+    let user = try await dependencies.authService.user(accessToken: accessToken)
+    completeAuthentication(
+      AuthSessionResult(user: user, accountIdentifier: nil, accessToken: accessToken)
+    )
+  }
+
   func continueAsGuest() async throws {
     completeAuthentication(
       try await dependencies.authService.guestLogin()

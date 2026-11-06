@@ -6,6 +6,7 @@ final class AppDependencies {
   let serverProbeService: ServerProbeServiceProtocol
   let authService: AuthServiceProtocol
   let oidcService: OIDCServiceProtocol
+  let deviceLoginService: LiveDeviceLoginServiceProtocol?
   let resetPasswordService: ResetPasswordServiceProtocol
   let homeFeedService: HomeFeedServiceProtocol
   let recommenderFeedbackService: LiveRecommenderFeedbackServiceProtocol?
@@ -116,6 +117,7 @@ final class AppDependencies {
     serverProbeService: ServerProbeServiceProtocol,
     authService: AuthServiceProtocol,
     oidcService: OIDCServiceProtocol,
+    deviceLoginService: LiveDeviceLoginServiceProtocol? = nil,
     resetPasswordService: ResetPasswordServiceProtocol,
     homeFeedService: HomeFeedServiceProtocol,
     recommenderFeedbackService: LiveRecommenderFeedbackServiceProtocol? = nil,
@@ -158,6 +160,7 @@ final class AppDependencies {
     self.serverProbeService = serverProbeService
     self.authService = authService
     self.oidcService = oidcService
+    self.deviceLoginService = deviceLoginService
     self.resetPasswordService = resetPasswordService
     self.homeFeedService = homeFeedService
     self.recommenderFeedbackService = recommenderFeedbackService
