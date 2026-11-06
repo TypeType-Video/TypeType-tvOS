@@ -5,6 +5,9 @@ import Foundation
 final class LiveVideoDetailViewModel: ObservableObject {
   @Published private(set) var description: String
   @Published private(set) var subscriberCount: Int64?
+  @Published private(set) var category: String?
+  @Published private(set) var chapters: [LivePlaybackChapter] = []
+  @Published private(set) var bestHeight: Int?
   @Published private(set) var related: [LiveVideoItem]?
   @Published private(set) var resumeSeconds: Int64?
   @Published private(set) var failure: String?
@@ -59,6 +62,9 @@ final class LiveVideoDetailViewModel: ObservableObject {
       let details = try await streamRequest
       if !details.description.isEmpty { description = details.description }
       subscriberCount = details.uploaderSubscriberCount > 0 ? details.uploaderSubscriberCount : nil
+      category = details.category.flatMap { $0.isEmpty ? nil : $0 }
+      chapters = details.chapters
+      bestHeight = details.allVideoSources.map(\.height).max()
       related = LiveHomeViewModel.uniqueVisibleVideos(
         details.relatedStreams.filter { !$0.isShortFormContent && $0.canonicalID != video.canonicalID }
       )

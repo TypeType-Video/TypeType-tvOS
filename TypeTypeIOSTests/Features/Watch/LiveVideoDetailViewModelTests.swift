@@ -18,6 +18,7 @@ final class LiveVideoDetailViewModelTests: XCTestCase {
     )
     await model.load()
     XCTAssertEqual(model.description, "Full description")
+    XCTAssertEqual(model.category, "Film & Animation")
     XCTAssertEqual(model.subscriberCount, 1_200)
     XCTAssertEqual(model.related?.map(\.id), ["a"])
     XCTAssertEqual(model.resumeSeconds, 120)
@@ -70,7 +71,8 @@ final class LiveVideoDetailViewModelTests: XCTestCase {
       thumbnailURL: "", description: description, duration: 596, viewCount: 0, likeCount: 0, dislikeCount: 0,
       uploadDate: "", uploaded: -1, uploaderSubscriberCount: subscribers, uploaderVerified: false, publishedAt: nil,
       startPosition: 0, hlsURL: "", videoStreams: [], audioStreams: [], videoOnlyStreams: [],
-      subtitles: [], chapters: [], sponsorBlockSegments: [], relatedStreams: related, category: nil, isLive: false,
+      subtitles: [], chapters: [], sponsorBlockSegments: [], relatedStreams: related,
+      category: description.isEmpty ? nil : "Film & Animation", isLive: false,
       isPostLive: false, isLiveContent: false
     )
   }
