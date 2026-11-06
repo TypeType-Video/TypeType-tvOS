@@ -1131,3 +1131,10 @@
 "%@ skipped. Press left to watch it." = "%@ skipped. Press left to watch it.";
 "Subscribed to %@" = "Subscribed to %@";
 "Subscribe to %@" = "Subscribe to %@";
+"No comments to show for this video" = "No comments to show for this video";
+"Loading the replies" = "Loading the replies";
+"Could not load the replies. Press OK to try again." = "Could not load the replies. Press OK to try again.";
+"Could not load more replies. Press OK to try again." = "Could not load more replies. Press OK to try again.";
+"Show more replies" = "Show more replies";
+"Hide the replies" = "Hide the replies";
+"Press OK to show the replies." = "Press OK to show the replies.";

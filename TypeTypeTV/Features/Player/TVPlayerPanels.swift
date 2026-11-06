@@ -5,6 +5,8 @@ struct TVPlayerPanel: View {
   @ObservedObject var session: TVPlayerSession
   @ObservedObject var actions: LiveVideoQuickActionsViewModel
   @ObservedObject var engagement: LiveVideoEngagementViewModel
+  let comments: LiveCommentsViewModel
+  let threads: LiveCommentThreads
   let panel: TVPlayerSession.Panel
 
   private static let speeds: [Float] = [0.5, 0.75, 1, 1.25, 1.5, 2]
@@ -17,10 +19,11 @@ struct TVPlayerPanel: View {
           .font(TVType.headline)
           .foregroundStyle(TVPalette.textHigh)
         ScrollView(.vertical) {
-          VStack(alignment: .leading, spacing: 14) { rows }
+          LazyVStack(alignment: .leading, spacing: 14) { rows }
             .padding(.vertical, 12)
+            .padding(.horizontal, 12)
         }
-        .scrollClipDisabled()
+        .padding(.horizontal, -12)
       }
       .padding(.horizontal, 56)
       .padding(.top, 90)
@@ -40,6 +43,7 @@ struct TVPlayerPanel: View {
     case .quality: "Quality"
     case .speed: "Playback speed"
     case .playlists: "Add to a playlist"
+    case .comments: "Comments"
     case .info: "Description"
     }
   }
@@ -51,6 +55,8 @@ struct TVPlayerPanel: View {
       TVPlayerMenuRows(controller: controller, session: session, actions: actions, engagement: engagement)
     case .chapters:
       TVPlayerChapterRows(controller: controller, session: session)
+    case .comments:
+      TVCommentRows(comments: comments, threads: threads)
     case .playlists:
       if actions.playlists.isEmpty {
         Text("You have no playlist yet.").font(TVType.body).foregroundStyle(TVPalette.textMid)

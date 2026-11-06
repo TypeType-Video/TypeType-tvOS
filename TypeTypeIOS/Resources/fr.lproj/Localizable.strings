@@ -1131,3 +1131,10 @@
 "%@ skipped. Press left to watch it." = "Passé : %@. Appuyez à gauche pour le voir.";
 "Subscribed to %@" = "Abonné à %@";
 "Subscribe to %@" = "S’abonner à %@";
+"No comments to show for this video" = "Aucun commentaire à afficher pour cette vidéo";
+"Loading the replies" = "Chargement des réponses";
+"Could not load the replies. Press OK to try again." = "Impossible de charger les réponses. Appuyez sur OK pour réessayer.";
+"Could not load more replies. Press OK to try again." = "Impossible de charger plus de réponses. Appuyez sur OK pour réessayer.";
+"Show more replies" = "Afficher plus de réponses";
+"Hide the replies" = "Masquer les réponses";
+"Press OK to show the replies." = "Appuyez sur OK pour afficher les réponses.";

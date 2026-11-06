@@ -32,6 +32,8 @@ private struct TVPlayerContent: View {
   @StateObject private var session: TVPlayerSession
   @StateObject private var actions: LiveVideoQuickActionsViewModel
   @StateObject private var engagement: LiveVideoEngagementViewModel
+  @StateObject private var comments: LiveCommentsViewModel
+  @StateObject private var threads: LiveCommentThreads
   @FocusState private var focus: TVPlayerFocus?
   @FocusState private var relatedFocus: Bool
   @State private var panelOrigin: TVPlayerFocus?
@@ -48,6 +50,11 @@ private struct TVPlayerContent: View {
     _engagement = StateObject(wrappedValue: LiveVideoEngagementViewModel(
       video: controller.video, allowsSubscription: true, service: dependencies.subscriptionsService
     ))
+    _comments = StateObject(wrappedValue: LiveCommentsViewModel(
+      videoURL: controller.video.url, commentsService: dependencies.commentsService,
+      settingsService: dependencies.settingsService
+    ))
+    _threads = StateObject(wrappedValue: LiveCommentThreads(videoURL: controller.video.url, service: dependencies.commentsService))
   }
 
   var body: some View {
@@ -71,7 +78,12 @@ private struct TVPlayerContent: View {
         .transition(.opacity)
       }
       if !session.controlsVisible, session.panel == nil, !countdownActive { TVSponsorNotice(controller: controller) }
-      if let panel = session.panel { TVPlayerPanel(controller: controller, session: session, actions: actions, engagement: engagement, panel: panel) }
+      if let panel = session.panel {
+        TVPlayerPanel(
+          controller: controller, session: session, actions: actions, engagement: engagement,
+          comments: comments, threads: threads, panel: panel
+        )
+      }
       if case let .failed(message) = controller.state {
         TVPlayerFailure(message: message, onRetry: controller.retry, onClose: onClose)
       }

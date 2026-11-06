@@ -13,6 +13,7 @@ struct TVPlayerMenuRows: View {
         row("chapters", "Chapters", "list.bullet") { session.open(.chapters) }
       }
       row("description", "Description", "info.circle") { session.open(.info) }
+      row("comments", "Comments", "text.bubble") { session.open(.comments) }
       row("favorite", actions.isFavorite ? "Favorited" : "Favorite", actions.isFavorite ? "heart.fill" : "heart") {
         Task { await actions.toggleFavorite() }
       }
