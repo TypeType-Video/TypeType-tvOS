@@ -1194,3 +1194,10 @@
 "Unblock this video" = "Unblock this video";
 "Unblock this channel" = "Unblock this channel";
 "The action could not be completed." = "The action could not be completed.";
+"LIVE CHAT" = "LIVE CHAT";
+"Chat" = "Chat";
+"Connecting to the live chat" = "Connecting to the live chat";
+"No messages yet" = "No messages yet";
+"Live chat is not available for this stream" = "Live chat is not available for this stream";
+"Live chat is shown. Press to hide it." = "Live chat is shown. Press to hide it.";
+"Live chat is hidden. Press to show it." = "Live chat is hidden. Press to show it.";

@@ -21,6 +21,8 @@ final class TVPlayerSession: ObservableObject {
   @Published var relatedOpen = false
   @Published var upNextDismissed = false
   @Published var statsShown = false
+  // Android TV starts a live with its chat open.
+  @Published var chatShown = true
   @Published var panel: Panel?
   // The options row last chosen, so coming back from a section lands on it instead of at the top.
   var menuEntry: String?

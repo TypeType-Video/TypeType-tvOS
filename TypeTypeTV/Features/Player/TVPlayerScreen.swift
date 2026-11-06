@@ -33,6 +33,8 @@ struct TVPlayerContent: View {
   @StateObject var engagement: LiveVideoEngagementViewModel
   @StateObject var comments: LiveCommentsViewModel
   @StateObject var threads: LiveCommentThreads
+  @StateObject var chat: TVLiveChatModel
+  let hasChatService: Bool
   @FocusState var focus: TVPlayerFocus?
   @FocusState var relatedFocus: Bool
   @State var panelOrigin: TVPlayerFocus?
@@ -44,6 +46,8 @@ struct TVPlayerContent: View {
     self.controller = controller
     self.playback = playback
     self.onClose = onClose
+    hasChatService = dependencies.liveChatService != nil
+    _chat = StateObject(wrappedValue: TVLiveChatModel(videoURL: controller.video.url, service: dependencies.liveChatService))
     _session = StateObject(wrappedValue: TVPlayerSession(controller: controller))
     _actions = StateObject(wrappedValue: LiveVideoQuickActionsViewModel(video: controller.video, dependencies: dependencies))
     _engagement = StateObject(wrappedValue: LiveVideoEngagementViewModel(
@@ -58,25 +62,16 @@ struct TVPlayerContent: View {
 
   var body: some View {
     ZStack {
-      TVPlayerVideoSurface(controller: controller)
-      if controller.supportsBulletComments, controller.bulletCommentsEnabled {
-        LiveDanmakuOverlay(controller: controller).allowsHitTesting(false).ignoresSafeArea()
+      picture
+      if chatVisible {
+        TVLiveChatPanel(model: chat, underControls: session.controlsVisible && session.panel == nil)
+          .frame(maxWidth: .infinity, alignment: .trailing)
       }
-      // The top right corner of Android TV's player: statistics, then the marked part being watched.
-      VStack(alignment: .trailing, spacing: 20) {
-        if session.statsShown { TVPlaybackStats(controller: controller) }
-        if controller.sponsorBlockShowCurrentSegment, session.panel == nil { TVSponsorLabel(controller: controller) }
-      }
-      .padding(.trailing, TVDimens.safeStart).padding(.top, 80)
-      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-      .allowsHitTesting(false)
-      if controller.audioOnly { TVAudioOnlyPoster(video: controller.video).transition(.opacity) }
-      TVCaptionOverlay(controller: controller, subtitles: controller.nativeSubtitles, raised: session.controlsVisible)
       if isOpening { TVOpeningPoster(video: controller.video) }
       catcher
       if session.controlsVisible, session.panel == nil {
         VStack(spacing: 0) {
-          TVPlayerControls(controller: controller, session: session, focus: $focus, onNext: nextVideo.map { next in { playback.open(next) } })
+          TVPlayerControls(controller: controller, session: session, focus: $focus, onNext: nextVideo.map { next in { playback.open(next) } }, chatAvailable: chatAvailable)
             .onMoveCommand { if $0 == .down, !session.relatedOpen, !related.isEmpty { session.relatedOpen = true } }
           if session.relatedOpen {
             TVShelfRow(
@@ -102,6 +97,7 @@ struct TVPlayerContent: View {
       }
     }
     .animation(.easeOut(duration: 0.2), value: session.controlsVisible)
+    .animation(.easeOut(duration: 0.2), value: chatVisible)
     .onExitCommand {
       if upNextVideo != nil { return session.upNextDismissed = true }
       let hadPanel = session.panel != nil

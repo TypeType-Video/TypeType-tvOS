@@ -6,6 +6,7 @@ enum TVPlayerFocus: Hashable {
   case play
   case captions
   case danmaku
+  case chat
   case audio
   case quality
   case info
@@ -17,6 +18,7 @@ struct TVPlayerControls: View {
   @ObservedObject var session: TVPlayerSession
   var focus: FocusState<TVPlayerFocus?>.Binding
   let onNext: (() -> Void)?
+  var chatAvailable = false
 
   var body: some View {
     ZStack {
@@ -129,6 +131,17 @@ struct TVPlayerControls: View {
           .focused(focus, equals: .danmaku)
           .accessibilityLabel(on ? Text("Comments on the video are shown. Press to hide them.")
                                  : Text("Comments on the video are hidden. Press to show them."))
+      }
+      if chatAvailable {
+        let on = session.chatShown
+        Button {
+          session.chatShown.toggle()
+          session.touch()
+        } label: { Label("Chat", systemImage: on ? "bubble.left.and.bubble.right.fill" : "bubble.left.and.bubble.right") }
+          .buttonStyle(on ? .tvPillEmphasized : .tvPill)
+          .focused(focus, equals: .chat)
+          .accessibilityLabel(on ? Text("Live chat is shown. Press to hide it.")
+                                 : Text("Live chat is hidden. Press to show it."))
       }
       if controller.audioTracks.count > 1, let track = controller.currentAudioTrack {
         Button { session.open(.audio) } label: { Label(track.label, systemImage: "globe") }
