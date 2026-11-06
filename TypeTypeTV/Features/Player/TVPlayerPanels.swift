@@ -41,6 +41,7 @@ struct TVPlayerPanel: View {
     case .menu: "Player options"
     case .chapters: "Chapters"
     case .quality: "Quality"
+    case .audio: "Audio language"
     case .speed: "Playback speed"
     case .playlists: "Add to a playlist"
     case .comments: "Comments"
@@ -71,6 +72,14 @@ struct TVPlayerPanel: View {
       ForEach(LivePlaybackVideoCatalog.resolutionOptions(from: controller.availableVideoSources).reversed(), id: \.selectionID) { source in
         choice(LivePlaybackVideoCatalog.qualityLabel(for: source), selected: isSelected(source)) {
           controller.selectVideoResolution(source.height)
+        }
+      }
+    case .audio:
+      ForEach(controller.audioTracks) { track in
+        choice(track.original && !track.label.localizedCaseInsensitiveContains(String(localized: "Original"))
+               ? "\(track.label) · \(String(localized: "Original"))" : track.label,
+               selected: track.id == controller.currentAudioTrack?.id) {
+          if track.id != controller.currentAudioTrack?.id { controller.selectAudioSource(track.sourceID) }
         }
       }
     case .speed:

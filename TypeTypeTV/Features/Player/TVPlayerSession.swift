@@ -7,6 +7,7 @@ final class TVPlayerSession: ObservableObject {
     case menu
     case chapters
     case quality
+    case audio
     case speed
     case playlists
     case comments

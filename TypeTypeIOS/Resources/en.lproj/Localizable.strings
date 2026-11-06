@@ -1171,3 +1171,4 @@
 "Connecting to your server" = "Connecting to your server";
 "Checking your session." = "Checking your session.";
 "The server is not answering. The app keeps trying and continues as soon as it is back." = "The server is not answering. The app keeps trying and continues as soon as it is back.";
+"Audio language, %@" = "Audio language, %@";

@@ -34,6 +34,10 @@ struct TVPlayerMenuRows: View {
       row("playlists", "Add to a playlist", "text.badge.plus") { session.open(.playlists) }
         .disabled(!actions.isPrepared)
       row("speed", "Playback speed", "speedometer", value: speedLabel) { session.open(.speed) }
+      row("audio-only", "Audio only", "headphones",
+          value: controller.audioOnly ? String(localized: "On") : String(localized: "Off")) {
+        controller.setAudioOnly(!controller.audioOnly)
+      }
     }
     // Set on the next turn: set during the first layout, the focus engine keeps its own first row instead.
     .onAppear {

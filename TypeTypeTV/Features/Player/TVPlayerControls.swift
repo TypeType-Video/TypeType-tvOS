@@ -5,6 +5,7 @@ enum TVPlayerFocus: Hashable {
   case seek
   case play
   case captions
+  case audio
   case quality
   case info
   case more
@@ -30,9 +31,10 @@ struct TVPlayerControls: View {
         Spacer()
         timeline
         HStack {
-          transportRow
-          Spacer()
-          preferenceRow
+          transportRow.fixedSize()
+          Spacer(minLength: 40)
+          // The chips keep their whole label: the space between the two rows gives way first.
+          preferenceRow.fixedSize()
         }
         .padding(.top, 20)
       }
@@ -114,6 +116,12 @@ struct TVPlayerControls: View {
         .focused(focus, equals: .captions)
         .accessibilityLabel(on ? Text("Captions on, \(track.displayLanguageName). Press to turn them off.")
                                : Text("Captions off. Press to turn them on."))
+      }
+      if controller.audioTracks.count > 1, let track = controller.currentAudioTrack {
+        Button { session.open(.audio) } label: { Label(track.label, systemImage: "globe") }
+          .buttonStyle(.tvPill)
+          .focused(focus, equals: .audio)
+          .accessibilityLabel(Text("Audio language, \(track.label)"))
       }
       if !controller.availableVideoSources.isEmpty {
         Button { session.open(.quality) } label: {
