@@ -66,14 +66,15 @@ final class LiveSearchViewModel: ObservableObject {
       .store(in: &cancellables)
   }
 
-  func submit(_ value: String? = nil, recordsHistory: Bool = true) async {
+  // A search that follows the typing keeps the query as typed, so a space between two words survives it.
+  func submit(_ value: String? = nil, recordsHistory: Bool = true, keepsQuery: Bool = false) async {
     let term = (value ?? query)
       .trimmingCharacters(in: .whitespacesAndNewlines)
     guard !term.isEmpty else {
       resetResults()
       return
     }
-    query = term
+    if !keepsQuery { query = term }
     submittedQuery = term
     suggestions = []
     suggestionTask?.cancel()
