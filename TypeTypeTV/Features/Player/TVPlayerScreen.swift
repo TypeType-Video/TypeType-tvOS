@@ -44,6 +44,7 @@ struct TVPlayerContent: View {
   @FocusState var focus: TVPlayerFocus?
   @FocusState var relatedFocus: Bool
   @State var panelOrigin: TVPlayerFocus?
+  @State var chatMayConnect = false
 
   init(
     controller: LivePlayerController, playback: LivePlaybackCoordinator, dependencies: AppDependencies,
@@ -72,10 +73,11 @@ struct TVPlayerContent: View {
     ZStack {
       picture
       if chatVisible {
-        TVLiveChatPanel(model: chat, underControls: session.controlsVisible && session.panel == nil)
+        TVLiveChatPanel(model: chat, underControls: session.controlsVisible && session.panel == nil, connects: chatMayConnect)
           .frame(maxWidth: .infinity, alignment: .trailing)
       }
-      if isOpening { TVOpeningPoster(video: controller.video) }
+      // The poster covers the picture only: the chat column stays readable while the live opens.
+      if isOpening { TVOpeningPoster(video: controller.video).padding(.trailing, chatInset) }
       catcher
       if session.controlsVisible, session.panel == nil {
         VStack(spacing: 0) {
@@ -110,6 +112,11 @@ struct TVPlayerContent: View {
     }
     .animation(.easeOut(duration: 0.2), value: session.controlsVisible)
     .animation(.easeOut(duration: 0.2), value: chatVisible)
+    .task(id: controller.state == .playing) {
+      guard controller.state == .playing, !chatMayConnect else { return }
+      guard (try? await Task.sleep(for: .seconds(5))) != nil else { return }
+      chatMayConnect = true
+    }
     .onExitCommand {
       if upNextVideo != nil { return session.upNextDismissed = true }
       let hadPanel = session.panel != nil

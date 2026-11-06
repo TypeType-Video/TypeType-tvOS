@@ -8,6 +8,9 @@ struct TVLiveChatPanel: View {
   @ObservedObject var model: TVLiveChatModel
   // The control bar keeps the full width; the newest lines stay above it while it is shown.
   let underControls: Bool
+  // Opened while the live starts, the chat made the live fail (CoreMedia -16845, three times out of three on the
+  // simulator); opened once the live plays, both run. The player says when.
+  var connects = true
 
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
@@ -42,7 +45,8 @@ struct TVLiveChatPanel: View {
     // Opaque: a translucent column over moving video is blended again on every frame.
     .background(TVPalette.surface.ignoresSafeArea())
     .accessibilityHidden(true)
-    .onAppear { model.start() }
+    .onAppear { if connects { model.start() } }
+    .onChange(of: connects) { _, connects in if connects { model.start() } }
     .onDisappear { model.stop() }
   }
 
