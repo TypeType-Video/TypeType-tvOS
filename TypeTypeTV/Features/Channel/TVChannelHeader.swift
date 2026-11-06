@@ -3,20 +3,53 @@ import SwiftUI
 // Android TV's ChannelBanner and ChannelHeader: the banner across the top, the avatar over its lower edge, the name,
 // subscribers and description, then Subscribe and the more button.
 struct TVChannelBanner: View {
+  static let height: CGFloat = 520
   let url: URL?
+  @ObservedObject var scroll: TVBannerScroll
 
   var body: some View {
     ZStack {
-      if let url { TVRemoteImage(url: url).opacity(0.9) }
+      if let url { TVRemoteImage(url: url).opacity(0.9 * (1 - scroll.fraction)) }
       LinearGradient(
         stops: [.init(color: TVPalette.ink.opacity(0.1), location: 0), .init(color: TVPalette.ink.opacity(0.55), location: 0.55),
                 .init(color: TVPalette.ink, location: 1)],
         startPoint: .top, endPoint: .bottom
       )
     }
-    .frame(height: 520)
+    .frame(height: Self.height)
     .frame(maxWidth: .infinity)
     .clipped()
+  }
+}
+
+// How far the page has scrolled over the banner, from 0 to 1. Only the banner observes it, so scrolling never
+// redraws the rest of the page.
+@MainActor
+final class TVBannerScroll: ObservableObject {
+  @Published var fraction: CGFloat = 0
+}
+
+extension View {
+  func tvFadesBanner(_ scroll: TVBannerScroll) -> some View {
+    modifier(TVBannerScrollReader(scroll: scroll))
+  }
+}
+
+private struct TVBannerScrollReader: ViewModifier {
+  let scroll: TVBannerScroll
+
+  func body(content: Content) -> some View {
+    if #available(tvOS 18.0, *) {
+      content.onScrollGeometryChange(for: CGFloat.self) { geometry in
+        // Twenty steps are enough for the eye and keep the updates rare while the page scrolls.
+        let offset = geometry.contentOffset.y + geometry.contentInsets.top
+        return (min(max(offset / TVChannelBanner.height, 0), 1) * 20).rounded() / 20
+      } action: { _, fraction in
+        scroll.fraction = fraction
+      }
+    } else {
+      content
+    }
   }
 }
 

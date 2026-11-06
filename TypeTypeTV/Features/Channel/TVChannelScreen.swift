@@ -5,6 +5,7 @@ struct TVChannelScreen: View {
   @StateObject private var model: LiveChannelViewModel
   @State private var searching = false
   @State private var menuOpen = false
+  @State private var bannerScroll = TVBannerScroll()
   @FocusState private var focus: TVChannelFocus?
   let contentControls: LiveContentControlsServiceProtocol
   let onOpen: (LiveVideoItem) -> Void
@@ -24,9 +25,11 @@ struct TVChannelScreen: View {
 
   var body: some View {
     ZStack {
+      TVChannelBanner(url: model.channel?.banner, scroll: bannerScroll)
+        .frame(maxHeight: .infinity, alignment: .top)
       ScrollView(.vertical) {
         VStack(alignment: .leading, spacing: 0) {
-          TVChannelBanner(url: model.channel?.banner)
+          Color.clear.frame(height: TVChannelBanner.height)
           if let page = model.channel {
             TVChannelHeader(model: model, page: page, focus: $focus) { menuOpen = true }
               .padding(.top, -260)
@@ -40,6 +43,7 @@ struct TVChannelScreen: View {
       }
       .scrollClipDisabled()
       .tvReportsScroll()
+      .tvFadesBanner(bannerScroll)
       .disabled(searching || menuOpen)
       if searching, let page = model.channel {
         TVChannelSearchPanel(channelName: page.name, initial: model.submittedQuery,
