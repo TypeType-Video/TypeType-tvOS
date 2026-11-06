@@ -1,7 +1,7 @@
 import Foundation
 
 extension LiveHomeViewModel {
-  static func inProgress(
+  nonisolated static func inProgress(
     _ items: [LiveHistoryItem]
   ) -> [LiveHistoryItem] {
     var seen: Set<String> = []
@@ -21,7 +21,7 @@ extension LiveHomeViewModel {
       .map { $0 }
   }
 
-  static func uniqueVisibleVideos(
+  nonisolated static func uniqueVisibleVideos(
     _ candidates: [LiveVideoItem]
   ) -> [LiveVideoItem] {
     var seen: Set<String> = []
