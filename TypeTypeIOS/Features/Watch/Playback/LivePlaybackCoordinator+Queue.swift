@@ -64,11 +64,7 @@ extension LivePlaybackCoordinator {
 
   func advanceAfterPlaybackEnd() {
     guard queue.isActive else {
-      // Like Android: outside a queue, autoplay plays the first related video after the countdown.
-      guard let next = controller?.stream?.relatedStreams.first(where: {
-        isPlayable($0) && $0.url != currentVideo?.url && hiddenVideos?.hides($0) != true
-      })
-      else { return }
+      guard let next = upcomingRelated else { return }
       startAutoplayCountdown(.related(next), seconds: appPreferences.preferences.playerAutoplayCountdownSeconds)
       return
     }
@@ -115,6 +111,15 @@ extension LivePlaybackCoordinator {
     }
     guard let pendingAutoplay else { return }
     commitAutoplay(pendingAutoplay)
+  }
+
+  func playUpcomingNow() {
+    if queue.isActive {
+      guard queue.repeatMode != .one, let index = queue.nextIndex else { return }
+      commitAutoplay(.queue(index))
+    } else if let next = upcomingRelated {
+      commitAutoplay(.related(next))
+    }
   }
 
   func cancelAutoplayCountdown() {
