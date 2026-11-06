@@ -8,6 +8,8 @@ struct TVPlayerPanel: View {
   let comments: LiveCommentsViewModel
   let threads: LiveCommentThreads
   let panel: TVPlayerSession.Panel
+  var queue: [LiveVideoItem] = []
+  var onOpen: (LiveVideoItem) -> Void = { _ in }
 
   private static let speeds: [Float] = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
@@ -45,6 +47,7 @@ struct TVPlayerPanel: View {
     case .speed: "Playback speed"
     case .playlists: "Add to a playlist"
     case .comments: "Comments"
+    case .queue: "Up next"
     case .info: "Description"
     }
   }
@@ -53,11 +56,16 @@ struct TVPlayerPanel: View {
   private var rows: some View {
     switch panel {
     case .menu:
-      TVPlayerMenuRows(controller: controller, session: session, actions: actions, engagement: engagement)
+      TVPlayerMenuRows(controller: controller, session: session, actions: actions, engagement: engagement, queueCount: queue.count)
     case .chapters:
       TVPlayerChapterRows(controller: controller, session: session)
     case .comments:
       TVCommentRows(comments: comments, threads: threads)
+    case .queue:
+      TVQueueRows(videos: queue) { video in
+        session.closePanel()
+        onOpen(video)
+      }
     case .playlists:
       if actions.playlists.isEmpty {
         Text("You have no playlist yet.").font(TVType.body).foregroundStyle(TVPalette.textMid)

@@ -83,7 +83,7 @@ struct TVPlayerContent: View {
       if let panel = session.panel {
         TVPlayerPanel(
           controller: controller, session: session, actions: actions, engagement: engagement,
-          comments: comments, threads: threads, panel: panel
+          comments: comments, threads: threads, panel: panel, queue: related, onOpen: { playback.open($0) }
         )
       }
       if case let .failed(message) = controller.state {
