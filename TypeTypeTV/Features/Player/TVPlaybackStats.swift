@@ -17,9 +17,6 @@ struct TVPlaybackStats: View {
     .foregroundStyle(TVPalette.textHigh)
     .padding(.horizontal, 32).padding(.vertical, 24)
     .background(TVPalette.ink.opacity(0.8), in: RoundedRectangle(cornerRadius: TVDimens.panelRadius))
-    .padding(.trailing, TVDimens.safeStart).padding(.top, 80)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-    .allowsHitTesting(false)
     .task {
       while !Task.isCancelled {
         buffer = await controller.nativePlayback?.player.bufferedAhead() ?? 0
@@ -52,5 +49,26 @@ struct TVPlaybackStats: View {
 
   private static func bitrate(_ bits: Int) -> String {
     bits >= 1_000_000 ? String(format: "%.1f Mbps", Double(bits) / 1_000_000) : "\(Int((Double(bits) / 1_000).rounded())) kbps"
+  }
+}
+
+// Android TV's SponsorLabelBadge: the kind of the marked part being watched, while it plays.
+struct TVSponsorLabel: View {
+  @ObservedObject var controller: LivePlayerController
+
+  var body: some View {
+    TimelineView(.periodic(from: .now, by: 0.5)) { _ in
+      if let window = controller.activeSponsorBlockWindow(at: controller.precisePosition) {
+        HStack(spacing: 16) {
+          Circle().fill(TVPalette.accent).frame(width: 18, height: 18)
+          Text(verbatim: LiveSponsorBlockPolicy.title(for: window.segment.category)).font(TVType.title).lineLimit(1)
+        }
+        .foregroundStyle(TVPalette.textHigh)
+        .padding(.horizontal, 28).padding(.vertical, 14)
+        .background(TVPalette.glassStrong, in: Capsule())
+        .transition(.opacity)
+        .accessibilityElement(children: .combine)
+      }
+    }
   }
 }
