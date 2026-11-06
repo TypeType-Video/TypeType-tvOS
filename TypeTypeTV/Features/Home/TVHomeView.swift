@@ -37,7 +37,7 @@ struct TVHomeView: View {
     Group {
       switch model.state {
       case .loading:
-        ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        TVHomeSkeleton()
       case let .failed(message):
         TVScreenFailure(message: message) { Task { await model.reload() } }
       case let .loaded(home):
