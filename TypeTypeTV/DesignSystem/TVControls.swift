@@ -21,45 +21,48 @@ struct TVCircleButton: View {
   }
 }
 
-// A held Select repeats the step like the system player: one step every 280 ms after 400 ms. The release after
-// a hold still fires the button action, which must not add one more step.
+// A held Select repeats the step like the system player: one step every 280 ms once the press is long. The press
+// is seen by the same long-press gesture the video cards use for their menu; its release still fires the button
+// action, which ends the repeat instead of adding one more step.
 struct TVRepeatingCircleButton: View {
   let systemImage: String
   let label: LocalizedStringKey
   let step: () -> Void
   @State private var holding: Task<Void, Never>?
-  @State private var repeated = false
+  @FocusState private var focused: Bool
 
   var body: some View {
     Button {
-      if repeated { repeated = false } else { step() }
+      if holding != nil { stop() } else { step() }
     } label: {
       Image(systemName: systemImage)
         .accessibilityLabel(Text(label))
     }
-    .buttonStyle(TVCircleButtonStyle(onPress: pressed))
-    .onDisappear { holding?.cancel() }
+    .buttonStyle(TVCircleButtonStyle())
+    .focused($focused)
+    .simultaneousGesture(LongPressGesture(minimumDuration: 0.4).onEnded { _ in start() })
+    .onChange(of: focused) { _, focused in if !focused { stop() } }
+    .onDisappear(perform: stop)
   }
 
-  private func pressed(_ down: Bool) {
+  private func start() {
     holding?.cancel()
-    guard down else { return }
-    repeated = false
     holding = Task {
-      guard (try? await Task.sleep(for: .milliseconds(400))) != nil else { return }
-      repeated = true
       repeat { step() } while (try? await Task.sleep(for: .milliseconds(280))) != nil
     }
+  }
+
+  private func stop() {
+    holding?.cancel()
+    holding = nil
   }
 }
 
 struct TVCircleButtonStyle: ButtonStyle {
   var emphasized = false
-  var onPress: ((Bool) -> Void)?
 
   func makeBody(configuration: Configuration) -> some View {
     TVCircleLabel(configuration: configuration, emphasized: emphasized)
-      .onChange(of: configuration.isPressed) { _, pressed in onPress?(pressed) }
   }
 }
 
