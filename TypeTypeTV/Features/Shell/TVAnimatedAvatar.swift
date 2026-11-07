@@ -23,6 +23,11 @@ struct TVAnimatedAvatar: UIViewRepresentable {
     }
     view.plays = playing
   }
+
+  // An image view asks for its picture's size; the badge's circle decides it instead.
+  func sizeThatFits(_ proposal: ProposedViewSize, uiView: TVAnimatingImageView, context: Context) -> CGSize? {
+    proposal.replacingUnspecifiedDimensions()
+  }
 }
 
 // UIKit drops the frame animation of a view that is not in a window yet, or that moves to another one, while
