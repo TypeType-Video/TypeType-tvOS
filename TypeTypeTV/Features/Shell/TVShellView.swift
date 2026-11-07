@@ -68,7 +68,7 @@ struct TVShellView: View {
       .tag(TVTab.home)
 
       NavigationStack(path: $subscriptionsPath) {
-        TVSubscriptionsView(dependencies: coordinator.dependencies, onOpen: { open($0) })
+        TVSubscriptionsView(dependencies: coordinator.dependencies, onOpen: { open($0) }, onOpenChannel: { openChannel($0) })
           .navigationDestination(for: TVRoute.self, destination: destination)
       }
       .tabItem { Label("Subscriptions", systemImage: "play.square.stack") }

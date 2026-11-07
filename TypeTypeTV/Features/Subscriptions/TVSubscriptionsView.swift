@@ -5,14 +5,17 @@ struct TVSubscriptionsView: View {
   @State private var selected: LiveSubscription?
   let dependencies: AppDependencies
   let onOpen: (LiveVideoItem) -> Void
+  let onOpenChannel: (String) -> Void
 
   private static let columns = 3
   private static let cardWidth: CGFloat = 536
 
-  init(dependencies: AppDependencies, onOpen: @escaping (LiveVideoItem) -> Void) {
+  init(dependencies: AppDependencies, onOpen: @escaping (LiveVideoItem) -> Void,
+       onOpenChannel: @escaping (String) -> Void) {
     _model = StateObject(wrappedValue: LiveSubscriptionsViewModel(service: dependencies.subscriptionsService))
     self.dependencies = dependencies
     self.onOpen = onOpen
+    self.onOpenChannel = onOpenChannel
   }
 
   var body: some View {
@@ -28,8 +31,10 @@ struct TVSubscriptionsView: View {
               selected: $selected
             )
             if let selected {
-              TVChannelFeed(url: selected.channelURL, dependencies: dependencies, onOpen: onOpen)
-                .id(selected.channelURL)
+              TVChannelFeed(channel: selected, dependencies: dependencies, onOpen: onOpen) {
+                onOpenChannel(selected.channelURL)
+              }
+              .id(selected.channelURL)
             } else {
               allFeed
             }
@@ -62,18 +67,38 @@ struct TVSubscriptionsView: View {
   }
 }
 
+// The chip filters the feed like Android TV's; the channel page (live, playlists) is one press away.
 private struct TVChannelFeed: View {
   @StateObject private var model: LiveChannelViewModel
+  let name: String
   let onOpen: (LiveVideoItem) -> Void
+  let onOpenChannel: () -> Void
 
-  init(url: String, dependencies: AppDependencies, onOpen: @escaping (LiveVideoItem) -> Void) {
+  init(channel: LiveSubscription, dependencies: AppDependencies, onOpen: @escaping (LiveVideoItem) -> Void,
+       onOpenChannel: @escaping () -> Void) {
     _model = StateObject(wrappedValue: LiveChannelViewModel(
-      channelURL: url, channelService: dependencies.channelService, subscriptionsService: dependencies.subscriptionsService
+      channelURL: channel.channelURL, channelService: dependencies.channelService,
+      subscriptionsService: dependencies.subscriptionsService
     ))
+    name = channel.name
     self.onOpen = onOpen
+    self.onOpenChannel = onOpenChannel
   }
 
   var body: some View {
+    VStack(alignment: .leading, spacing: 32) {
+      HStack(spacing: 32) {
+        Text(verbatim: name).font(TVType.title).foregroundStyle(TVPalette.textHigh).lineLimit(1)
+        Button(action: onOpenChannel) { Label("Open channel", systemImage: "arrow.right") }
+          .buttonStyle(.tvPill)
+          .accessibilityHint(Text("Shows the channel page with its lives and playlists"))
+      }
+      .padding(.horizontal, TVDimens.safeStart)
+      feed
+    }
+  }
+
+  private var feed: some View {
     Group {
       switch model.state {
       case .idle, .loading:
