@@ -112,6 +112,9 @@ struct TVPlayerContent: View {
     }
     .animation(.easeOut(duration: 0.2), value: session.controlsVisible)
     .animation(.easeOut(duration: 0.2), value: chatVisible)
+    .background(TVHeldArrows(enabled: session.panel == nil && !session.isLive && (focus == .catcher || focus == .seek)) {
+      session.scrub(direction: $0)
+    })
     .task(id: controller.state == .playing) {
       guard controller.state == .playing, !chatMayConnect else { return }
       guard (try? await Task.sleep(for: .seconds(5))) != nil else { return }
