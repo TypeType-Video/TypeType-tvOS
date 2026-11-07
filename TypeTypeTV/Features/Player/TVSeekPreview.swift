@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Android TV's SeekPreview: the storyboard picture of the scrub point, the chapter there and the time.
 struct TVSeekPreview: View {
   static let width: CGFloat = 480
   let position: TimeInterval
@@ -30,7 +29,6 @@ struct TVSeekPreview: View {
   }
 }
 
-// Cuts the frame out of the storyboard sheet itself: an offset sheet inside a clipped frame still drew whole.
 private struct TVStoryboardFrame: View {
   let frame: LivePlaybackStoryboardFrame
   @State private var sheet: (url: URL, image: UIImage)?

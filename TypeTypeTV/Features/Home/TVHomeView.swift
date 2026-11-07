@@ -57,7 +57,6 @@ struct TVHomeView: View {
     .task { await model.loadIfNeeded() }
     .onChange(of: refresh) { _, _ in Task { await model.reload() } }
     .onReceive(NotificationCenter.default.publisher(for: .liveSettingsDidChange)) { _ in
-      // The DeArrow choices are settings too: the next load reads them again.
       deArrow.invalidatePreferences()
       Task { await model.reload() }
     }
@@ -66,7 +65,6 @@ struct TVHomeView: View {
 
 private struct TVHomeLoaded: View {
   let home: LiveShelfHome
-  // What the reader blocks from a card's menu leaves the rows at once, before the next load.
   @ObservedObject var hidden: LiveHiddenVideos
   @ObservedObject var preview: LivePreviewPlayer
   let previewsAllowed: Bool
@@ -119,12 +117,9 @@ private struct TVHomeLoaded: View {
       }
     }
     .task(id: focusedCard?.canonicalID ?? hero.canonicalID) {
-      // Only a card waits, so scrolling fast along a row does not load every backdrop on the way.
       if focusedCard != nil, (try? await Task.sleep(for: Self.backdropSettle)) == nil { return }
       backdrop = focusedCard ?? hero
     }
-    // Like Android TV: two seconds on the same picture start its muted preview; any move or leaving the screen
-    // stops it before the next one.
     .environment(\.tvHomePreviews, previewsAllowed && previewsOn)
     .task(id: PreviewKey(video: (backdrop ?? hero).canonicalID, allowed: previewsAllowed && previewsOn)) {
       preview.stop()

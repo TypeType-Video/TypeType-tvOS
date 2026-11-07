@@ -21,9 +21,6 @@ struct TVCircleButton: View {
   }
 }
 
-// A held Select repeats the step like the system player: one step every 280 ms once the press is long. The press
-// is seen by the same long-press gesture the video cards use for their menu; its release still fires the button
-// action, which ends the repeat instead of adding one more step.
 struct TVRepeatingCircleButton: View {
   let systemImage: String
   let label: LocalizedStringKey

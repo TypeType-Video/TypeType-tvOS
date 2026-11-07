@@ -1,7 +1,5 @@
 import Foundation
 
-// Every time is in milliseconds from the first frame, as in the Android TV intro. The startup sound is built on the
-// same numbers: each hop lands on a note and the last landing is the chord, so a change here needs a new sound.
 enum TVSplashTimeline {
   static let total: Double = 6_000
   static let hops = 13
@@ -74,7 +72,6 @@ enum TVSplashTimeline {
   }
 }
 
-// The cubic-bezier easing curves of CSS and Compose: x is time, y is progress.
 struct TVCubicBezier {
   let x1: Double, y1: Double, x2: Double, y2: Double
 

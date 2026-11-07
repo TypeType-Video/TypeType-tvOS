@@ -70,7 +70,6 @@ struct TVSubscriptionsView: View {
   }
 }
 
-// The chip filters the feed like Android TV's; the channel page (live, playlists) is one press away.
 private struct TVChannelFeed: View {
   @StateObject private var model: LiveChannelViewModel
   let name: String

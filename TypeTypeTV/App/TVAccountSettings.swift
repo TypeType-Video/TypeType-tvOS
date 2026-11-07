@@ -1,7 +1,5 @@
 import Foundation
 
-// The account settings the screens read (related videos, the first screen, the search service), loaded once and
-// again whenever a change is saved.
 @MainActor
 final class TVAccountSettings: ObservableObject {
   @Published private(set) var settings: LiveSettings?
@@ -29,8 +27,6 @@ final class TVAccountSettings: ObservableObject {
     }
   }
 
-  // Like Android TV's startup preferences: the first screen is kept on the box, so a slow or failing settings
-  // request at launch still opens where the account asked.
   var landingPage: String? {
     settings?.defaultLandingPage ?? UserDefaults.standard.string(forKey: Self.landingKey)
   }

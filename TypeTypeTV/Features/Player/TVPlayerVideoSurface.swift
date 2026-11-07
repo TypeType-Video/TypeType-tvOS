@@ -55,7 +55,6 @@ private struct TVAVPlayerLayerView: UIViewRepresentable {
   final class PlayerLayerView: UIView {
     override class var layerClass: AnyClass { AVPlayerLayer.self }
     var playerLayer: AVPlayerLayer {
-      // layerClass makes this cast hold for every instance.
       layer as? AVPlayerLayer ?? AVPlayerLayer()
     }
   }

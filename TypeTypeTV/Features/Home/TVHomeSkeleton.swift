@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Android TV's HomeSkeleton at TV scale: where the hero text, its buttons and the first row will be.
 struct TVHomeSkeleton: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -24,7 +23,6 @@ struct TVHomeSkeleton: View {
           }
         }
       }
-      // Wider than the screen like a real row: a fixed width keeps it starting at the margin and running off the right.
       .frame(width: 1808, alignment: .leading)
       .padding(.top, 28)
     }

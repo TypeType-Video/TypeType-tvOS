@@ -1,7 +1,5 @@
 import SwiftUI
 
-// The query bar opens the system keyboard, which brings dictation and typing from an iPhone; the results take
-// the whole width below it and fill in while typing, behind the keyboard.
 struct TVSearchView: View {
   @StateObject private var model: LiveSearchViewModel
   @FocusState private var barFocused: Bool
@@ -36,16 +34,13 @@ struct TVSearchView: View {
     self.onOpenPlaylist = onOpenPlaylist
   }
 
-  // The vertical scroll view lets Up from the top row reach the tab bar, as on the other tabs.
   var body: some View {
     ScrollView(.vertical) { screen }
       .scrollClipDisabled()
       .tvContentEdges()
       .background(TVPalette.ink.ignoresSafeArea())
-      // Coming down from the tab bar lands on the query bar, not on the chip under the Search tab.
       .defaultFocus($barFocused, true, priority: .userInitiated)
       .onChange(of: focusRequest) { _, _ in barFocused = true }
-      // The model searches again by itself when the service or the kind changes; only the typing is followed here.
       .task(id: model.query) { await search() }
       .onChange(of: model.state) { _, state in
         guard focusResults, state == .loaded else { return }
@@ -58,7 +53,6 @@ struct TVSearchView: View {
       }
   }
 
-  // "Search service" in the account settings: a new search looks there first, once per visit of the screen.
   private func startOnDefaultService() async {
     guard !startedOnService, let service = account.settings?.defaultService else { return }
     startedOnService = true
@@ -73,9 +67,6 @@ struct TVSearchView: View {
       TVSearchField(query: $model.query, recent: model.history.map(\.term), focus: $barFocused)
       panel
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        // The outer scroll view proposes no height; the result list scrolls inside this fixed one. Pinned to the
-        // top, a taller state grows downwards instead of moving the whole screen.
-        // Taller, the screen would scroll and pull the tab bar up with it.
         .frame(height: 580, alignment: .topLeading)
         .focusSection()
     }
@@ -111,7 +102,6 @@ struct TVSearchView: View {
     }
   }
 
-  // Searches run while typing and skip the history; opening a result is what makes the term a recent search.
   private func openResult(_ video: LiveVideoItem) {
     let term = model.submittedQuery
     Task { await model.record(term) }
@@ -154,7 +144,6 @@ private struct TVSearchMessage<Content: View>: View {
   }
 }
 
-// Lays the pills out in lines, wrapping when a line is full.
 struct TVFlowLayout: Layout {
   var spacing: CGFloat
 

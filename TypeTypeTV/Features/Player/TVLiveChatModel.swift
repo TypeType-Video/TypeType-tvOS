@@ -1,7 +1,5 @@
 import Foundation
 
-// Feeds the chat column. YouTube pushes its messages in bursts and every redraw is a full-window one on the box
-// GPU, so events are collected and published a few times a second instead of one by one (Android TV's rule).
 @MainActor
 final class TVLiveChatModel: ObservableObject {
   static let publishInterval: Duration = .milliseconds(400)
@@ -19,7 +17,6 @@ final class TVLiveChatModel: ObservableObject {
     self.service = service
   }
 
-  // Opens the connection; `stop` closes it, which is what lets the server end its session.
   func start() {
     guard reader == nil, let service else { return }
     let url = videoURL

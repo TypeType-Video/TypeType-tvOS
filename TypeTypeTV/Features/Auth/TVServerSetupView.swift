@@ -39,7 +39,6 @@ struct TVServerSetupView: View {
       }
     }
     .onAppear { addressFocused = isEnabled }
-    // The screen appears under the startup intro, disabled: the field takes the focus once the intro is gone.
     .onChange(of: isEnabled) { _, enabled in if enabled { addressFocused = true } }
   }
 

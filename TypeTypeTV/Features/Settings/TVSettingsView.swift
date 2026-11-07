@@ -82,7 +82,6 @@ struct TVSettingsView: View {
           .padding(.vertical, 20)
           .padding(.horizontal, 24)
         }
-        // Clipped to the column like Android's settings list: rows scrolling up must not pass over the tab bar.
         .padding(.horizontal, -24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .focusSection()
@@ -108,7 +107,6 @@ struct TVSettingsView: View {
     .task { await model.load() }
     .onChange(of: railFocus) { previous, focused in
       guard let focused else { return }
-      // Coming back from the rows lands on the group being shown, not on the one level with the last row.
       if previous == nil, focused != group {
         railFocus = group
       } else {

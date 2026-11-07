@@ -76,7 +76,6 @@ struct TVPlayerContent: View {
         TVLiveChatPanel(model: chat, underControls: session.controlsVisible && session.panel == nil, connects: chatMayConnect)
           .frame(maxWidth: .infinity, alignment: .trailing)
       }
-      // The poster covers the picture only: the chat column stays readable while the live opens.
       if isOpening { TVOpeningPoster(video: controller.video).padding(.trailing, chatInset) }
       catcher
       if session.controlsVisible, session.panel == nil {
@@ -127,9 +126,7 @@ struct TVPlayerContent: View {
       if !hadPanel { focus = restingFocus }
     }
     .onChange(of: session.controlsVisible) { _, _ in focus = restingFocus }
-    // Moving between controls counts as a press: the 4.5 s before they hide starts over.
     .onChange(of: focus) { _, _ in session.touch() }
-    // Android opens the next video as soon as this one ends; Back on the Up next card stops that.
     .onChange(of: countdownActive) { _, active in
       guard active else { return }
       if session.upNextDismissed || hidesRelated { playback.cancelAutoplayCountdown() } else { playback.playUpcomingNow() }
@@ -137,7 +134,6 @@ struct TVPlayerContent: View {
     .onChange(of: session.relatedOpen) { _, open in
       if open { Task { relatedFocus = true } }
     }
-    // A closed panel gives the focus back to the control that opened it, as on Android TV.
     .onChange(of: session.panel) { old, new in
       if old == nil, new != nil { panelOrigin = focus }
       if old != nil, new == nil { Task { focus = panelOrigin ?? .seek } }

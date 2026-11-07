@@ -1,9 +1,6 @@
 import SwiftUI
 import UIKit
 
-// tvOS sends one move command for a held edge of the clickpad. Android TV repeats a held key about twenty times a
-// second and the scrub grows with each repeat; the same repeats come from here while the left or right edge is
-// held. The recognizers sit on the player's root view, so they see the presses whatever control has the focus.
 struct TVHeldArrows: UIViewRepresentable {
   let enabled: Bool
   let onStep: (Int) -> Void

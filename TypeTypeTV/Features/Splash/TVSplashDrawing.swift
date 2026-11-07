@@ -1,7 +1,5 @@
 import SwiftUI
 
-// The mark drawn by a small square that hops along it: both antennas, a drop onto the divider, the screen outline,
-// then the two buttons. Thirteen moves, one per hop of the timeline.
 struct TVSplashMark {
   private enum Move {
     case trace(stroke: Int, from: CGFloat, to: CGFloat)
@@ -62,7 +60,6 @@ struct TVSplashMark {
   }
 }
 
-// TYPETYPE written in one gesture: a pen point inks each stroke, glides to the next one and ends as the text cursor.
 struct TVSplashWordmark {
   private struct Piece {
     let path: Path?

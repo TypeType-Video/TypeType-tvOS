@@ -1,8 +1,5 @@
 import SwiftUI
 
-// Android TV's ChannelPanel: the channel of the video beside the player, and whether to follow it, without leaving
-// the video. The name, picture and audience show at once; the channel's first page brings the banner and the
-// description.
 struct TVPlayerChannelPanel: View {
   let video: LiveVideoItem
   let service: LiveChannelServiceProtocol
@@ -94,7 +91,6 @@ struct TVPlayerChannelPanel: View {
   @ViewBuilder
   private var description: some View {
     if !loaded {
-      // Android's DescriptionSkeleton: three lines while the channel page loads.
       VStack(alignment: .leading, spacing: 20) {
         ForEach([1, 0.92, 0.6], id: \.self) { width in
           Capsule().fill(TVPalette.surfaceRaised).frame(width: 648 * width, height: 28)
@@ -108,7 +104,6 @@ struct TVPlayerChannelPanel: View {
   }
 }
 
-// Android TV's AvatarButton in the player's preference row: the channel's picture, which opens its panel.
 struct TVChannelAvatarButton: View {
   let video: LiveVideoItem
   let action: () -> Void

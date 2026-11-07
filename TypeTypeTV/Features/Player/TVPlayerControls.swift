@@ -37,7 +37,6 @@ struct TVPlayerControls: View {
         HStack {
           transportRow.fixedSize()
           Spacer(minLength: 40)
-          // The chips keep their whole label: the space between the two rows gives way first.
           preferenceRow.fixedSize()
         }
         .padding(.top, 20)
@@ -122,7 +121,6 @@ struct TVPlayerControls: View {
                                : Text("Captions off. Press to turn them on."))
       }
       if controller.supportsBulletComments {
-        // Android TV's comments chip: the comments that fly over a NicoNico video, shown or not.
         let on = controller.bulletCommentsEnabled
         Button {
           controller.setBulletCommentsEnabled(!on)

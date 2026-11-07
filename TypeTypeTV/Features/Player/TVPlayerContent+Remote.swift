@@ -1,7 +1,6 @@
 import SwiftUI
 
 extension TVPlayerContent {
-  // Takes the remote while the controls are hidden: Select pauses, Left and Right scrub, Up and Down bring the controls.
   var catcher: some View {
     Button(action: select) { Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity) }
       .buttonStyle(TVBareButtonStyle())
@@ -31,8 +30,6 @@ extension TVPlayerContent {
     controller.position == 0 && (controller.state == .loading || controller.state == .idle)
   }
 
-  // The account's "More videos" switch, as on Android TV: off, the player has no related row and nothing plays next
-  // outside a queue.
   var related: [LiveVideoItem] {
     guard !hidesRelated else { return [] }
     return controller.stream?.relatedStreams.filter { !$0.isShortFormContent && !$0.isLive } ?? []

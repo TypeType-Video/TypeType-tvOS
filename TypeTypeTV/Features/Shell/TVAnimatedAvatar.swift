@@ -2,8 +2,6 @@ import ImageIO
 import SwiftUI
 import UIKit
 
-// The account picture when it is animated (a GIF or an animated WebP or PNG). Its frames are decoded once, away
-// from the main thread, at the size shown; a still picture returns nil and the caller shows it as usual.
 struct TVAnimatedAvatar: UIViewRepresentable {
   let frames: TVAvatarFrames
   let playing: Bool
@@ -24,14 +22,11 @@ struct TVAnimatedAvatar: UIViewRepresentable {
     view.plays = playing
   }
 
-  // An image view asks for its picture's size; the badge's circle decides it instead.
   func sizeThatFits(_ proposal: ProposedViewSize, uiView: TVAnimatingImageView, context: Context) -> CGSize? {
     proposal.replacingUnspecifiedDimensions()
   }
 }
 
-// UIKit drops the frame animation of a view that is not in a window yet, or that moves to another one, while
-// isAnimating still answers true: the animation is started again once the view is on screen.
 final class TVAnimatingImageView: UIImageView {
   var plays = false {
     didSet { refresh() }
@@ -82,7 +77,6 @@ struct TVAvatarFrames: Equatable {
     return images.count > 1 ? TVAvatarFrames(images: images, duration: duration) : nil
   }
 
-  // Browsers show a frame that asks for less than 20 ms for 100 ms; doing the same keeps old GIFs at their speed.
   private static func delay(_ source: CGImageSource, _ index: Int) -> TimeInterval {
     let properties = CGImageSourceCopyPropertiesAtIndex(source, index, nil) as? [CFString: Any] ?? [:]
     let containers = [kCGImagePropertyGIFDictionary, kCGImagePropertyWebPDictionary, kCGImagePropertyPNGDictionary]

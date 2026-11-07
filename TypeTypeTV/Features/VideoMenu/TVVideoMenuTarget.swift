@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Opens the options of a video from anywhere in the app; the shell shows the panel over every tab.
 private struct TVVideoMenuKey: EnvironmentKey {
   static let defaultValue: ((TVVideoMenuRequest) -> Void)? = nil
 }
@@ -9,7 +8,6 @@ private struct TVMenuPlaylistKey: EnvironmentKey {
   static let defaultValue: TVMenuPlaylist? = nil
 }
 
-// The account playlist a grid shows: its videos get "Remove from" in their menu, as on Android TV.
 struct TVMenuPlaylist {
   let id: String
   let name: String
@@ -42,8 +40,6 @@ extension EnvironmentValues {
   }
 }
 
-// A long press on a video opens its options. The release of that press follows right after and must not open the
-// video too; the view that opened the menu takes the focus back once it closes, as on Android TV.
 struct TVVideoMenuTarget: ViewModifier {
   let video: LiveVideoItem
   @Binding var openedAt: Date?

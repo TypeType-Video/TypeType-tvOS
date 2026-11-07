@@ -71,7 +71,6 @@ struct TVVideoCard: View {
     }
   }
 
-  // Android TV's card line: the channel, then the views, or the viewers of a live.
   private var meta: String {
     guard video.viewCount > 0 else { return video.uploaderName }
     let count = video.isLive
@@ -82,19 +81,14 @@ struct TVVideoCard: View {
 }
 
 extension TVVideoCard {
-  // The focus rests on a card for a moment before the reader presses it: the instance prepares the stream
-  // meanwhile, as the web client does when a card is hovered. YouTube opens a whole session, so it waits a
-  // little longer than the providers, whose stream is a plain request.
   private func schedulePrewarm(_ focused: Bool) {
     prewarmTask?.cancel()
     prewarmTask = nil
     guard focused, !video.isLive, !video.url.isEmpty, let prewarm else { return }
     let isYouTube = video.url.contains("youtube.com") || video.url.contains("youtu.be")
-    // The home preview opens its own YouTube session for the focused card; a second one would only load the server.
     if isYouTube, homePreviews { return }
     let delay: Duration = .milliseconds(isYouTube ? 600 : 250)
     let video = video
-    // The prewarm closure belongs to the main actor.
     prewarmTask = Task { @MainActor in
       try? await Task.sleep(for: delay)
       if !Task.isCancelled { prewarm(video) }

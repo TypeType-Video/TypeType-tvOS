@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Android TV's CaptionStylePanel: each row moves its choice one step, and the sample shows the result at once.
 struct TVCaptionStyleRows: View {
   @ObservedObject var controller: LivePlayerController
   @FocusState private var first: Bool

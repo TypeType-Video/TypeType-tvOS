@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Android TV's ChannelSearch: the search keyboard over the page; OK on Search runs it, Back leaves it as it was.
 struct TVChannelSearchPanel: View {
   let channelName: String
   let initial: String
@@ -25,7 +24,6 @@ struct TVChannelSearchPanel: View {
     .frame(width: 960)
     .padding(40)
     .background(TVPalette.surface, in: RoundedRectangle(cornerRadius: TVDimens.panelRadius))
-    // Below the tab bar: the keyboard is tall enough to reach it when centred.
     .padding(.top, 150)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     .background(TVPalette.ink.opacity(0.8).ignoresSafeArea())
@@ -36,7 +34,6 @@ struct TVChannelSearchPanel: View {
   }
 }
 
-// The rarely used channel actions, behind "…" like Android TV's ChannelMoreMenu, with the same question before a block.
 struct TVChannelMoreMenu: View {
   let channel: LiveContentControlItem
   let service: LiveContentControlsServiceProtocol

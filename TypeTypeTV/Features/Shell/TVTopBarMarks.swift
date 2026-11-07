@@ -1,7 +1,5 @@
 import SwiftUI
 
-// Android TV's TopNav has the logo on the left and the account on the right of the tabs. The tvOS tab bar has no
-// place for them, so they sit level with it, above every tab.
 struct TVTopBarMarks: View {
   let user: AuthUser?
   let hidden: Bool
@@ -23,8 +21,6 @@ struct TVTopBarMarks: View {
   }
 }
 
-// tvOS slides its tab bar away once the content scrolls; the screens say when, so the logo and the account leave
-// with it instead of staying over the rows.
 private struct TVContentScrolledKey: EnvironmentKey {
   static let defaultValue: (Bool) -> Void = { _ in }
 }
@@ -70,14 +66,12 @@ struct TVAccountBadge: View {
     ZStack {
       Circle().fill(Color(hex24: 0x7F1D1D))
       Text(verbatim: Self.initials(user?.publicUsername)).font(TVType.label).foregroundStyle(TVPalette.accentSoft)
-      // An emoji avatar's address is an SVG, which UIKit cannot draw: the emoji itself is shown, as on iPhone.
       if let emoji {
         Circle().fill(TVPalette.surfaceRaised)
         Text(verbatim: emoji).font(.system(size: 36))
       } else if let frames, animates {
         TVAnimatedAvatar(frames: frames, playing: settled).clipShape(Circle())
       } else if let url = user?.avatarURL {
-        // Without a placeholder the initials stay visible while the picture loads or when it fails.
         TVRemoteImage(url: url, placeholder: false).clipShape(Circle())
       }
     }
@@ -86,8 +80,6 @@ struct TVAccountBadge: View {
       guard animates, emoji == nil, let url = user?.avatarURL else { return frames = nil }
       frames = await TVAvatarFrames.load(url, pixels: 64 * displayScale)
     }
-    // Android TV's RemoteActivity: an animated picture redraws the screen on its own, so it waits while the
-    // focus moves and plays again two seconds after the last move.
     .onReceive(NotificationCenter.default.publisher(for: UIFocusSystem.didUpdateNotification)) { _ in
       guard frames != nil, animates else { return }
       settled = false

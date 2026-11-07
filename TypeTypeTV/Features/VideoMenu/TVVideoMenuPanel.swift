@@ -1,7 +1,5 @@
 import SwiftUI
 
-// Android TV's VideoMenuPanel: a long press on a card opens the same actions as the video page, without leaving
-// the row. The focus stays in the panel until Back closes it.
 struct TVVideoMenuPanel: View {
   @StateObject private var actions: LiveVideoQuickActionsViewModel
   @StateObject private var blocking: LiveVideoBlocking
@@ -49,7 +47,6 @@ struct TVVideoMenuPanel: View {
         row("playlists", "Add to a playlist", "text.badge.plus") { pickingPlaylist = true }
           .disabled(!actions.isPrepared)
         if let playlist {
-          // The card is gone once removed, so the menu closes without giving the focus back to it.
           row("remove", "Remove from \(playlist.name)", "text.badge.minus") {
             Task {
               removeFailed = !(await actions.removeFromPlaylist(id: playlist.id))
@@ -81,7 +78,6 @@ struct TVVideoMenuPanel: View {
         }
         Spacer(minLength: 0)
       }
-      // The narrower picker covers the menu: the rows would show beside it.
       .opacity(pickingPlaylist ? 0 : 1)
       .padding(.leading, 56).padding(.trailing, TVDimens.safeStart).padding(.top, 90).padding(.bottom, 60)
       .frame(width: 880)

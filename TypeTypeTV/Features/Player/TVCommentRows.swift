@@ -120,7 +120,6 @@ private struct TVCommentCard: View {
   }
 }
 
-// A card made to be read: it lifts a little and shows an accent bar instead of turning white.
 private struct TVReadingRowStyle: ButtonStyle {
   func makeBody(configuration: Configuration) -> some View {
     TVReadingRowLabel(configuration: configuration)

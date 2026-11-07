@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Android TV's SearchKeyboard: nine keys a row, then space, delete, clear and the voice key.
 struct TVSearchKeyboard: View {
   @Binding var query: String
   var firstKey: FocusState<Bool>.Binding
@@ -40,8 +39,6 @@ struct TVSearchKeyboard: View {
       .accessibilityLabel(Text(label))
   }
 
-  // tvOS gives dictation only to its own keyboard: this key is a hidden text field, so selecting it opens the
-  // system keyboard, where the remote's microphone types the words.
   private var voiceKey: some View {
     ZStack {
       TVKeyFace(focused: voiceFocused) { Image(systemName: "mic.fill").font(.system(size: 30, weight: .medium)) }

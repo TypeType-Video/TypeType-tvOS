@@ -1,7 +1,5 @@
 import SwiftUI
 
-// Android TV's QueryField: the query with a blinking cursor, and while it is empty a translucent ghost that types
-// "Type anything" and then the recent searches, one after another. Only this view redraws while it animates.
 struct TVQueryField: View {
   let query: String
   let recent: [String]
@@ -61,7 +59,6 @@ struct TVQueryField: View {
     }
   }
 
-  // Types at a hand's uneven pace, rests with a blinking cursor, then erases faster than it typed.
   private func ghostWrite() async {
     let list = phrases
     shown = 0

@@ -1,7 +1,5 @@
 import SwiftUI
 
-// Selecting the bar opens the system keyboard: Siri dictation and typing from an iPhone only exist there. The
-// text field is nearly transparent so the drawn query, with its cursor and ghost text, stays what is seen.
 struct TVSearchField: View {
   @Binding var query: String
   let recent: [String]

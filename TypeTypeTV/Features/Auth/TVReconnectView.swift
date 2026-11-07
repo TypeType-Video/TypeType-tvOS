@@ -1,7 +1,5 @@
 import SwiftUI
 
-// Android TV's ReconnectScreen: the saved session cannot be checked because the server does not answer. The app
-// keeps trying, waiting 2 s, then twice as long each time up to 30 s, and carries on as soon as the server is back.
 struct TVReconnectView: View {
   @ObservedObject var coordinator: RootCoordinator
   @State private var failedAttempts = 0
@@ -35,8 +33,6 @@ struct TVReconnectView: View {
       guard let server = coordinator.selectedServer, let baseURL = server.baseURL else { return }
       do {
         _ = try await coordinator.dependencies.serverProbeService.probe(baseURL: baseURL)
-        // Not awaited here: the session restore hides this screen, and cancelling this task with it would cancel
-        // the restore halfway and drop the app back offline.
         Task { [coordinator] in await coordinator.selectServer(server) }
         return
       } catch is CancellationError {

@@ -22,10 +22,8 @@ final class TVPlayerSession: ObservableObject {
   @Published var relatedOpen = false
   @Published var upNextDismissed = false
   @Published var statsShown = false
-  // Android TV starts a live with its chat open.
   @Published var chatShown = true
   @Published var panel: Panel?
-  // The options row last chosen, so coming back from a section lands on it instead of at the top.
   var menuEntry: String?
   private var panelFromMenu = false
   @Published private(set) var scrub = LiveScrubState()
@@ -52,7 +50,6 @@ final class TVPlayerSession: ObservableObject {
     touch()
   }
 
-  // Every remote press restarts the timer: the controls hide 4.5 s after the last one while the video plays.
   func touch() {
     hideTask?.cancel()
     hideTask = Task { [weak self] in
@@ -64,7 +61,6 @@ final class TVPlayerSession: ObservableObject {
 
   func togglePlay() {
     guard let controller else { return }
-    // At the end, Play starts the video over; resuming there would end it at once and restart the Up next countdown.
     if controller.state != .playing, controller.duration > 0, controller.position >= controller.duration - 1 {
       controller.replay()
     } else {
@@ -84,8 +80,6 @@ final class TVPlayerSession: ObservableObject {
     touch()
   }
 
-  // The picture holds still while the target moves, and plays again from the chosen point after a short pause.
-  // Left after an automatic skip goes back to the start of the skipped part; it is not skipped again.
   func undoSkip() -> Bool {
     guard let controller, let notice = controller.sponsorBlockNotice, !notice.muted else { return false }
     controller.sponsorBlockNotice = nil
@@ -114,8 +108,6 @@ final class TVPlayerSession: ObservableObject {
     }
   }
 
-  // Playback resumes before the seek: the controller keeps a playing video playing across a seek, while a resume after
-  // it would find the player still loading and leave the video paused.
   func commitScrub() {
     commitTask?.cancel()
     let target = scrub.commit()
@@ -125,7 +117,6 @@ final class TVPlayerSession: ObservableObject {
     traceSeek(to: TimeInterval(target) / 1_000)
   }
 
-  // Same line as the Android TV app writes, so both apps can be compared from their logs.
   private func traceSeek(to target: TimeInterval) {
     let started = ContinuousClock.now
     Task { [weak self] in
@@ -141,7 +132,6 @@ final class TVPlayerSession: ObservableObject {
     }
   }
 
-  // Back closes the innermost layer first; false means the player itself should close.
   func back() -> Bool {
     if scrub.isActive {
       commitTask?.cancel()

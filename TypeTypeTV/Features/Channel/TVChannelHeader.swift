@@ -1,7 +1,5 @@
 import SwiftUI
 
-// Android TV's ChannelBanner and ChannelHeader: the banner across the top, the avatar over its lower edge, the name,
-// subscribers and description, then Subscribe and the more button.
 struct TVChannelBanner: View {
   static let height: CGFloat = 520
   let url: URL?
@@ -22,8 +20,6 @@ struct TVChannelBanner: View {
   }
 }
 
-// How far the page has scrolled over the banner, from 0 to 1. Only the banner observes it, so scrolling never
-// redraws the rest of the page.
 @MainActor
 final class TVBannerScroll: ObservableObject {
   @Published var fraction: CGFloat = 0
@@ -41,7 +37,6 @@ private struct TVBannerScrollReader: ViewModifier {
   func body(content: Content) -> some View {
     if #available(tvOS 18.0, *) {
       content.onScrollGeometryChange(for: CGFloat.self) { geometry in
-        // Twenty steps are enough for the eye and keep the updates rare while the page scrolls.
         let offset = geometry.contentOffset.y + geometry.contentInsets.top
         return (min(max(offset / TVChannelBanner.height, 0), 1) * 20).rounded() / 20
       } action: { _, fraction in

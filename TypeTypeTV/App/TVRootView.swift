@@ -31,7 +31,6 @@ struct TVRootView: View {
         TVShellView(coordinator: coordinator)
       }
     }
-    // The app starts under the intro; it takes no remote press until the intro is gone.
     .disabled(splashPlaying)
     .overlay {
       if splashPlaying { TVStartupSplash(short: shortIntro) { splashPlaying = false } }

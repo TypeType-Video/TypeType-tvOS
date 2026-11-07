@@ -60,8 +60,6 @@ struct TVVideoDetailView: View {
     }
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
-    // A default focus, not an assignment on appear: the page appears again each time its tab is passed over in the
-    // tab bar, and an assignment would pull the focus out of the bar.
     .defaultFocus($focus, .play)
     .onChange(of: focusRequest) { _, _ in focus = .play }
     .task {
@@ -115,7 +113,6 @@ struct TVVideoDetailView: View {
     } else if let videos = model.related, !videos.isEmpty {
       TVShelfRow(shelf: LiveHomeShelf(id: "related", title: String(localized: "MORE LIKE THIS"), videos: videos), onOpen: onOpen)
     } else if model.related == nil {
-      // Android's RelatedSkeleton: the cards of the row before they arrive.
       HStack(spacing: 40) {
         ForEach(0..<5, id: \.self) { _ in
           VStack(alignment: .leading, spacing: 20) {

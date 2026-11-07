@@ -21,8 +21,6 @@ struct TVBackdrop: View {
 
   var body: some View {
     ZStack {
-      // The preview plays under the picture, which stays drawn until the first frame and then fades away, so the
-      // screen never shows an empty surface.
       if let preview { TVPreviewVideoView(playback: preview) }
       if shown, !previewShowing {
         TVRemoteImage(url: artwork, size: .poster)
@@ -49,7 +47,6 @@ struct TVBackdrop: View {
         startPoint: .top,
         endPoint: .bottom
       )
-      // Android's NavScrim: nearly opaque behind the tab bar, so a bright picture never shows through it.
       LinearGradient(
         stops: [
           .init(color: TVPalette.ink.opacity(0.97), location: 0),

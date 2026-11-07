@@ -6,7 +6,6 @@ enum TVChannelFocus: Hashable {
   case more
 }
 
-// Android TV's ChannelTabsRow: the tabs, then the order of the videos and the channel search.
 struct TVChannelTabs: View {
   @ObservedObject var model: LiveChannelViewModel
   let tabs: [LiveChannelTab]
@@ -31,7 +30,6 @@ struct TVChannelTabs: View {
         }
       }
       if model.selectedTab == .videos, model.submittedQuery.isEmpty, isYouTube {
-        // One press moves to the next order, the way the wheel of the Android TV app turns one step.
         Button { Task { await model.selectSort(Self.next(model.sort)) } } label: {
           Label(Self.title(model.sort), systemImage: Self.icon(model.sort))
         }

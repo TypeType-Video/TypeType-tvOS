@@ -1,7 +1,5 @@
 import SwiftUI
 
-// The TypeType mark in its 24-unit viewport and the TYPETYPE lettering (cap height 10), as the Android TV intro
-// draws them. Arcs follow Android's arcTo: a positive sweep turns clockwise on screen.
 enum TVSplashGeometry {
   static let markPivot = CGPoint(x: 12, y: 11.8)
   static let markViewport: CGFloat = 24

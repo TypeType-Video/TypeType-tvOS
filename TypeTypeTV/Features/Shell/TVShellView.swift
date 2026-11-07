@@ -34,14 +34,11 @@ struct TVShellView: View {
     _account = StateObject(wrappedValue: TVAccountSettings(service: coordinator.dependencies.settingsService))
   }
 
-  // The tabs appear once the first screen is known: a selection changed by code after the tab bar is drawn moves the
-  // content but leaves the bar highlighting the old tab. This happens under the intro, like Android's blank start.
   var body: some View {
     Group {
       if landed { tabs } else { TVPalette.ink.ignoresSafeArea() }
     }
     .task {
-      // Whichever comes first: the settings, or two seconds, after which a slow server leaves the app on Home.
       await withTaskGroup(of: Void.self) { group in
         group.addTask { await account.load() }
         group.addTask { _ = try? await Task.sleep(for: .seconds(2)) }
@@ -136,7 +133,6 @@ struct TVShellView: View {
     }
   }
 
-  // The account's "Start on" setting: Home, Subscriptions or a library section, chosen once when the app opens.
   private func land() {
     guard !landed else { return }
     defer { landed = true }
@@ -159,7 +155,6 @@ struct TVShellView: View {
 
   private func push(_ route: TVRoute) { paths.push(route, on: tab) }
 
-  // A first press closes what was opened over the tab; on its first screen, Subscriptions goes back to All.
   private func returnToRoot() {
     if paths.isEmpty(tab) {
       if tab == .subscriptions { subscriptionsReset += 1 }
@@ -190,9 +185,6 @@ struct TVShellView: View {
 }
 
 extension View {
-  // tvOS insets tab content by its own 80 pt on each side; the screens already keep Android TV's 112 pt from the
-  // edge, so the system margin is dropped instead of adding up to 192 pt. Set on each screen: on the TabView
-  // content it has no effect.
   func tvContentEdges() -> some View {
     ignoresSafeArea(.container, edges: .horizontal)
   }

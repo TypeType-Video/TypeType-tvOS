@@ -48,7 +48,6 @@ struct TVSeekBar: View {
 }
 
 extension TVSeekBar {
-  // Sponsor parts are soft bands over the track and chapter starts are thin cuts, as on Android TV.
   func markers(width: CGFloat, track: CGFloat) -> some View {
     ZStack(alignment: .leading) {
       if duration > 0 {

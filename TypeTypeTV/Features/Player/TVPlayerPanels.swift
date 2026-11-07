@@ -37,7 +37,6 @@ struct TVPlayerPanel: View {
     }
     .ignoresSafeArea()
     .focusSection()
-    // Opened from the options menu, the row that had the focus is gone: the focus goes to the current choice.
     .task(id: "\(panel) \(preferredChoice ?? "")") {
       guard choiceFocus == nil, let preferred = preferredChoice,
         (try? await Task.sleep(for: .milliseconds(60))) != nil

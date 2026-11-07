@@ -1,6 +1,5 @@
 import SwiftUI
 
-// A playlist laid out like a video card, as on Android TV, so every tab of the channel reads alike.
 struct TVCollectionCard: View {
   let title: String
   let line: String

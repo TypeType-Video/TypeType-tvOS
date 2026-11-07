@@ -1,7 +1,5 @@
 import SwiftUI
 
-// Android TV's PlaylistScreen: the playlist's picture behind the page, its title, owner and size, Save, then the
-// videos three a row.
 struct TVPlaylistView: View {
   @StateObject private var model: LivePublicPlaylistViewModel
   @FocusState private var saveFocused: Bool

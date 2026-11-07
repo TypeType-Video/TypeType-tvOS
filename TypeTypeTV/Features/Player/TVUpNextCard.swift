@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Android TV's UpNextCard: shown over the last seconds of the video, OK plays the next one now and Back cancels.
 struct TVUpNextCard: View {
   let next: LiveVideoItem
   let fill: Double

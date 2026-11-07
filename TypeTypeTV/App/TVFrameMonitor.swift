@@ -1,8 +1,6 @@
 #if DEBUG
 import QuartzCore
 
-// With --typetype-frame-monitor, counts the frames that miss their display slot and logs a summary every five
-// seconds, so smoothness is measured instead of judged by eye. Debug builds only.
 @MainActor
 final class TVFrameMonitor: NSObject {
   private var link: CADisplayLink?

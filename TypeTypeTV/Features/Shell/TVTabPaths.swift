@@ -1,6 +1,5 @@
 import SwiftUI
 
-// One navigation stack per tab; Settings has none.
 struct TVTabPaths {
   var home = NavigationPath()
   var subscriptions = NavigationPath()

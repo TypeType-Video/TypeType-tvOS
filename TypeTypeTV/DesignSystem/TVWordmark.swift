@@ -1,6 +1,5 @@
 import SwiftUI
 
-// The TYPETYPE lettering of the intro, drawn still: the same strokes Android TV's Wordmark draws.
 struct TVWordmark: View {
   let capHeight: CGFloat
   var color = TVPalette.textHigh

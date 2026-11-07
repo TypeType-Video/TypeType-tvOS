@@ -1,15 +1,10 @@
 import SwiftUI
 
-// The column next to the picture while a YouTube live plays. It never takes the focus: the remote keeps
-// driving the player.
 struct TVLiveChatPanel: View {
   static let width: CGFloat = 480
 
   @ObservedObject var model: TVLiveChatModel
-  // The control bar keeps the full width; the newest lines stay above it while it is shown.
   let underControls: Bool
-  // Opened while the live starts, the chat made the live fail (CoreMedia -16845, three times out of three on the
-  // simulator); opened once the live plays, both run. The player says when.
   var connects = true
 
   var body: some View {
@@ -42,7 +37,6 @@ struct TVLiveChatPanel: View {
     .padding(.bottom, underControls ? 220 : 80)
     .frame(width: Self.width, alignment: .leading)
     .frame(maxHeight: .infinity)
-    // Opaque: a translucent column over moving video is blended again on every frame.
     .background(TVPalette.surface.ignoresSafeArea())
     .accessibilityHidden(true)
     .onAppear { if connects { model.start() } }
@@ -72,7 +66,6 @@ struct TVLiveChatPanel: View {
   }
 }
 
-// Stacks the lines from the bottom and leaves out any line that would only be partly visible at the top.
 struct TVNewestThatFit: Layout {
   var spacing: CGFloat
 
@@ -89,7 +82,6 @@ struct TVNewestThatFit: Layout {
       let needed = used + size.height + (used > 0 ? spacing : 0)
       fits = fits && needed <= bounds.height
       guard fits else {
-        // Out of reach and clipped by the container.
         subview.place(at: CGPoint(x: bounds.minX, y: bounds.maxY + 10_000), anchor: .topLeading, proposal: .zero)
         continue
       }

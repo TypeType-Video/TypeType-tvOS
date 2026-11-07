@@ -13,7 +13,6 @@ struct TVCaptionOverlay: View {
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-      // Above the controls while they show, so a line is never hidden behind the seek bar.
       .padding(.bottom, raised ? 340 : 90)
       .animation(.easeOut(duration: 0.2), value: raised)
       .allowsHitTesting(false)
@@ -23,7 +22,6 @@ struct TVCaptionOverlay: View {
 }
 
 extension LivePlayerController {
-  // Android TV's CaptionChoice.languages: the manual tracks first, one per language, eight at most.
   var captionChoices: [LivePlaybackSubtitle] {
     let all = availableSubtitles.isEmpty ? (nativePlayback?.preparation.subtitles ?? []) : availableSubtitles
     var seen = Set<String>()
@@ -35,7 +33,6 @@ extension LivePlayerController {
       .map { $0 }
   }
 
-  // The captions chip steps through off, each language, then off again, as on Android TV.
   func cycleCaptions() {
     let choices = captionChoices
     guard !choices.isEmpty else { return }
@@ -55,7 +52,6 @@ extension LivePlayerController {
   }
 }
 
-// A line of captions in the account's caption style, the same one the Android TV app reads.
 struct TVCaptionText: View {
   let text: String
   let styles: LiveCaptionStyles

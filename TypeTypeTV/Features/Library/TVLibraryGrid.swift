@@ -75,7 +75,6 @@ struct TVLibraryPlaylist: View {
   }
 }
 
-// A saved playlist lives on the service; its videos come from there, like on Android TV.
 struct TVLibrarySaved: View {
   @StateObject private var model: LivePublicPlaylistViewModel
   let onOpen: (LiveVideoItem) -> Void

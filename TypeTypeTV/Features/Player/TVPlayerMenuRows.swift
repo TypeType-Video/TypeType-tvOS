@@ -45,11 +45,9 @@ struct TVPlayerMenuRows: View {
           value: session.statsShown ? String(localized: "On") : String(localized: "Off")) { session.statsShown.toggle() }
       row("audio-only", "Audio only", "headphones",
           value: controller.audioOnly ? String(localized: "On") : String(localized: "Off")) {
-        // Android TV keeps this choice for the open video only; the next one plays with its picture again.
         controller.setAudioOnly(!controller.audioOnly, remembers: false)
       }
     }
-    // Set on the next turn: set during the first layout, the focus engine keeps its own first row instead.
     .onAppear {
       let entry = session.menuEntry ?? (controller.availableChapters.isEmpty ? "description" : "chapters")
       Task { focused = entry }
@@ -106,7 +104,6 @@ struct TVPlayerChapterRows: View {
       .focused($focused, equals: chapter.id)
       .accessibilityLabel(Text(verbatim: "\(chapter.title), \(TVTime.label(start))"))
     }
-    // The list opens on the chapter being watched, as on Android TV.
     .onAppear {
       let entry = current(in: chapters)?.id ?? chapters.first?.id
       Task { focused = entry }
@@ -118,7 +115,6 @@ struct TVPlayerChapterRows: View {
   }
 }
 
-// Android TV's QueuePanel: the videos that can play next, each with its picture, channel and length.
 struct TVQueueRows: View {
   let videos: [LiveVideoItem]
   let onSelect: (LiveVideoItem) -> Void

@@ -1,7 +1,5 @@
 import SwiftUI
 
-// The source and the kind of result, as the chips above the Android TV search: one source at a time, and kinds the
-// server offers for it, with the chosen one underlined.
 struct TVSearchScope: View {
   @ObservedObject var model: LiveSearchViewModel
 
@@ -16,14 +14,12 @@ struct TVSearchScope: View {
     .scrollClipDisabled()
     .focusSection()
     .task(id: model.visibleContentFilters) {
-      // Videos is the kind a search starts on, as on Android TV, when the server offers it.
       if model.selectedContentFilter == nil, let videos = model.visibleContentFilters.first(where: { Self.key($0) == "videos" }) {
         await model.selectContentFilter(videos.value)
       }
     }
   }
 
-  // One source button that moves to the next service, as on Android TV, then the kinds of that service.
   private var chips: some View {
     HStack(spacing: 20) {
       if let current = model.services.first(where: { $0.id == model.selectedServiceID }) {

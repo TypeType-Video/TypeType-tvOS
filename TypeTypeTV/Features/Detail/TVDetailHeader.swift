@@ -31,7 +31,6 @@ struct TVDetailHeader: View {
       }
       channel(video)
       if model.description.isEmpty, model.isLoading {
-        // Android's DescriptionSkeleton: the two lines the description will take.
         VStack(alignment: .leading, spacing: 16) {
           Capsule().fill(TVPalette.surfaceRaised).frame(width: 960, height: 24)
           Capsule().fill(TVPalette.surfaceRaised).frame(width: 880, height: 24)

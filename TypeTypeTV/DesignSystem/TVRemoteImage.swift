@@ -2,7 +2,6 @@ import SwiftUI
 
 struct TVRemoteImage: View {
   let url: URL?
-  // A full-screen backdrop asks Bilibili for a larger picture than a card does.
   var size: LiveImageSize = .card
   var placeholder = true
   @State private var loaded: (url: URL?, image: UIImage)?
@@ -33,7 +32,6 @@ struct TVRemoteImage: View {
     let pixels: CGFloat
   }
 
-  // Never another URL's picture: a reused card would show the previous video until the new one arrives.
   private func shownImage(_ pixels: CGFloat) -> UIImage? {
     if let loaded, loaded.url == url { return loaded.image }
     guard let resolved = LiveImageURLResolver.resolve(url, size: size), pixels > 0 else { return nil }

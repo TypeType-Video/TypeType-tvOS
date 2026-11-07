@@ -1,7 +1,5 @@
 import SwiftUI
 
-// Android TV's SectionRail item: the chosen section on a light glass with an accent bar, the others as plain text,
-// white when focused. 464 pt wide like the rail's 232 dp.
 struct TVRailItemStyle: ButtonStyle {
   let selected: Bool
   var railFocused = false
@@ -19,8 +17,6 @@ private struct TVRailItemLabel: View {
 
   var body: some View {
     HStack(spacing: 24) {
-      // The selection follows the focus one update late: shown while the focus is in the rail, the bar would
-      // flash on the entry just left. A fixed size with a fade never shrinks it into a dot.
       Capsule().fill(TVPalette.accent).frame(width: 6, height: 36)
         .opacity(selected && !railFocused ? 1 : 0)
       configuration.label.font(.system(size: 28, weight: .semibold)).lineLimit(1)
@@ -39,7 +35,6 @@ private struct TVRailItemLabel: View {
 }
 
 extension View {
-  // Rail entries follow the focus like Android's: the section opens as soon as its entry is focused.
   func tvRailItem<Value: Hashable>(_ value: Value, selection: Binding<Value>, focus: FocusState<Value?>.Binding) -> some View {
     buttonStyle(TVRailItemStyle(selected: selection.wrappedValue == value, railFocused: focus.wrappedValue != nil))
       .focused(focus, equals: value)

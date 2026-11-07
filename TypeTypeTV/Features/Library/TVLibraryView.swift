@@ -45,7 +45,6 @@ struct TVLibraryView: View {
       }
       .scrollClipDisabled()
       .tvReportsScroll()
-      // The whole column takes the focus: from a section low in the rail, Right still reaches a short grid.
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
       .focusSection()
     }
@@ -59,7 +58,6 @@ struct TVLibraryView: View {
     .background(TVPalette.ink.ignoresSafeArea())
     .onChange(of: railFocus) { previous, focused in
       guard let focused else { return }
-      // Coming back from the grid lands on the open section, not on the entry level with the last card.
       if previous == nil, focused != section { railFocus = section } else { section = focused }
     }
     .task {
@@ -85,7 +83,6 @@ struct TVLibraryView: View {
       railButton("History", systemImage: "clock.arrow.circlepath", section: .history)
       railButton("Favorites", systemImage: "heart", section: .favorites)
       railButton("Watch later", systemImage: "bookmark", section: .watchLater)
-      // Like Android TV: the account's playlists that hold videos, apart from its own Watch later, then the saved ones.
       ForEach(collections.playlists.filter { $0.videoCount > 0 && $0.name.caseInsensitiveCompare("Watch later") != .orderedSame }) { playlist in
         railButton(LocalizedStringKey(playlist.name), systemImage: "music.note.list", section: .playlist(playlist), verbatim: playlist.name)
       }

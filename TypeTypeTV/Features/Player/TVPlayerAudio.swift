@@ -8,8 +8,6 @@ struct TVAudioTrack: Identifiable {
 }
 
 extension LivePlayerController {
-  // One entry a language: the sources of a track differ only by bitrate, so the best one stands for it. Android TV's
-  // AudioChoices order: the original first, then by name.
   var audioTracks: [TVAudioTrack] {
     let byTrack = Dictionary(grouping: availableAudioSources.filter { $0.audioTrackID != nil }) { $0.audioTrackID ?? "" }
     return byTrack.compactMap { id, sources in
@@ -26,7 +24,6 @@ extension LivePlayerController {
   }
 }
 
-// Android TV's AudioOnlyPoster: the video's picture dimmed behind headphones while only the sound plays.
 struct TVAudioOnlyPoster: View {
   let video: LiveVideoItem
 

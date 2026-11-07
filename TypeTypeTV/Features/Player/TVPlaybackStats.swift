@@ -1,8 +1,6 @@
 import AVFoundation
 import SwiftUI
 
-// Android TV's PlaybackStatsOverlay with what the in-house player knows: the chosen video and audio formats, the
-// buffer ahead and the speed, refreshed twice a second. Dropped frames, decoder and network are not measured here.
 struct TVPlaybackStats: View {
   @ObservedObject var controller: LivePlayerController
   @State private var buffer: TimeInterval = 0
@@ -53,13 +51,11 @@ struct TVPlaybackStats: View {
     return parts.isEmpty ? "-" : parts.joined(separator: "  ")
   }
 
-  // Some providers report kilobits, others bits; no figure rather than a wrong one when none is reported.
   private static func bitrate(_ reported: Int) -> String? {
     guard let bits = LiveProviderHLSVariants.bits(reported) else { return nil }
     return bits >= 1_000_000 ? String(format: "%.1f Mbps", Double(bits) / 1_000_000) : "\(Int((Double(bits) / 1_000).rounded())) kbps"
   }
 
-  // AVPlayer plays lives, NicoNico and offline videos: its loaded range around the playhead is the buffer.
   private static func bufferedAhead(_ player: AVPlayer) -> TimeInterval {
     let now = player.currentTime()
     guard let range = player.currentItem?.loadedTimeRanges.map(\.timeRangeValue).first(where: { $0.containsTime(now) })
@@ -68,7 +64,6 @@ struct TVPlaybackStats: View {
   }
 }
 
-// Android TV's SponsorLabelBadge: the kind of the marked part being watched, while it plays.
 struct TVSponsorLabel: View {
   @ObservedObject var controller: LivePlayerController
 

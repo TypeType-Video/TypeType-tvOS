@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Android TV's ChannelScreen: banner, header, podcasts, the tab row, then the videos or playlists three a row.
 struct TVChannelScreen: View {
   @StateObject private var model: LiveChannelViewModel
   @State private var searching = false
@@ -61,16 +60,13 @@ struct TVChannelScreen: View {
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task {
-      // Only on opening: the page appears again each time its tab is passed over in the tab bar.
       let opening = model.channel == nil
       await model.loadIfNeeded()
-      // Like Android TV, the page opens on its open tab, with the whole header in view.
       if opening, tabs.count > 1 { focus = .tab(model.selectedTab) }
     }
     .onChange(of: focusRequest) { _, _ in focus = tabs.count > 1 ? .tab(model.selectedTab) : .more }
   }
 
-  // The panel and the menu give the focus back to the button that opened them, as on Android TV.
   private func close(_ origin: TVChannelFocus) {
     searching = false
     menuOpen = false

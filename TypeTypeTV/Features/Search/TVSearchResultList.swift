@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Android TV's ResultList: one row a result beside the keyboard, the next page a few rows before the end.
 struct TVSearchResultList: View {
   @ObservedObject var model: LiveSearchViewModel
   var entry: FocusState<String?>.Binding

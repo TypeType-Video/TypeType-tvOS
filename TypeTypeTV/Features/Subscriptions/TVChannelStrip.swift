@@ -25,7 +25,6 @@ struct TVChannelStrip: View {
     }
     .scrollClipDisabled()
     .focusSection()
-    // Coming into the strip lands on the chip that is selected, as on Android TV.
     .defaultFocus($focused, selected?.channelURL ?? Self.allID, priority: .userInitiated)
     .onChange(of: focusRequest) { _, _ in focused = selected?.channelURL ?? Self.allID }
   }
