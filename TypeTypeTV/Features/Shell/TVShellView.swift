@@ -152,9 +152,13 @@ struct TVShellView: View {
 
   private func push(_ route: TVRoute) { paths.push(route, on: tab) }
 
+  // A first press closes what was opened over the tab; on its first screen, Subscriptions goes back to All.
   private func returnToRoot() {
-    paths.popToRoot(tab)
-    if tab == .subscriptions { subscriptionsReset += 1 }
+    if paths.isEmpty(tab) {
+      if tab == .subscriptions { subscriptionsReset += 1 }
+    } else {
+      paths.popToRoot(tab)
+    }
   }
 
   @ViewBuilder

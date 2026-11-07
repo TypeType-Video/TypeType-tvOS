@@ -17,6 +17,16 @@ struct TVTabPaths {
     }
   }
 
+  func isEmpty(_ tab: TVTab) -> Bool {
+    switch tab {
+    case .home: home.isEmpty
+    case .subscriptions: subscriptions.isEmpty
+    case .search: search.isEmpty
+    case .library: library.isEmpty
+    case .settings: true
+    }
+  }
+
   mutating func popToRoot(_ tab: TVTab) {
     switch tab {
     case .home: home = NavigationPath()
