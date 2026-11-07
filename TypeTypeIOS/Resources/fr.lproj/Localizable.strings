@@ -1207,3 +1207,5 @@
 "Shows the channel page with its lives and playlists" = "Affiche la page de la chaîne avec ses lives et ses playlists";
 "Back from the top bar" = "Retour depuis la barre du haut";
 "Goes back to the screen instead of leaving the app. The TV button still leaves it." = "Revient à l’écran au lieu de quitter l’app. Le bouton TV permet toujours de la quitter.";
+"Hide shorts" = "Masquer les shorts";
+"Removes shorts from search results and related videos." = "Retire les shorts des résultats de recherche et des vidéos liées.";
