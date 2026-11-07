@@ -129,14 +129,18 @@ struct TVShellView: View {
     }
   }
 
-  // The account's "Start on" setting: Home, or one of the library sections, chosen once when the app opens.
+  // The account's "Start on" setting: Home, Subscriptions or a library section, chosen once when the app opens.
   private func land() {
     guard !landed else { return }
     defer { landed = true }
-    switch account.settings?.defaultLandingPage {
+    let page = account.landingPage
+    AppLogger.app.notice("landing \(page ?? "unknown", privacy: .public)")
+    switch page {
+    case "subscriptions": return tab = .subscriptions
     case "history": librarySection = .history
     case "favorites": librarySection = .favorites
     case "watch-later": librarySection = .watchLater
+    case "playlists": break
     default: return
     }
     tab = .library

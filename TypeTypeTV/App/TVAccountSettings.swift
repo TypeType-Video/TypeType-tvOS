@@ -21,11 +21,21 @@ final class TVAccountSettings: ObservableObject {
 
   func load() async {
     do {
-      settings = try await service.settings()
+      let loaded = try await service.settings()
+      settings = loaded
+      UserDefaults.standard.set(loaded.defaultLandingPage, forKey: Self.landingKey)
     } catch {
       AppLogger.app.notice("account settings unavailable: \(String(describing: error), privacy: .public)")
     }
   }
+
+  // Like Android TV's startup preferences: the first screen is kept on the box, so a slow or failing settings
+  // request at launch still opens where the account asked.
+  var landingPage: String? {
+    settings?.defaultLandingPage ?? UserDefaults.standard.string(forKey: Self.landingKey)
+  }
+
+  private static let landingKey = "tv.startup.landing"
 
   var hidesRelated: Bool { settings?.hideRelatedVideos ?? false }
 }

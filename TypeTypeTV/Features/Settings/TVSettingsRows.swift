@@ -61,7 +61,9 @@ struct TVSettingsRows: View {
   private var content: some View {
     if let settings = model.settings {
       choice("house", "Start on", "The screen the app opens on.",
-             [TVChoice(id: "home", label: String(localized: "Home")), TVChoice(id: "history", label: String(localized: "History")),
+             [TVChoice(id: "home", label: String(localized: "Home")),
+              TVChoice(id: "subscriptions", label: String(localized: "Subscriptions")),
+              TVChoice(id: "history", label: String(localized: "History")),
               TVChoice(id: "favorites", label: String(localized: "Favorites")),
               TVChoice(id: "watch-later", label: String(localized: "Watch later"))], settings.defaultLandingPage) { value in
         { $0.defaultLandingPage = value }
