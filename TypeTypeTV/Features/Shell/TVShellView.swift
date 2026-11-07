@@ -17,10 +17,8 @@ enum TVTab: Hashable {
 struct TVShellView: View {
   @ObservedObject var coordinator: RootCoordinator
   @State private var tab = TVTab.home
-  @State private var homePath = NavigationPath()
-  @State private var subscriptionsPath = NavigationPath()
-  @State private var searchPath = NavigationPath()
-  @State private var libraryPath = NavigationPath()
+  @State private var paths = TVTabPaths()
+  @State private var subscriptionsReset = 0
   @State private var playing: LiveVideoItem?
   @State private var playbackEnded = 0
   @State private var menuRequest: TVVideoMenuRequest?
@@ -54,11 +52,11 @@ struct TVShellView: View {
 
   private var tabs: some View {
     TabView(selection: $tab) {
-      NavigationStack(path: $homePath) {
+      NavigationStack(path: $paths.home) {
         TVHomeView(
           dependencies: coordinator.dependencies,
           refresh: playbackEnded,
-          previewsAllowed: tab == .home && homePath.isEmpty && playing == nil,
+          previewsAllowed: tab == .home && paths.home.isEmpty && playing == nil,
           onOpen: { open($0) },
           onPlay: { playing = $0 }
         )
@@ -67,26 +65,27 @@ struct TVShellView: View {
       .tabItem { Label("Home", systemImage: "house") }
       .tag(TVTab.home)
 
-      NavigationStack(path: $subscriptionsPath) {
-        TVSubscriptionsView(dependencies: coordinator.dependencies, onOpen: { open($0) }, onOpenChannel: { openChannel($0) })
+      NavigationStack(path: $paths.subscriptions) {
+        TVSubscriptionsView(dependencies: coordinator.dependencies, reset: subscriptionsReset, onOpen: { open($0) },
+                            onOpenChannel: { openChannel($0) })
           .navigationDestination(for: TVRoute.self, destination: destination)
       }
       .tabItem { Label("Subscriptions", systemImage: "play.square.stack") }
       .tag(TVTab.subscriptions)
 
-      NavigationStack(path: $searchPath) {
+      NavigationStack(path: $paths.search) {
         TVSearchView(
           dependencies: coordinator.dependencies,
           onOpen: { open($0) },
-          onOpenChannel: { searchPath.append(TVRoute.channel($0.url)) },
-          onOpenPlaylist: { searchPath.append(TVRoute.playlist($0)) }
+          onOpenChannel: { openChannel($0.url) },
+          onOpenPlaylist: { push(.playlist($0)) }
         )
         .navigationDestination(for: TVRoute.self, destination: destination)
       }
       .tabItem { Label("Search", systemImage: "magnifyingglass") }
       .tag(TVTab.search)
 
-      NavigationStack(path: $libraryPath) {
+      NavigationStack(path: $paths.library) {
         TVLibraryView(dependencies: coordinator.dependencies, refresh: playbackEnded, section: $librarySection, onOpen: { open($0) })
           .navigationDestination(for: TVRoute.self, destination: destination)
       }
@@ -103,6 +102,7 @@ struct TVShellView: View {
     .disabled(menuRequest != nil)
     .environment(\.tvContentScrolled) { scrolled in if contentScrolled != scrolled { contentScrolled = scrolled } }
     .onChange(of: tab) { _, _ in contentScrolled = false }
+    .background(TVTabReselect(onReselect: returnToRoot))
     .overlay { TVTopBarMarks(user: coordinator.currentUser, hidden: contentScrolled) }
     .overlay {
       if let request = menuRequest {
@@ -146,14 +146,11 @@ struct TVShellView: View {
 
   private func openChannel(_ url: String) { push(.channel(url)) }
 
-  private func push(_ route: TVRoute) {
-    switch tab {
-    case .home: homePath.append(route)
-    case .subscriptions: subscriptionsPath.append(route)
-    case .search: searchPath.append(route)
-    case .library: libraryPath.append(route)
-    case .settings: break
-    }
+  private func push(_ route: TVRoute) { paths.push(route, on: tab) }
+
+  private func returnToRoot() {
+    paths.popToRoot(tab)
+    if tab == .subscriptions { subscriptionsReset += 1 }
   }
 
   @ViewBuilder

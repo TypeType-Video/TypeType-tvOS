@@ -4,16 +4,18 @@ struct TVSubscriptionsView: View {
   @StateObject private var model: LiveSubscriptionsViewModel
   @State private var selected: LiveSubscription?
   let dependencies: AppDependencies
+  let reset: Int
   let onOpen: (LiveVideoItem) -> Void
   let onOpenChannel: (String) -> Void
 
   private static let columns = 3
   private static let cardWidth: CGFloat = 536
 
-  init(dependencies: AppDependencies, onOpen: @escaping (LiveVideoItem) -> Void,
+  init(dependencies: AppDependencies, reset: Int, onOpen: @escaping (LiveVideoItem) -> Void,
        onOpenChannel: @escaping (String) -> Void) {
     _model = StateObject(wrappedValue: LiveSubscriptionsViewModel(service: dependencies.subscriptionsService))
     self.dependencies = dependencies
+    self.reset = reset
     self.onOpen = onOpen
     self.onOpenChannel = onOpenChannel
   }
@@ -49,6 +51,7 @@ struct TVSubscriptionsView: View {
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.prepare() }
+    .onChange(of: reset) { _, _ in selected = nil }
   }
 
   @ViewBuilder
