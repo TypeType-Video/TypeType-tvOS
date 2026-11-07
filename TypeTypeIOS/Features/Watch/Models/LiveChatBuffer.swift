@@ -1,7 +1,9 @@
 import Foundation
 
-// What the chat column shows: the newest messages and where the connection stands. Replayed messages (a
-// reconnect may deliver the last batch again) are shown once.
+// What the chat column shows: the newest messages and where the connection stands.
+// The server numbers the messages of each connection from chat-1 and starts a new one with the chat's recent
+// backlog, so a new connection starts the list over (the web client does the same): ids only identify a message
+// within one connection, and keeping the old list would show the backlog twice.
 struct LiveChatBuffer: Equatable {
   enum Status: Equatable {
     case connecting
@@ -23,6 +25,9 @@ struct LiveChatBuffer: Equatable {
     for event in events {
       switch event {
       case .connected:
+        messages.removeAll()
+        remembered.removeAll()
+        rememberedSet.removeAll()
         if status == .connecting { status = .connected }
       case let .message(message):
         append(message)

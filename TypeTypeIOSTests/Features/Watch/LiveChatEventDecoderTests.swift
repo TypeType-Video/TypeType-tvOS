@@ -14,6 +14,15 @@ final class LiveChatEventDecoderTests: XCTestCase {
     XCTAssertEqual(event, .message(LiveChatMessage(id: "chat-1", author: "Mika", text: "Hello", moderator: true)))
   }
 
+  // A YouTube live message as the server sends it: no moderator field, an avatar address.
+  func testReadsARealServerMessage() throws {
+    let event = try decode(
+      "message",
+      "{\"id\":\"chat-1\",\"text\":\"sei sette\",\"receivedAtMs\":1793994518651,\"authorName\":\"@Viewer\",\"authorAvatarUrl\":\"https://avatar.test/viewer=s64-c-k-c0x00ffffff-no-rj\"}"
+    )
+    XCTAssertEqual(event, .message(LiveChatMessage(id: "chat-1", author: "@Viewer", text: "sei sette", moderator: false)))
+  }
+
   func testTheOptionalFieldsMayBeMissing() throws {
     let event = try decode("message", "{\"id\":\"chat-2\",\"text\":\"Hi\",\"receivedAtMs\":1}")
     XCTAssertEqual(event, .message(LiveChatMessage(id: "chat-2", author: "", text: "Hi", moderator: false)))

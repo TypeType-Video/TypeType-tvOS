@@ -20,11 +20,20 @@ final class LiveChatBufferTests: XCTestCase {
     XCTAssertEqual(buffer.messages.last?.id, "45")
   }
 
-  func testAReplayedMessageShowsOnce() {
+  func testAMessageSentTwiceInOneConnectionShowsOnce() {
     var buffer = LiveChatBuffer()
     buffer.apply([.connected, message("1"), message("2")])
-    buffer.apply([.connected, message("2"), message("3")])
+    buffer.apply([message("2"), message("3")])
     XCTAssertEqual(buffer.messages.map(\.id), ["1", "2", "3"])
+  }
+
+  // Real server: every connection numbers its messages chat-1, chat-2, ... again.
+  func testANewConnectionStartsTheListOver() {
+    var buffer = LiveChatBuffer()
+    buffer.apply([.connected, message("chat-1"), message("chat-2")])
+    buffer.apply([.connected, message("chat-1"), message("chat-2"), message("chat-3")])
+    XCTAssertEqual(buffer.messages.map(\.id), ["chat-1", "chat-2", "chat-3"])
+    XCTAssertEqual(buffer.messages.count, 3, "the backlog of the new connection is not shown twice")
   }
 
   func testAnOldIdIsForgottenAfterManyMessages() {
