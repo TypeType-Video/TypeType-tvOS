@@ -1,26 +1,35 @@
 import SwiftUI
 import UIKit
 
-// tvOS selects a tab as soon as the focus lands on it, and a Select press on the open tab never reaches the
-// TabView. A Select press in the tab bar means "back to this tab's first screen", like a click on Android TV's
-// top navigation, so it is heard on the UIKit tab bar itself.
+// Presses on the tvOS tab bar never reach the TabView, so they are heard on the UIKit tab bar itself.
+// Select on the open tab means "back to this tab's first screen", like a click on Android TV's top navigation.
+// Menu leaves the app, as everywhere on tvOS; with the "Back from the top bar" setting it returns to the tab's
+// screen instead (each tab puts the focus where coming down from the bar puts it), and the app is left with the
+// TV button.
 struct TVTabReselect: UIViewRepresentable {
+  let menuReturns: Bool
   let onReselect: () -> Void
+  let onMenu: () -> Void
 
   func makeUIView(context: Context) -> TVTabReselectView { TVTabReselectView() }
 
-  func updateUIView(_ view: TVTabReselectView, context: Context) { view.onReselect = onReselect }
+  func updateUIView(_ view: TVTabReselectView, context: Context) {
+    view.onReselect = onReselect
+    view.onMenu = onMenu
+    view.menuReturns = menuReturns
+  }
 }
 
 final class TVTabReselectView: UIView {
   var onReselect: () -> Void = {}
-  private weak var tabBar: UITabBar?
-  private lazy var press: UITapGestureRecognizer = {
-    let press = UITapGestureRecognizer(target: self, action: #selector(pressed))
-    press.allowedPressTypes = [NSNumber(value: UIPress.PressType.select.rawValue)]
-    press.cancelsTouchesInView = false
-    return press
-  }()
+  var onMenu: () -> Void = {}
+  var menuReturns = false {
+    didSet { menu.isEnabled = menuReturns }
+  }
+  private weak var tabs: UITabBarController?
+  private lazy var press = recognizer(.select, #selector(pressed), passesOn: true)
+  // Menu must not travel on: an unhandled Menu press is what leaves the app.
+  private lazy var menu = recognizer(.menu, #selector(returnToContent), passesOn: false)
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
@@ -30,18 +39,30 @@ final class TVTabReselectView: UIView {
   // The TabView may join the window after this view does.
   override func layoutSubviews() {
     super.layoutSubviews()
-    if tabBar == nil { attach() }
+    if tabs == nil { attach() }
+  }
+
+  private func recognizer(_ type: UIPress.PressType, _ action: Selector, passesOn: Bool) -> UITapGestureRecognizer {
+    let recognizer = UITapGestureRecognizer(target: self, action: action)
+    recognizer.allowedPressTypes = [NSNumber(value: type.rawValue)]
+    recognizer.cancelsTouchesInView = !passesOn
+    return recognizer
   }
 
   private func attach() {
-    let found = window?.rootViewController.flatMap(Self.tabBarController(in:))?.tabBar
-    guard found !== tabBar else { return }
-    tabBar?.removeGestureRecognizer(press)
-    tabBar = found
-    found?.addGestureRecognizer(press)
+    let found = window?.rootViewController.flatMap(Self.tabBarController(in:))
+    guard found !== tabs else { return }
+    tabs?.tabBar.removeGestureRecognizer(press)
+    tabs?.tabBar.removeGestureRecognizer(menu)
+    tabs = found
+    found?.tabBar.addGestureRecognizer(press)
+    found?.tabBar.addGestureRecognizer(menu)
+    menu.isEnabled = menuReturns
   }
 
   @objc private func pressed() { onReselect() }
+
+  @objc private func returnToContent() { onMenu() }
 
   private static func tabBarController(in controller: UIViewController) -> UITabBarController? {
     if let tabs = controller as? UITabBarController { return tabs }
@@ -50,5 +71,17 @@ final class TVTabReselectView: UIView {
       if let tabs = tabBarController(in: child) { return tabs }
     }
     return nil
+  }
+}
+
+private struct TVContentFocusKey: EnvironmentKey {
+  static let defaultValue = 0
+}
+
+extension EnvironmentValues {
+  // Grows when Menu on the tab bar asks this tab to take the focus back.
+  var tvContentFocusRequest: Int {
+    get { self[TVContentFocusKey.self] }
+    set { self[TVContentFocusKey.self] = newValue }
   }
 }

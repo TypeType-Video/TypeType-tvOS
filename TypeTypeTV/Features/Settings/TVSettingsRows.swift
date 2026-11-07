@@ -10,6 +10,7 @@ struct TVSettingsRows: View {
   @AppStorage(TVDeviceSetting.backdropKey) var backdrop = true
   @AppStorage(TVDeviceSetting.videoPreviewsKey) var videoPreviews = true
   @AppStorage(TVDeviceSetting.animatedAvatarKey) var animatedAvatar = true
+  @AppStorage(TVDeviceSetting.backReturnsKey) var backReturns = false
 
   private static let qualities = ["auto", "2160p", "1440p", "1080p", "720p", "480p", "360p"]
   private static let speeds: [Double] = [0.75, 1, 1.25, 1.5, 2]
@@ -68,6 +69,9 @@ struct TVSettingsRows: View {
               TVChoice(id: "watch-later", label: String(localized: "Watch later"))], settings.defaultLandingPage) { value in
         { $0.defaultLandingPage = value }
       }
+      TVSettingRow(systemImage: "arrow.uturn.down", title: "Back from the top bar",
+                   summary: "Goes back to the screen instead of leaving the app. The TV button still leaves it.",
+                   trailing: .toggle(backReturns)) { backReturns.toggle() }
       choice("magnifyingglass", "Search service", "Where a new search looks first.",
              [0, 5, 6].map { TVChoice(id: String($0), label: VideoService.service(for: $0).name) }, String(settings.defaultService)) { value in
         { $0.defaultService = Int(value) ?? 0 }

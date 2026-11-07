@@ -4,6 +4,7 @@ struct TVChannelStrip: View {
   let channels: [LiveSubscription]
   @Binding var selected: LiveSubscription?
   @FocusState private var focused: String?
+  @Environment(\.tvContentFocusRequest) private var focusRequest
 
   private static let allID = "all"
 
@@ -26,6 +27,7 @@ struct TVChannelStrip: View {
     .focusSection()
     // Coming into the strip lands on the chip that is selected, as on Android TV.
     .defaultFocus($focused, selected?.channelURL ?? Self.allID, priority: .userInitiated)
+    .onChange(of: focusRequest) { _, _ in focused = selected?.channelURL ?? Self.allID }
   }
 
   private func chip(id: String, name: String, description: String, avatar: URL?, isSelected: Bool, action: @escaping () -> Void) -> some View {

@@ -6,6 +6,7 @@ struct TVSearchView: View {
   @StateObject private var model: LiveSearchViewModel
   @FocusState private var barFocused: Bool
   @FocusState private var entry: String?
+  @Environment(\.tvContentFocusRequest) private var focusRequest
   @State private var focusResults = false
   @State private var startedOnService = false
   @EnvironmentObject private var account: TVAccountSettings
@@ -42,6 +43,7 @@ struct TVSearchView: View {
       .background(TVPalette.ink.ignoresSafeArea())
       // Coming down from the tab bar lands on the query bar, not on the chip under the Search tab.
       .defaultFocus($barFocused, true, priority: .userInitiated)
+      .onChange(of: focusRequest) { _, _ in barFocused = true }
       // The model searches again by itself when the service or the kind changes; only the typing is followed here.
       .task(id: model.query) { await search() }
       .onChange(of: model.state) { _, state in

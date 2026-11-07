@@ -25,6 +25,8 @@ struct TVShellView: View {
   @State private var contentScrolled = false
   @State private var librarySection = TVLibrarySection.history
   @State private var landed = false
+  @AppStorage(TVDeviceSetting.backReturnsKey) private var backReturns = false
+  @State private var contentFocus: [TVTab: Int] = [:]
   @StateObject private var account: TVAccountSettings
 
   init(coordinator: RootCoordinator) {
@@ -62,6 +64,7 @@ struct TVShellView: View {
         )
         .navigationDestination(for: TVRoute.self, destination: destination)
       }
+      .environment(\.tvContentFocusRequest, contentFocus[.home] ?? 0)
       .tabItem { Label("Home", systemImage: "house") }
       .tag(TVTab.home)
 
@@ -70,6 +73,7 @@ struct TVShellView: View {
                             onOpenChannel: { openChannel($0) })
           .navigationDestination(for: TVRoute.self, destination: destination)
       }
+      .environment(\.tvContentFocusRequest, contentFocus[.subscriptions] ?? 0)
       .tabItem { Label("Subscriptions", systemImage: "play.square.stack") }
       .tag(TVTab.subscriptions)
 
@@ -82,6 +86,7 @@ struct TVShellView: View {
         )
         .navigationDestination(for: TVRoute.self, destination: destination)
       }
+      .environment(\.tvContentFocusRequest, contentFocus[.search] ?? 0)
       .tabItem { Label("Search", systemImage: "magnifyingglass") }
       .tag(TVTab.search)
 
@@ -89,10 +94,12 @@ struct TVShellView: View {
         TVLibraryView(dependencies: coordinator.dependencies, refresh: playbackEnded, section: $librarySection, onOpen: { open($0) })
           .navigationDestination(for: TVRoute.self, destination: destination)
       }
+      .environment(\.tvContentFocusRequest, contentFocus[.library] ?? 0)
       .tabItem { Label("Library", systemImage: "square.stack") }
       .tag(TVTab.library)
 
       TVSettingsView(coordinator: coordinator)
+        .environment(\.tvContentFocusRequest, contentFocus[.settings] ?? 0)
         .tabItem { Label("Settings", systemImage: "gearshape") }
         .tag(TVTab.settings)
     }
@@ -102,7 +109,7 @@ struct TVShellView: View {
     .disabled(menuRequest != nil)
     .environment(\.tvContentScrolled) { scrolled in if contentScrolled != scrolled { contentScrolled = scrolled } }
     .onChange(of: tab) { _, _ in contentScrolled = false }
-    .background(TVTabReselect(onReselect: returnToRoot))
+    .background(TVTabReselect(menuReturns: backReturns, onReselect: returnToRoot) { contentFocus[tab, default: 0] += 1 })
     .overlay { TVTopBarMarks(user: coordinator.currentUser, hidden: contentScrolled) }
     .overlay {
       if let request = menuRequest {

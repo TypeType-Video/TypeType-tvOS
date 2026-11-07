@@ -13,6 +13,7 @@ struct TVLibraryView: View {
   @StateObject private var history: LiveHistoryViewModel
   @Binding var section: TVLibrarySection
   @FocusState private var railFocus: TVLibrarySection?
+  @Environment(\.tvContentFocusRequest) private var focusRequest
   let dependencies: AppDependencies
   let refresh: Int
   let onOpen: (LiveVideoItem) -> Void
@@ -52,6 +53,7 @@ struct TVLibraryView: View {
     .padding(.top, 40)
     .focusSection()
     .defaultFocus($railFocus, section, priority: .userInitiated)
+    .onChange(of: focusRequest) { _, _ in railFocus = section }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())

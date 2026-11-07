@@ -8,6 +8,7 @@ struct TVHeroBlock: View {
   let onOpen: () -> Void
   var onFocus: () -> Void = {}
   @FocusState private var focusedButton: Int?
+  @Environment(\.tvContentFocusRequest) private var focusRequest
 
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
@@ -61,6 +62,7 @@ struct TVHeroBlock: View {
     .padding(.leading, TVDimens.safeStart)
     .animation(.easeOut(duration: 0.42), value: video.canonicalID)
     .onChange(of: focusedButton) { _, value in if value != nil { onFocus() } }
+    .onChange(of: focusRequest) { _, _ in focusedButton = 0 }
   }
 
   private var meta: String {

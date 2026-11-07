@@ -1205,3 +1205,5 @@
 "Animated profile picture" = "Photo de profil animée";
 "Plays an animated picture in the top bar. Turn it off on a slow box." = "Anime la photo de profil dans la barre du haut. À désactiver sur un boîtier lent.";
 "Shows the channel page with its lives and playlists" = "Affiche la page de la chaîne avec ses lives et ses playlists";
+"Back from the top bar" = "Retour depuis la barre du haut";
+"Goes back to the screen instead of leaving the app. The TV button still leaves it." = "Revient à l’écran au lieu de quitter l’app. Le bouton TV permet toujours de la quitter.";

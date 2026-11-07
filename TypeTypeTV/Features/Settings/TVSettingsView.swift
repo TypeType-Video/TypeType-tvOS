@@ -46,6 +46,7 @@ struct TVSettingsView: View {
   @State private var group = TVSettingsGroup.playback
   @State private var picker: TVPickerRequest?
   @FocusState private var railFocus: TVSettingsGroup?
+  @Environment(\.tvContentFocusRequest) private var focusRequest
   @FocusState private var rowFocus: String?
 
   init(coordinator: RootCoordinator) {
@@ -90,6 +91,7 @@ struct TVSettingsView: View {
       .padding(.top, 40)
       .focusSection()
       .defaultFocus($railFocus, group, priority: .userInitiated)
+      .onChange(of: focusRequest) { _, _ in railFocus = group }
       .disabled(picker != nil)
       if let picker {
         TVChoicePicker(title: picker.title, summary: picker.summary, choices: picker.choices, selected: picker.selected,
