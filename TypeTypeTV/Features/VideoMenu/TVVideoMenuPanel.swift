@@ -81,6 +81,8 @@ struct TVVideoMenuPanel: View {
         }
         Spacer(minLength: 0)
       }
+      // The narrower picker covers the menu: the rows would show beside it.
+      .opacity(pickingPlaylist ? 0 : 1)
       .padding(.leading, 56).padding(.trailing, TVDimens.safeStart).padding(.top, 90).padding(.bottom, 60)
       .frame(width: 880)
       .frame(maxHeight: .infinity, alignment: .top)

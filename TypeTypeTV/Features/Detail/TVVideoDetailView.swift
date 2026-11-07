@@ -158,13 +158,15 @@ struct TVPlaylistPicker: View {
         .scrollClipDisabled()
       }
       .padding(.horizontal, 56)
-      .padding(.top, 180)
+      .padding(.top, 90)
       .padding(.bottom, 56)
       .frame(width: 760)
       .frame(maxHeight: .infinity, alignment: .top)
       .background(TVPalette.surface.opacity(0.96))
+      .clipped()
     }
-    .ignoresSafeArea()
+    // The column starts under the tab bar, which stays drawn above the page.
+    .ignoresSafeArea(edges: [.horizontal, .bottom])
     .focusSection()
     .onExitCommand(perform: onClose)
     .onAppear { focused = actions.playlists.first?.id }
