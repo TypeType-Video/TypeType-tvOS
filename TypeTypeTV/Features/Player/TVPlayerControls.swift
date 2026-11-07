@@ -94,11 +94,11 @@ struct TVPlayerControls: View {
   private var transportRow: some View {
     HStack(spacing: 24) {
       TVCircleButton(systemImage: "backward.end.fill", label: "Start over", action: session.startOver)
-      TVCircleButton(systemImage: "gobackward.10", label: "Back 10 seconds") { session.seek(by: -10) }
+      TVRepeatingCircleButton(systemImage: "gobackward.10", label: "Back 10 seconds") { session.seek(by: -10) }
       TVCircleButton(systemImage: controller.state == .playing ? "pause.fill" : "play.fill",
                      label: controller.state == .playing ? "Pause" : "Play", emphasized: true, action: session.togglePlay)
         .focused(focus, equals: .play)
-      TVCircleButton(systemImage: "goforward.10", label: "Forward 10 seconds") { session.seek(by: 10) }
+      TVRepeatingCircleButton(systemImage: "goforward.10", label: "Forward 10 seconds") { session.seek(by: 10) }
       TVCircleButton(systemImage: "forward.end.fill", label: "Next video") { onNext?() }
         .disabled(onNext == nil)
     }

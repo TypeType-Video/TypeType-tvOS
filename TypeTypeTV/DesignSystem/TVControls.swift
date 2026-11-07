@@ -21,11 +21,45 @@ struct TVCircleButton: View {
   }
 }
 
+// A held Select repeats the step like the system player: one step every 280 ms after 400 ms. The release after
+// a hold still fires the button action, which must not add one more step.
+struct TVRepeatingCircleButton: View {
+  let systemImage: String
+  let label: LocalizedStringKey
+  let step: () -> Void
+  @State private var holding: Task<Void, Never>?
+  @State private var repeated = false
+
+  var body: some View {
+    Button {
+      if repeated { repeated = false } else { step() }
+    } label: {
+      Image(systemName: systemImage)
+        .accessibilityLabel(Text(label))
+    }
+    .buttonStyle(TVCircleButtonStyle(onPress: pressed))
+    .onDisappear { holding?.cancel() }
+  }
+
+  private func pressed(_ down: Bool) {
+    holding?.cancel()
+    guard down else { return }
+    repeated = false
+    holding = Task {
+      guard (try? await Task.sleep(for: .milliseconds(400))) != nil else { return }
+      repeated = true
+      repeat { step() } while (try? await Task.sleep(for: .milliseconds(280))) != nil
+    }
+  }
+}
+
 struct TVCircleButtonStyle: ButtonStyle {
   var emphasized = false
+  var onPress: ((Bool) -> Void)?
 
   func makeBody(configuration: Configuration) -> some View {
     TVCircleLabel(configuration: configuration, emphasized: emphasized)
+      .onChange(of: configuration.isPressed) { _, pressed in onPress?(pressed) }
   }
 }
 
