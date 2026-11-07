@@ -29,10 +29,15 @@ enum LiveSeekMath {
 struct LiveScrubState: Equatable {
   private(set) var target: Int64?
   private(set) var presses = 0
+  private var direction = 0
 
   var isActive: Bool { target != nil }
 
+  // Pressing on in the same direction keeps the grown step, so it goes faster; turning back halves it, so the
+  // target can be reached precisely after overshooting.
   mutating func move(current: Int64, direction: Int, duration: Int64) {
+    if self.direction != 0, direction != self.direction { presses /= 2 }
+    self.direction = direction
     let step = LiveSeekMath.scrubStep(press: presses, durationMilliseconds: duration)
     presses += 1
     target = LiveSeekMath.target(current: target ?? current, delta: Int64(direction) * step, duration: duration)
@@ -46,5 +51,6 @@ struct LiveScrubState: Equatable {
   mutating func cancel() {
     target = nil
     presses = 0
+    direction = 0
   }
 }

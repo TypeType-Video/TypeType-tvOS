@@ -20,6 +20,16 @@ final class LiveSeekMathTests: XCTestCase {
     XCTAssertEqual(scrub.presses, 0)
   }
 
+  func testTurningBackHalvesTheGrownStep() {
+    var scrub = LiveScrubState()
+    for _ in 0..<40 { scrub.move(current: 0, direction: 1, duration: 36_000_000) }
+    XCTAssertEqual(scrub.presses, 40)
+    let ahead = scrub.target ?? 0
+    scrub.move(current: 0, direction: -1, duration: 36_000_000)
+    XCTAssertEqual(scrub.presses, 21)
+    XCTAssertEqual(scrub.target, ahead - LiveSeekMath.scrubStep(press: 20, durationMilliseconds: 36_000_000))
+  }
+
   func testScrubStaysInsideTheVideo() {
     var scrub = LiveScrubState()
     scrub.move(current: 2_000, direction: -1, duration: 100_000)
