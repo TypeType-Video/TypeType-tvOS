@@ -27,7 +27,8 @@ struct TVSearchView: View {
         searchService: dependencies.searchService,
         historyService: dependencies.searchHistoryService,
         serviceSelection: dependencies.serviceSelection,
-        imagePipeline: dependencies.imagePipeline
+        imagePipeline: dependencies.imagePipeline,
+        settingsService: dependencies.settingsService
       )
     )
     self.onOpen = onOpen
