@@ -7,6 +7,7 @@ struct TVChannelScreen: View {
   @State private var menuOpen = false
   @State private var bannerScroll = TVBannerScroll()
   @FocusState private var focus: TVChannelFocus?
+  @Environment(\.tvContentFocusRequest) private var focusRequest
   let contentControls: LiveContentControlsServiceProtocol
   let onOpen: (LiveVideoItem) -> Void
   let onOpenPlaylist: (LivePlaylistResult) -> Void
@@ -60,10 +61,13 @@ struct TVChannelScreen: View {
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task {
+      // Only on opening: the page appears again each time its tab is passed over in the tab bar.
+      let opening = model.channel == nil
       await model.loadIfNeeded()
       // Like Android TV, the page opens on its open tab, with the whole header in view.
-      if tabs.count > 1 { focus = .tab(model.selectedTab) }
+      if opening, tabs.count > 1 { focus = .tab(model.selectedTab) }
     }
+    .onChange(of: focusRequest) { _, _ in focus = tabs.count > 1 ? .tab(model.selectedTab) : .more }
   }
 
   // The panel and the menu give the focus back to the button that opened them, as on Android TV.

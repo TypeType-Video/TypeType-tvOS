@@ -5,6 +5,7 @@ import SwiftUI
 struct TVPlaylistView: View {
   @StateObject private var model: LivePublicPlaylistViewModel
   @FocusState private var saveFocused: Bool
+  @Environment(\.tvContentFocusRequest) private var focusRequest
   let onOpen: (LiveVideoItem) -> Void
 
   init(playlist: LivePlaylistResult, dependencies: AppDependencies, onOpen: @escaping (LiveVideoItem) -> Void) {
@@ -37,10 +38,9 @@ struct TVPlaylistView: View {
     }
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
-    .task {
-      saveFocused = true
-      await model.prepare()
-    }
+    .defaultFocus($saveFocused, true)
+    .onChange(of: focusRequest) { _, _ in saveFocused = true }
+    .task { await model.prepare() }
   }
 
   private var header: some View {

@@ -11,6 +11,7 @@ struct TVVideoDetailView: View {
   let onOpenChannel: (String) -> Void
   @FocusState private var focus: TVDetailFocus?
   @EnvironmentObject private var account: TVAccountSettings
+  @Environment(\.tvContentFocusRequest) private var focusRequest
 
   init(
     video: LiveVideoItem,
@@ -59,8 +60,11 @@ struct TVVideoDetailView: View {
     }
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
+    // A default focus, not an assignment on appear: the page appears again each time its tab is passed over in the
+    // tab bar, and an assignment would pull the focus out of the bar.
+    .defaultFocus($focus, .play)
+    .onChange(of: focusRequest) { _, _ in focus = .play }
     .task {
-      focus = .play
       async let details: Void = model.load()
       async let state: Void = actions.prepare()
       async let subscription: Void = engagement.prepare()
