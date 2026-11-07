@@ -83,6 +83,7 @@ struct TVSettingsView: View {
           .padding(.horizontal, 24)
         }
         .padding(.horizontal, -24)
+        .scrollTargetBehavior(TVEdgeScroll(rowPitch: 137))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .focusSection()
       }
