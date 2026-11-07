@@ -5,6 +5,7 @@ import SwiftUI
 struct TVQueryField: View {
   let query: String
   let recent: [String]
+  var focused = false
   @State private var phrase = 0
   @State private var shown = 0
   @State private var cursorOn = true
@@ -13,9 +14,11 @@ struct TVQueryField: View {
 
   var body: some View {
     HStack(spacing: 20) {
-      Image(systemName: "magnifyingglass").font(.system(size: 34, weight: .medium)).foregroundStyle(TVPalette.textMid)
+      Image(systemName: "magnifyingglass").font(.system(size: 34, weight: .medium))
+        .foregroundStyle(focused ? TVPalette.ink : TVPalette.textMid)
       HStack(spacing: 4) {
-        Text(verbatim: line).foregroundStyle(TVPalette.textHigh.opacity(query.isEmpty ? 0.42 : 1)).lineLimit(1)
+        Text(verbatim: line).foregroundStyle((focused ? TVPalette.ink : TVPalette.textHigh).opacity(query.isEmpty ? 0.42 : 1))
+          .lineLimit(1)
         Capsule().fill(TVPalette.accent).frame(width: 4, height: 44).opacity(cursorOn ? 1 : 0)
       }
       .font(TVType.title)
@@ -23,7 +26,9 @@ struct TVQueryField: View {
     }
     .padding(.horizontal, 28)
     .frame(height: 96)
-    .background(TVPalette.surface, in: RoundedRectangle(cornerRadius: TVDimens.panelRadius))
+    .background(focused ? TVPalette.textHigh : TVPalette.surface, in: RoundedRectangle(cornerRadius: TVDimens.panelRadius))
+    .scaleEffect(focused ? 1.02 : 1)
+    .animation(.easeOut(duration: 0.16), value: focused)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(query.isEmpty ? Text("Type anything") : Text(verbatim: query))
     .task(id: GhostKey(empty: query.isEmpty, phrases: phrases)) {

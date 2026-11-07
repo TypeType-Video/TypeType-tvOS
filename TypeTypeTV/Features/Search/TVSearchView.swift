@@ -1,10 +1,10 @@
 import SwiftUI
 
-// Android TV's SearchScreen: the drawn keyboard on the left and the results beside it, filled while typing.
-// The system keyboard cannot sit beside a list on tvOS; it stays one key away for dictation.
+// The query bar opens the system keyboard, which brings dictation and typing from an iPhone; the results take
+// the whole width below it and fill in while typing, behind the keyboard.
 struct TVSearchView: View {
   @StateObject private var model: LiveSearchViewModel
-  @FocusState private var firstKey: Bool
+  @FocusState private var barFocused: Bool
   @FocusState private var entry: String?
   @State private var focusResults = false
   @State private var startedOnService = false
@@ -40,7 +40,8 @@ struct TVSearchView: View {
       .scrollClipDisabled()
       .tvContentEdges()
       .background(TVPalette.ink.ignoresSafeArea())
-      .defaultFocus($firstKey, true)
+      // Coming down from the tab bar lands on the query bar, not on the chip under the Search tab.
+      .defaultFocus($barFocused, true, priority: .userInitiated)
       // The model searches again by itself when the service or the kind changes; only the typing is followed here.
       .task(id: model.query) { await search() }
       .onChange(of: model.state) { _, state in
@@ -64,22 +65,18 @@ struct TVSearchView: View {
   }
 
   private var screen: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: 24) {
       TVSearchScope(model: model)
-      HStack(alignment: .top, spacing: 88) {
-        VStack(spacing: 24) {
-          TVQueryField(query: model.query, recent: model.history.map(\.term))
-          TVSearchKeyboard(query: $model.query, firstKey: $firstKey)
-        }
-        .frame(width: 960)
+      TVSearchField(query: $model.query, recent: model.history.map(\.term), focus: $barFocused)
+      panel
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        // The outer scroll view proposes no height; the result list scrolls inside this fixed one. Pinned to the
+        // top, a taller state grows downwards instead of moving the whole screen.
+        // Taller, the screen would scroll and pull the tab bar up with it.
+        .frame(height: 580, alignment: .topLeading)
         .focusSection()
-        panel
-          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-          .focusSection()
-      }
-      // The outer scroll view proposes no height; the result list scrolls inside this fixed one.
-      .frame(height: 790)
     }
+    .focusSection()
     .padding(.horizontal, TVDimens.safeStart)
     .frame(maxWidth: .infinity, alignment: .topLeading)
   }
@@ -96,7 +93,7 @@ struct TVSearchView: View {
   private var panel: some View {
     switch model.state {
     case .idle:
-      TVSearchMessage(title: "What do you want to watch?", detail: "Type with the keyboard or pick a recent search.") {
+      TVSearchMessage(title: "What do you want to watch?", detail: "Select the search bar to type or dictate, or pick a recent search.") {
         if !model.history.isEmpty { recentSearches }
       }
     case .loading:
