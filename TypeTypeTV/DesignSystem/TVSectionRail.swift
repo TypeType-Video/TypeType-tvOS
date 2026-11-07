@@ -4,20 +4,25 @@ import SwiftUI
 // white when focused. 464 pt wide like the rail's 232 dp.
 struct TVRailItemStyle: ButtonStyle {
   let selected: Bool
+  var railFocused = false
 
   func makeBody(configuration: Configuration) -> some View {
-    TVRailItemLabel(configuration: configuration, selected: selected)
+    TVRailItemLabel(configuration: configuration, selected: selected, railFocused: railFocused)
   }
 }
 
 private struct TVRailItemLabel: View {
   let configuration: ButtonStyleConfiguration
   let selected: Bool
+  let railFocused: Bool
   @Environment(\.isFocused) private var isFocused
 
   var body: some View {
     HStack(spacing: 24) {
-      Capsule().fill(TVPalette.accent).frame(width: 6, height: selected && !isFocused ? 36 : 0)
+      // The selection follows the focus one update late: shown while the focus is in the rail, the bar would
+      // flash on the entry just left. A fixed size with a fade never shrinks it into a dot.
+      Capsule().fill(TVPalette.accent).frame(width: 6, height: 36)
+        .opacity(selected && !railFocused ? 1 : 0)
       configuration.label.font(.system(size: 28, weight: .semibold)).lineLimit(1)
       Spacer(minLength: 0)
     }
@@ -36,7 +41,7 @@ private struct TVRailItemLabel: View {
 extension View {
   // Rail entries follow the focus like Android's: the section opens as soon as its entry is focused.
   func tvRailItem<Value: Hashable>(_ value: Value, selection: Binding<Value>, focus: FocusState<Value?>.Binding) -> some View {
-    buttonStyle(TVRailItemStyle(selected: selection.wrappedValue == value))
+    buttonStyle(TVRailItemStyle(selected: selection.wrappedValue == value, railFocused: focus.wrappedValue != nil))
       .focused(focus, equals: value)
       .accessibilityAddTraits(selection.wrappedValue == value ? [.isSelected] : [])
   }
