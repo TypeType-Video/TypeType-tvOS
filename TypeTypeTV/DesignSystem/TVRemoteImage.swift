@@ -4,6 +4,7 @@ struct TVRemoteImage: View {
   let url: URL?
   // A full-screen backdrop asks Bilibili for a larger picture than a card does.
   var size: LiveImageSize = .card
+  var placeholder = true
   @State private var loaded: (url: URL?, image: UIImage)?
   @Environment(\.displayScale) private var displayScale
   @Environment(\.imagePipeline) private var pipeline
@@ -12,7 +13,7 @@ struct TVRemoteImage: View {
     GeometryReader { proxy in
       let pixels = max(proxy.size.width, proxy.size.height) * displayScale
       ZStack {
-        TVPalette.surfaceRaised
+        if placeholder { TVPalette.surfaceRaised }
         if let image = shownImage(pixels) {
           Image(uiImage: image)
             .resizable()

@@ -70,15 +70,20 @@ struct TVAccountBadge: View {
     ZStack {
       Circle().fill(Color(hex24: 0x7F1D1D))
       Text(verbatim: Self.initials(user?.publicUsername)).font(TVType.label).foregroundStyle(TVPalette.accentSoft)
-      if let frames, animates {
+      // An emoji avatar's address is an SVG, which UIKit cannot draw: the emoji itself is shown, as on iPhone.
+      if let emoji {
+        Circle().fill(TVPalette.surfaceRaised)
+        Text(verbatim: emoji).font(.system(size: 36))
+      } else if let frames, animates {
         TVAnimatedAvatar(frames: frames, playing: settled).clipShape(Circle())
       } else if let url = user?.avatarURL {
-        TVRemoteImage(url: url).clipShape(Circle())
+        // Without a placeholder the initials stay visible while the picture loads or when it fails.
+        TVRemoteImage(url: url, placeholder: false).clipShape(Circle())
       }
     }
     .frame(width: 64, height: 64)
-    .task(id: animates ? user?.avatarURL : nil) {
-      guard animates, let url = user?.avatarURL else { return frames = nil }
+    .task(id: animates && emoji == nil ? user?.avatarURL : nil) {
+      guard animates, emoji == nil, let url = user?.avatarURL else { return frames = nil }
       frames = await TVAvatarFrames.load(url, pixels: 64 * displayScale)
     }
     // Android TV's RemoteActivity: an animated picture redraws the screen on its own, so it waits while the
@@ -94,6 +99,11 @@ struct TVAccountBadge: View {
     }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(user?.publicUsername.map { Text("Signed in as \($0)") } ?? Text("Signed in"))
+  }
+
+  private var emoji: String? {
+    guard user?.avatarType?.lowercased() == "emoji", let code = user?.avatarCode else { return nil }
+    return LiveAvatar.emoji(fromHexCode: code)
   }
 
   static func initials(_ name: String?) -> String {

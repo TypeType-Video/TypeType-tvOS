@@ -132,6 +132,7 @@ targets:
       - TypeTypeIOS/Features/Watch/Components/LiveDanmakuOverlay.swift
       - TypeTypeIOS/Features/Watch/Components/LiveDanmakuCanvasView+Rendering.swift
       - TypeTypeIOS/Features/Watch/Components/LiveDanmakuCanvasView+Timeline.swift
+      - TypeTypeIOS/Features/Profile/Views/LiveAvatar.swift
       - path: TypeTypeIOS/Resources
         excludes:
           - AppIcon.icon
