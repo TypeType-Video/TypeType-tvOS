@@ -258,11 +258,7 @@ actor LiveDiagnosticsStore {
   ]
 
   nonisolated private static func defaultRootURL() -> URL {
-    let base = FileManager.default.urls(
-      for: .applicationSupportDirectory,
-      in: .userDomainMask
-    ).first ?? FileManager.default.temporaryDirectory
-    return base
+    URL.appStorageDirectory
       .appendingPathComponent("TypeType", isDirectory: true)
       .appendingPathComponent("Diagnostics", isDirectory: true)
   }

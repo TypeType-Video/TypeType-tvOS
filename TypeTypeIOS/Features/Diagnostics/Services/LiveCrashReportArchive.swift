@@ -5,7 +5,7 @@ actor LiveCrashReportArchive {
   private let limit = 10
 
   init(fileURL: URL? = nil) {
-    self.fileURL = fileURL ?? URL.applicationSupportDirectory
+    self.fileURL = fileURL ?? URL.appStorageDirectory
       .appending(path: "crash-reports.json")
   }
 
