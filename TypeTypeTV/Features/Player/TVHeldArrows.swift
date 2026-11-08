@@ -23,7 +23,7 @@ final class TVHeldArrowsView: UIView {
   private weak var host: UIView?
   private var repeating: Task<Void, Never>?
   private lazy var recognizers = [(UIPress.PressType.leftArrow, -1), (.rightArrow, 1)].map { type, direction in
-    let held = UILongPressGestureRecognizer(target: self, action: direction < 0 ? #selector(heldLeft) : #selector(heldRight))
+    let held = TVRemoteHold(target: self, action: direction < 0 ? #selector(heldLeft) : #selector(heldRight))
     held.allowedPressTypes = [NSNumber(value: type.rawValue)]
     held.allowedTouchTypes = []
     held.minimumPressDuration = 0.35
