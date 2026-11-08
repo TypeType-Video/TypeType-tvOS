@@ -38,6 +38,7 @@ final class TVTabReselectView: UIView {
   private func recognizer(_ type: UIPress.PressType, _ action: Selector, passesOn: Bool) -> UITapGestureRecognizer {
     let recognizer = UITapGestureRecognizer(target: self, action: action)
     recognizer.allowedPressTypes = [NSNumber(value: type.rawValue)]
+    recognizer.allowedTouchTypes = []
     recognizer.cancelsTouchesInView = !passesOn
     return recognizer
   }
