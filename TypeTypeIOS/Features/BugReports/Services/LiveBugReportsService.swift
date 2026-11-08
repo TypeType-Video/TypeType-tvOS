@@ -6,6 +6,11 @@ protocol LiveBugReportsServiceProtocol {
     description: String,
     videoURL: String?
   ) async throws -> LiveCreatedBugReport
+  func sendJournal(
+    _ lines: [String],
+    description: String,
+    userAgent: String
+  ) async throws -> LiveCreatedBugReport
   func reports(
     page: Int,
     limit: Int,
@@ -18,9 +23,9 @@ protocol LiveBugReportsServiceProtocol {
 }
 
 final class LiveBugReportsService: LiveBugReportsServiceProtocol {
-  private let apiClient: APIClient
-  private let diagnosticsStore: LiveDiagnosticsStore?
-  private let diagnosticScopeProvider: () -> LiveDiagnosticScope?
+  let apiClient: APIClient
+  let diagnosticsStore: LiveDiagnosticsStore?
+  let diagnosticScopeProvider: () -> LiveDiagnosticScope?
 
   init(
     apiClient: APIClient,
@@ -32,59 +37,6 @@ final class LiveBugReportsService: LiveBugReportsServiceProtocol {
     self.apiClient = apiClient
     self.diagnosticsStore = diagnosticsStore
     self.diagnosticScopeProvider = diagnosticScopeProvider
-  }
-
-  func create(
-    category: String,
-    description: String,
-    videoURL: String?
-  ) async throws -> LiveCreatedBugReport {
-    let diagnostics: [LiveDiagnosticEntry]
-    if let diagnosticsStore,
-      let scope = diagnosticScopeProvider() {
-      diagnostics = await diagnosticsStore.entries(for: scope)
-    } else {
-      diagnostics = []
-    }
-    let context = LiveBugReportContextPayload(
-      videoURL: videoURL,
-      route: "ios://report",
-      timestamp: Int64(Date().timeIntervalSince1970 * 1_000),
-      userAgent: "TypeType iOS",
-      browserLanguage: Locale.current.identifier,
-      crashLogs: [],
-      apiErrors: diagnostics.compactMap { entry in
-        guard let status = entry.statusCode, status >= 400 else {
-          return nil
-        }
-        return LiveBugAPIError(
-          requestID: entry.requestID,
-          endpoint: entry.route,
-          status: status,
-          code: nil,
-          message: nil,
-          timestamp: Int64(
-            entry.timestamp.timeIntervalSince1970 * 1_000
-          )
-        )
-      }
-      .prefix(100)
-      .map { $0 }
-    )
-    return try await apiClient.request(
-      endpoint(
-        "/bug-reports",
-        .post,
-        body: try APIEndpoint.jsonBody(
-          LiveCreateBugReportPayload(
-            category: category,
-            description: description,
-            context: context
-          )
-        )
-      ),
-      as: LiveCreatedBugReport.self
-    )
   }
 
   func reports(
@@ -140,7 +92,7 @@ final class LiveBugReportsService: LiveBugReportsServiceProtocol {
     return result.githubIssueURL
   }
 
-  private func endpoint(
+  func endpoint(
     _ path: String,
     _ method: HTTPMethod,
     body: Data? = nil

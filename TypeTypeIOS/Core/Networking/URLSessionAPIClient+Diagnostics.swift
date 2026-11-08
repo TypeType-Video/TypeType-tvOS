@@ -16,6 +16,10 @@ extension URLSessionAPIClient {
     }
     let elapsed = DispatchTime.now().uptimeNanoseconds
       .saturatingSubtract(startedAt) / 1_000_000
+    let route = LiveDiagnosticsStore.route(for: requestURL, relativeTo: baseURL) ?? "other"
+    let method = request.httpMethod ?? "OTHER"
+    let status = statusCode.map(String.init) ?? "failed"
+    AppLogger.network.notice("\(method, privacy: .public) \(route, privacy: .public) \(status, privacy: .public) \(elapsed)ms")
     await diagnosticsStore.record(
       scope: scope,
       method: request.httpMethod ?? "OTHER",
