@@ -38,6 +38,7 @@ extension View {
   func tvRailItem<Value: Hashable>(_ value: Value, selection: Binding<Value>, focus: FocusState<Value?>.Binding) -> some View {
     buttonStyle(TVRailItemStyle(selected: selection.wrappedValue == value, railFocused: focus.wrappedValue != nil))
       .focused(focus, equals: value)
+      .disabled(focus.wrappedValue == nil && selection.wrappedValue != value)
       .accessibilityAddTraits(selection.wrappedValue == value ? [.isSelected] : [])
   }
 }

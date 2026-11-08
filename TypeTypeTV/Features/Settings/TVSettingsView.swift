@@ -106,13 +106,8 @@ struct TVSettingsView: View {
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
     .task { await model.load() }
-    .onChange(of: railFocus) { previous, focused in
-      guard let focused else { return }
-      if previous == nil, focused != group {
-        railFocus = group
-      } else {
-        group = focused
-      }
+    .onChange(of: railFocus) { _, focused in
+      if let focused { group = focused }
     }
   }
 }

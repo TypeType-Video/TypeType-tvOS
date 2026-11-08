@@ -56,9 +56,8 @@ struct TVLibraryView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .tvContentEdges()
     .background(TVPalette.ink.ignoresSafeArea())
-    .onChange(of: railFocus) { previous, focused in
-      guard let focused else { return }
-      if previous == nil, focused != section { railFocus = section } else { section = focused }
+    .onChange(of: railFocus) { _, focused in
+      if let focused { section = focused }
     }
     .task {
       async let lists: Void = collections.prepare()
