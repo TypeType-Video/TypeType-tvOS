@@ -49,14 +49,21 @@ final class TVTabReselectView: UIView {
     tabs?.tabBar.removeGestureRecognizer(press)
     tabs?.tabBar.removeGestureRecognizer(menu)
     tabs = found
+    TVJournal.note("tabs", "tab bar recognizers attached: \(found != nil)")
     found?.tabBar.addGestureRecognizer(press)
     found?.tabBar.addGestureRecognizer(menu)
     menu.isEnabled = menuReturns
   }
 
-  @objc private func pressed() { onReselect() }
+  @objc private func pressed() {
+    TVJournal.note("tabs", "select on tab bar recognized")
+    onReselect()
+  }
 
-  @objc private func returnToContent() { onMenu() }
+  @objc private func returnToContent() {
+    TVJournal.note("tabs", "menu on tab bar recognized")
+    onMenu()
+  }
 
   private static func tabBarController(in controller: UIViewController) -> UITabBarController? {
     if let tabs = controller as? UITabBarController { return tabs }

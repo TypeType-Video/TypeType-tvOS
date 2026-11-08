@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum TVSettingsGroup: String, CaseIterable, Identifiable {
-  case playback, content, blocked, performance, account, instance, about
+  case playback, content, blocked, performance, account, instance, journal, about
 
   var id: String { rawValue }
 
@@ -13,6 +13,7 @@ enum TVSettingsGroup: String, CaseIterable, Identifiable {
     case .performance: "Performance"
     case .account: "Account"
     case .instance: "Instance"
+    case .journal: "Journal"
     case .about: "About"
     }
   }
@@ -25,6 +26,7 @@ enum TVSettingsGroup: String, CaseIterable, Identifiable {
     case .performance: "bolt"
     case .account: "person.crop.circle"
     case .instance: "server.rack"
+    case .journal: "doc.text.magnifyingglass"
     case .about: "info.circle"
     }
   }

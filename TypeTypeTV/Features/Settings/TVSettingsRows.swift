@@ -23,6 +23,7 @@ struct TVSettingsRows: View {
     case .performance: performance
     case .account: account
     case .instance: instance
+    case .journal: TVJournalRows(service: coordinator.dependencies.bugReportsService)
     case .about:
       TVSettingRow(systemImage: "number", title: "Version", trailing: .value(Bundle.main.version))
     }

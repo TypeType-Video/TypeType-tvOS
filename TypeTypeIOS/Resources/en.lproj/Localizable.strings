@@ -1209,3 +1209,10 @@
 "Goes back to the screen instead of leaving the app. The TV button still leaves it." = "Goes back to the screen instead of leaving the app. The TV button still leaves it.";
 "Hide shorts" = "Hide shorts";
 "Removes shorts from search results and related videos." = "Removes shorts from search results and related videos.";
+"Journal" = "Journal";
+"Send the journal" = "Send the journal";
+"Sends journal.log to your instance as a bug report its admin can read." = "Sends journal.log to your instance as a bug report its admin can read.";
+"Shows the latest lines below." = "Shows the latest lines below.";
+"Sending" = "Sending";
+"Sent" = "Sent";
+"Not sent" = "Not sent";

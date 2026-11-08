@@ -16,6 +16,8 @@ struct TVTabPaths {
     }
   }
 
+  var depths: [Int] { [home.count, subscriptions.count, search.count, library.count] }
+
   func isEmpty(_ tab: TVTab) -> Bool {
     switch tab {
     case .home: home.isEmpty

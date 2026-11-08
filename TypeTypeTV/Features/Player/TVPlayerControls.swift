@@ -78,6 +78,7 @@ struct TVPlayerControls: View {
       .buttonStyle(TVBareButtonStyle())
       .focused(focus, equals: .seek)
       .onMoveCommand { direction in
+        TVJournal.note("player", "move \(direction) on seek bar")
         switch direction {
         case .left: session.scrub(direction: -1)
         case .right: session.scrub(direction: 1)

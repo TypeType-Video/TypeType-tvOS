@@ -55,6 +55,7 @@ final class TVHeldArrowsView: UIView {
   @objc private func heldRight(_ held: UILongPressGestureRecognizer) { follow(held, direction: 1) }
 
   private func follow(_ held: UILongPressGestureRecognizer, direction: Int) {
+    TVJournal.note("player", "hold \(direction < 0 ? "left" : "right") state \(held.state.rawValue) enabled \(enabled)")
     switch held.state {
     case .began where enabled:
       stop()

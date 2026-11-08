@@ -7,6 +7,7 @@ extension TVPlayerContent {
       .focused($focus, equals: .catcher)
       .disabled(session.controlsVisible || session.panel != nil || countdownActive)
       .onMoveCommand { direction in
+        TVJournal.note("player", "move \(direction) on video")
         switch direction {
         case .left: if !session.undoSkip() { session.scrub(direction: -1) }
         case .right: session.scrub(direction: 1)
@@ -14,7 +15,10 @@ extension TVPlayerContent {
         default: session.showControls()
         }
       }
-      .onPlayPauseCommand(perform: session.togglePlay)
+      .onPlayPauseCommand {
+        TVJournal.note("player", "play-pause command")
+        session.togglePlay()
+      }
       .accessibilityLabel(Text(verbatim: controller.video.title))
   }
 
@@ -40,6 +44,7 @@ extension TVPlayerContent {
   var nextVideo: LiveVideoItem? { related.first }
 
   private func select() {
+    TVJournal.note("player", "select on video")
     if upNextVideo != nil { playback.playUpcomingNow() } else { session.togglePlay() }
   }
 }

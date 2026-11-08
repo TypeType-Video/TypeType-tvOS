@@ -120,6 +120,7 @@ struct TVPlayerContent: View {
       chatMayConnect = true
     }
     .onExitCommand {
+      TVJournal.note("player", "back command, panel \(session.panel != nil), controls \(session.controlsVisible)")
       if upNextVideo != nil { return session.upNextDismissed = true }
       let hadPanel = session.panel != nil
       guard session.back() else { return onClose() }

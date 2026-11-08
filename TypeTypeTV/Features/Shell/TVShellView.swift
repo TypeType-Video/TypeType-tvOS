@@ -106,7 +106,11 @@ struct TVShellView: View {
     .disabled(menuRequest != nil)
     .environment(\.tvContentScrolled) { scrolled in if contentScrolled != scrolled { contentScrolled = scrolled } }
     .onChange(of: tab) { _, _ in contentScrolled = false }
-    .background(TVTabReselect(menuReturns: backReturns, onReselect: returnToRoot) { contentFocus[tab, default: 0] += 1 })
+    .modifier(TVShellJournal(tab: tab, depths: paths.depths, playing: playing?.canonicalID, menu: menuRequest?.video.canonicalID))
+    .background(TVTabReselect(menuReturns: backReturns, onReselect: returnToRoot) {
+      TVJournal.note("tabs", "menu on bar returns focus to \(tab) content")
+      contentFocus[tab, default: 0] += 1
+    })
     .overlay { TVTopBarMarks(user: coordinator.currentUser, hidden: contentScrolled) }
     .overlay {
       if let request = menuRequest {
@@ -156,6 +160,7 @@ struct TVShellView: View {
   private func push(_ route: TVRoute) { paths.push(route, on: tab) }
 
   private func returnToRoot() {
+    TVJournal.note("tabs", "reselect \(tab), stack empty \(paths.isEmpty(tab))")
     if paths.isEmpty(tab) {
       if tab == .subscriptions { subscriptionsReset += 1 }
     } else {
