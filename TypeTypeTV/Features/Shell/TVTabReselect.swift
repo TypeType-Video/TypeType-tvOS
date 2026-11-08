@@ -22,11 +22,18 @@ final class TVTabReselectView: UIView {
     didSet { menu.isEnabled = menuReturns }
   }
   private weak var tabs: UITabBarController?
-  private lazy var press = recognizer(.select, #selector(pressed), passesOn: true)
+  private weak var watched: UIWindow?
+  private let press = TVPressStartWatch(.select)
   private lazy var menu = recognizer(.menu, #selector(returnToContent), passesOn: false)
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
+    if let window, window !== watched {
+      watched?.removeGestureRecognizer(press)
+      watched = window
+      press.onStart = { [weak self] in self?.selectStarted() }
+      window.addGestureRecognizer(press)
+    }
     attach()
   }
 
@@ -46,18 +53,21 @@ final class TVTabReselectView: UIView {
   private func attach() {
     let found = window?.rootViewController.flatMap(Self.tabBarController(in:))
     guard found !== tabs else { return }
-    tabs?.tabBar.removeGestureRecognizer(press)
     tabs?.tabBar.removeGestureRecognizer(menu)
     tabs = found
-    TVJournal.note("tabs", "tab bar recognizers attached: \(found != nil)")
-    found?.tabBar.addGestureRecognizer(press)
+    TVJournal.note("tabs", "tab bar found: \(found != nil)")
     found?.tabBar.addGestureRecognizer(menu)
     menu.isEnabled = menuReturns
   }
 
-  @objc private func pressed() {
-    TVJournal.note("tabs", "select on tab bar recognized")
+  private func selectStarted() {
+    guard let bar = tabs?.tabBar, Self.holdsFocus(bar) else { return }
+    TVJournal.note("tabs", "select started on the tab bar")
     onReselect()
+  }
+
+  private static func holdsFocus(_ view: UIView) -> Bool {
+    view.isFocused || view.subviews.contains(where: holdsFocus)
   }
 
   @objc private func returnToContent() {
