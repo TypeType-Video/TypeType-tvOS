@@ -35,6 +35,8 @@ struct TVRootView: View {
     .overlay {
       if splashPlaying { TVStartupSplash(short: shortIntro) { splashPlaying = false } }
     }
+    .background(TVControlTrace())
     .task { await coordinator.bootstrap() }
+    .onChange(of: String(describing: coordinator.state)) { _, state in TVJournal.note("app", "root \(state)") }
   }
 }

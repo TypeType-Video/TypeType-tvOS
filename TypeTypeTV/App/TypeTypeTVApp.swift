@@ -9,6 +9,11 @@ struct TypeTypeTVApp: App {
   #if DEBUG
   @MainActor private let frameMonitor = TVFrameMonitor()
   #endif
+  @Environment(\.scenePhase) private var scenePhase
+
+  init() {
+    Task { await TVJournal.shared.start() }
+  }
 
   var body: some Scene {
     WindowGroup {
@@ -17,6 +22,10 @@ struct TypeTypeTVApp: App {
       #if DEBUG
         .onAppear { frameMonitor.startIfRequested() }
       #endif
+    }
+    .onChange(of: scenePhase) { _, phase in
+      TVJournal.note("app", "scene \(phase)")
+      Task { await TVJournal.shared.flush() }
     }
   }
 }
