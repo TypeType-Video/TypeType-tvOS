@@ -15,6 +15,13 @@ struct TVSettingsRows: View {
   private static let qualities = ["auto", "2160p", "1440p", "1080p", "720p", "480p", "360p"]
   private static let speeds: [Double] = [0.75, 1, 1.25, 1.5, 2]
 
+  private static func seekbarIcons(_ settings: LiveSettings) -> [TVChoice] {
+    let hasImage = !(settings.seekbarIconUrl ?? "").isEmpty
+    return LiveSeekbarIconChoice.allCases
+      .filter { $0 != .custom || hasImage }
+      .map { TVChoice(id: $0.rawValue, label: $0.title) }
+  }
+
   var body: some View {
     switch group {
     case .playback: playback
@@ -51,6 +58,12 @@ struct TVSettingsRows: View {
               TVChoice(id: "mark_only", label: String(localized: "Mark only")),
               TVChoice(id: "disabled", label: String(localized: "Off"))], settings.sponsorBlockMode) { value in
         { $0.sponsorBlockMode = value }
+      }
+      if settings.seekbarIcon != nil {
+        choice("tv", "Seekbar icon", "The icon that moves along the progress bar. Your own image is chosen on the phone or on the web.",
+               Self.seekbarIcons(settings), LiveSeekbarIconChoice.shown(for: settings).rawValue) { value in
+          { $0.seekbarIcon = value }
+        }
       }
       toggle("clock.arrow.circlepath", "Save watch history", "Keep a record of what you watch to resume where you left off.",
              !settings.disableWatchHistory) { $0.disableWatchHistory.toggle() }

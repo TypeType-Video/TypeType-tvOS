@@ -1216,3 +1216,6 @@
 "Sending" = "Envoi…";
 "Sent" = "Envoyé";
 "Not sent" = "Échec de l’envoi";
+"My image" = "Mon image";
+"Seekbar icon" = "Icône de la barre de lecture";
+"The icon that moves along the progress bar. Your own image is chosen on the phone or on the web." = "L'icône qui avance sur la barre de progression. Votre propre image se choisit sur le téléphone ou sur le web.";

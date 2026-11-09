@@ -7,6 +7,7 @@ struct TVSeekBar: View {
   var chapters: [LivePlaybackChapter] = []
   var sponsors: [LiveSponsorBlockWindow] = []
   var storyboard: LivePlaybackPreviewFrames?
+  var icon = LiveSeekbarIcon.plain
   @Environment(\.isFocused) private var isFocused
 
   var body: some View {
@@ -18,11 +19,11 @@ struct TVSeekBar: View {
         Capsule().fill(TVPalette.outline.opacity(0.75)).frame(height: track)
         Capsule().fill(TVPalette.accent).frame(width: proxy.size.width * fraction, height: track)
         markers(width: proxy.size.width, track: track)
-        if isFocused || scrub != nil {
-          Circle()
-            .fill(TVPalette.textHigh)
-            .frame(width: 40, height: 40)
-            .offset(x: proxy.size.width * fraction - 20)
+        if icon != .plain || isFocused || scrub != nil {
+          let emphasized = isFocused || scrub != nil
+          let size = TVSeekbarThumb.size(for: icon, emphasized: emphasized)
+          TVSeekbarThumb(icon: icon, emphasized: emphasized)
+            .offset(x: proxy.size.width * fraction - size / 2)
         }
       }
       .frame(height: proxy.size.height)
