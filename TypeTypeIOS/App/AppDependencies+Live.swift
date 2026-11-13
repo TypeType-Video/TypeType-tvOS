@@ -176,6 +176,7 @@ extension AppDependencies {
         }
       ),
       liveChatService: LiveChatService(transport: URLSessionLiveChatTransport(client: client)),
+      linkedAccountsService: LiveLinkedAccountsService(apiClient: client),
       platform: platform,
       crashReports: crashReports
     )
