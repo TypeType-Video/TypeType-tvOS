@@ -266,6 +266,10 @@ extension LivePlayerController {
         $0.playerAudioOnlyPlayback = enabled
       }
     }
+    if let nativePlayback, nativePlayback.switchesVideoInPlace {
+      nativePlayback.setVideoEnabled(!enabled)
+      return
+    }
     restartAtCurrentPosition()
   }
 
