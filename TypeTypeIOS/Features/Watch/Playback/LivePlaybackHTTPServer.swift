@@ -210,10 +210,7 @@ final class LivePlaybackHTTPServer: @unchecked Sendable {
     localPort = nil
     sabrSession = nil
     if let activeSABRSession {
-      Task {
-        await activeSABRSession.stopMaintenance()
-        await activeSABRSession.cancelWindowLoad()
-      }
+      Task { await activeSABRSession.release() }
     }
     sabrMasterRouteID = nil
     sabrAudioRouteID = nil
