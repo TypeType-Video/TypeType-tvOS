@@ -34,7 +34,7 @@ final class LiveDeviceLoginService: LiveDeviceLoginServiceProtocol {
     do {
       let response = try await apiClient.request(endpoint, as: AuthAccessTokenResponse.self)
       return .approved(accessToken: response.accessToken)
-    } catch NetworkError.statusCode(400, let message) {
+    } catch NetworkError.statusCode(400, let message, _) {
       return DeviceLoginPoll(serverError: message)
     }
   }

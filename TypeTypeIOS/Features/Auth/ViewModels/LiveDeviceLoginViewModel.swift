@@ -97,7 +97,7 @@ final class LiveDeviceLoginViewModel: ObservableObject {
 
   // A server without device login answers 404, or 403 when an administrator turned it off.
   private static func isUnsupported(_ error: Error) -> Bool {
-    guard case let NetworkError.statusCode(code, _) = error else { return false }
+    guard case let NetworkError.statusCode(code, _, _) = error else { return false }
     return code == 404 || code == 403
   }
 
