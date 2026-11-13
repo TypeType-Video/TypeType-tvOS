@@ -29,6 +29,11 @@ struct TVSettingsRows: View {
     case .blocked: blocked
     case .performance: performance
     case .account: account
+    case .linked:
+      if let youtube = coordinator.dependencies.youtubeSessionService,
+        let linked = coordinator.dependencies.linkedAccountsService {
+        TVLinkedAccountRows(youtube: youtube, service: linked)
+      }
     case .instance: instance
     case .journal: TVJournalRows(service: coordinator.dependencies.bugReportsService)
     case .about:
