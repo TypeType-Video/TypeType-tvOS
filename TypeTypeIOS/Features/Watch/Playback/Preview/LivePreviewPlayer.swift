@@ -81,9 +81,15 @@ final class LivePreviewPlayer: ObservableObject {
         Task { @MainActor [weak self] in self?.stop() }
       }
     )
-    let snapshot = try await session.start()
+    let snapshot: LiveSABRPlaybackSnapshot
+    do {
+      snapshot = try await session.start()
+    } catch {
+      await session.release()
+      throw error
+    }
     guard current == generation, snapshot.isIndexedVOD else {
-      await session.stopMaintenance()
+      await session.release()
       return nil
     }
     return (LiveSABRSegmentSource(session: session, service: service, audioOnly: false), session)
@@ -108,6 +114,6 @@ final class LivePreviewPlayback {
 
   func stop() {
     player.stop()
-    Task { [session] in await session?.stopMaintenance() }
+    Task { [session] in await session?.release() }
   }
 }
