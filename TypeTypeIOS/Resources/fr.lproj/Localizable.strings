@@ -1252,3 +1252,11 @@
 "Disconnect BiliBili" = "Déconnecter BiliBili";
 "Connect YouTube with a code" = "Connecter YouTube avec un code";
 "Connect BiliBili with a QR code" = "Connecter BiliBili avec un QR code";
+"Posts" = "Posts";
+"Courses" = "Cours";
+"This channel has not posted anything." = "Cette chaîne n'a rien publié.";
+"The posts could not be loaded." = "Les posts n'ont pas pu être chargés.";
+"The voice reply could not be played." = "La réponse vocale n'a pas pu être lue.";
+"The comments could not be searched." = "La recherche dans les commentaires a échoué.";
+"Play the voice reply" = "Écouter la réponse vocale";
+"Pause the voice reply" = "Mettre en pause la réponse vocale";

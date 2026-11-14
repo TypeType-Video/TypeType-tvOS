@@ -75,19 +75,34 @@ struct TVChannelScreen: View {
 
   private var isYouTube: Bool { LiveChannelRequestURLBuilder.isYouTube(model.channelURL) }
 
-  private var tabs: [LiveChannelTab] { isYouTube ? [.videos, .live, .playlists] : [.videos] }
+  private var tabs: [LiveChannelTab] {
+    guard isYouTube else { return [.videos] }
+    return [.videos, .live, .posts, .playlists] + (model.channel?.hasCourses == true ? [.courses] : [])
+  }
 
   @ViewBuilder
   private var content: some View {
+    if model.selectedTab == .posts {
+      TVChannelPosts(channelURL: model.channelURL, service: model.channelService) { link in
+        guard case let .video(video)? = URL(string: link).flatMap({ LiveMediaLinkResolver.destination(for: $0) }) else { return }
+        onOpen(video)
+      }
+    } else {
+      channelContent
+    }
+  }
+
+  @ViewBuilder
+  private var channelContent: some View {
     switch model.state {
     case .idle, .loading:
       ProgressView().frame(maxWidth: .infinity).padding(.top, 80)
     case let .failed(message):
       TVScreenFailure(message: message) { Task { await model.reloadChannel() } }
-    case .empty where model.selectedTab != .playlists:
+    case .empty where !model.selectedTab.listsPlaylists:
       empty
     case .empty, .loaded:
-      if model.selectedTab == .playlists {
+      if model.selectedTab.listsPlaylists {
         if model.playlists.isEmpty { empty } else { playlistGrid }
       } else {
         TVVideoGrid(videos: model.videos, isLoadingMore: model.isLoadingMore, columnCount: 3, cardWidth: 536, onOpen: onOpen) {

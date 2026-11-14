@@ -61,6 +61,8 @@ struct TVChannelTabs: View {
     case .videos: String(localized: "Videos")
     case .live: String(localized: "Live")
     case .playlists: String(localized: "Playlists")
+    case .posts: String(localized: "Posts")
+    case .courses: String(localized: "Courses")
     case .about: String(localized: "About")
     }
   }
@@ -70,6 +72,8 @@ struct TVChannelTabs: View {
     case .videos: "play.rectangle.on.rectangle"
     case .live: "dot.radiowaves.left.and.right"
     case .playlists: "list.bullet.rectangle"
+    case .posts: "text.bubble"
+    case .courses: "graduationcap"
     case .about: "info.circle"
     }
   }
