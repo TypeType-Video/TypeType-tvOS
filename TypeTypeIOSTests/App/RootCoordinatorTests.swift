@@ -644,7 +644,8 @@ private final class RootChannelStub: LiveChannelServiceProtocol {
 
   func playlists(
     url: String,
-    nextPage: String?
+    nextPage: String?,
+    tab: String?
   ) async throws -> LiveChannelPlaylistsPage {
     throw RootCoordinatorTestError.unexpectedCall
   }

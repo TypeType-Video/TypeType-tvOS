@@ -59,6 +59,8 @@ struct LiveChannelControlsView: View {
     case .videos: "play.rectangle"
     case .live: "dot.radiowaves.left.and.right"
     case .playlists: "rectangle.stack"
+    case .courses: "graduationcap"
+    case .posts: "text.bubble"
     case .about: "info.circle"
     }
   }
