@@ -39,6 +39,7 @@ struct TVPlayerContent: View {
   @StateObject var engagement: LiveVideoEngagementViewModel
   @StateObject var comments: LiveCommentsViewModel
   @StateObject var threads: LiveCommentThreads
+  @StateObject var voice: LiveCommentVoicePlayer
   @StateObject var chat: TVLiveChatModel
   let hasChatService: Bool
   @FocusState var focus: TVPlayerFocus?
@@ -67,6 +68,7 @@ struct TVPlayerContent: View {
       settingsService: dependencies.settingsService
     ))
     _threads = StateObject(wrappedValue: LiveCommentThreads(videoURL: controller.video.url, service: dependencies.commentsService))
+    _voice = StateObject(wrappedValue: LiveCommentVoicePlayer(service: dependencies.commentsService))
   }
 
   var body: some View {
@@ -102,7 +104,7 @@ struct TVPlayerContent: View {
       } else if let panel = session.panel {
         TVPlayerPanel(
           controller: controller, session: session, actions: actions, engagement: engagement,
-          comments: comments, threads: threads, panel: panel, queue: related, onOpen: { playback.open($0) }
+          comments: comments, threads: threads, voice: voice, panel: panel, queue: related, onOpen: { playback.open($0) }
         )
       }
       if case let .failed(message) = controller.state {

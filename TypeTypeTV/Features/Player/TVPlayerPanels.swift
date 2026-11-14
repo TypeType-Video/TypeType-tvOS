@@ -7,6 +7,7 @@ struct TVPlayerPanel: View {
   @ObservedObject var engagement: LiveVideoEngagementViewModel
   let comments: LiveCommentsViewModel
   let threads: LiveCommentThreads
+  let voice: LiveCommentVoicePlayer
   let panel: TVPlayerSession.Panel
   var queue: [LiveVideoItem] = []
   var onOpen: (LiveVideoItem) -> Void = { _ in }
@@ -92,7 +93,7 @@ struct TVPlayerPanel: View {
     case .chapters:
       TVPlayerChapterRows(controller: controller, session: session)
     case .comments:
-      TVCommentRows(comments: comments, threads: threads)
+      TVCommentRows(comments: comments, threads: threads, voice: voice)
     case .captionStyle:
       TVCaptionStyleRows(controller: controller)
     case .queue:

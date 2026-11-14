@@ -3,6 +3,7 @@ import SwiftUI
 struct TVCommentRows: View {
   @ObservedObject var comments: LiveCommentsViewModel
   @ObservedObject var threads: LiveCommentThreads
+  @ObservedObject var voice: LiveCommentVoicePlayer
   @FocusState private var focused: String?
 
   private static let prefetch = 3
@@ -27,6 +28,7 @@ struct TVCommentRows: View {
           .onAppear {
             if index >= comments.comments.count - Self.prefetch { Task { await comments.loadMore() } }
           }
+          voiceRow(of: comment)
           replies(of: comment)
         }
         if comments.isLoadingMore { ProgressView().padding(.vertical, 12) }
@@ -35,6 +37,17 @@ struct TVCommentRows: View {
     .task {
       await comments.prepare()
       focused = comments.comments.first?.id
+    }
+    .onDisappear { voice.stop() }
+  }
+
+  @ViewBuilder
+  private func voiceRow(of comment: LiveCommentItem) -> some View {
+    if let reply = comment.voiceReply, reply.canPlay {
+      let phase = voice.phase(for: comment)
+      status(phase == .playing ? "Pause the voice reply" : phase == .failed ? "The voice reply could not be played." : "Play the voice reply",
+             systemImage: phase == .playing ? "pause.circle.fill" : phase == .loading ? "ellipsis" : "play.circle.fill",
+             indent: true) { voice.toggle(comment) }
     }
   }
 
@@ -101,6 +114,12 @@ private struct TVCommentCard: View {
           if comment.isHeartedByUploader { Image(systemName: "heart.fill").foregroundStyle(TVPalette.accent) }
         }
         Text(verbatim: comment.displayText).font(TVType.body).lineLimit(reply ? 6 : 8)
+        if let url = LiveImageURLResolver.resolve(comment.image?.url) {
+          TVRemoteImage(url: url).frame(width: 360, height: 220).clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        if let transcript = comment.voiceReply?.transcript, !transcript.isEmpty {
+          Text(verbatim: transcript).font(TVType.meta).foregroundStyle(TVPalette.textMid).lineLimit(3)
+        }
         HStack(spacing: 20) {
           if comment.likeCount > 0 { Text("\(comment.textualLikeCount) likes") }
           if !reply, comment.replyCount > 0 {
