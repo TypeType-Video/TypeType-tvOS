@@ -104,6 +104,11 @@ struct TVSettingsRows: View {
       toggle("rectangle.stack", "More videos", "Related videos on a video page and in the player.", !settings.hideRelatedVideos) {
         $0.hideRelatedVideos.toggle()
       }
+      if let hidesEndScreens = settings.hideEndScreens {
+        toggle("rectangle.inset.bottomtrailing.filled", "End screens", "The creator's cards over the last seconds of a YouTube video.", !hidesEndScreens) {
+          $0.hideEndScreens = !hidesEndScreens
+        }
+      }
       toggle("text.bubble", "Comments", "Comments under a video.", !settings.hideComments) { $0.hideComments.toggle() }
       toggle("rectangle.portrait", "Shorts", "Short vertical videos in lists and search.", !settings.hideShorts) {
         $0.hideShorts.toggle()

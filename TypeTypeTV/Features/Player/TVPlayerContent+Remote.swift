@@ -5,13 +5,14 @@ extension TVPlayerContent {
     Button(action: select) { Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity) }
       .buttonStyle(TVBareButtonStyle())
       .focused($focus, equals: .catcher)
-      .disabled(session.controlsVisible || session.panel != nil || countdownActive)
+      .disabled(session.controlsVisible || session.panel != nil || countdownActive || endScreenFocused)
       .onMoveCommand { direction in
         TVJournal.note("player", "move \(direction) on video")
         switch direction {
         case .left: if !session.undoSkip() { session.scrub(direction: -1) }
         case .right: session.scrub(direction: 1)
         case .down: session.showControls(fromBelow: true)
+        case .up: if !focusEndScreen() { session.showControls() }
         default: session.showControls()
         }
       }
@@ -24,6 +25,7 @@ extension TVPlayerContent {
 
   var restingFocus: TVPlayerFocus? {
     if countdownActive { return nil }
+    if endScreenFocused, let first = endScreenCards.first { return .endScreen(first.id) }
     guard session.controlsVisible else { return .catcher }
     return session.controlsFromBelow ? .play : .seek
   }

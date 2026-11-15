@@ -12,6 +12,7 @@ enum TVPlayerFocus: Hashable {
   case info
   case channel
   case more
+  case endScreen(String)
 }
 
 struct TVPlayerControls: View {

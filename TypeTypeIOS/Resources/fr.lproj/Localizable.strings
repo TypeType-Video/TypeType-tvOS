@@ -1260,3 +1260,12 @@
 "The comments could not be searched." = "La recherche dans les commentaires a échoué.";
 "Play the voice reply" = "Écouter la réponse vocale";
 "Pause the voice reply" = "Mettre en pause la réponse vocale";
+"Creator cards" = "Cartes du créateur";
+"End screens" = "Écrans de fin";
+"The creator's cards over the last seconds of a YouTube video." = "Les cartes du créateur sur les dernières secondes d'une vidéo YouTube.";
+"Playlist: %@" = "Playlist : %@";
+"Channel: %@" = "Chaîne : %@";
+"Video: %@" = "Vidéo : %@";
+"Opens this playlist." = "Ouvre cette playlist.";
+"Opens this channel." = "Ouvre cette chaîne.";
+"Plays this video." = "Lit cette vidéo.";

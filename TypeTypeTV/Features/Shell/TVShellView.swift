@@ -130,7 +130,8 @@ struct TVShellView: View {
     }
     .fullScreenCover(item: $playing) { video in
       TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies,
-                     onOpenChannel: { url in Task { openChannel(url) } }) {
+                     onOpenChannel: { url in Task { openChannel(url) } },
+                     onOpenPlaylist: { playlist in Task { push(.playlist(playlist)) } }) {
         playing = nil
         playbackEnded += 1
       }

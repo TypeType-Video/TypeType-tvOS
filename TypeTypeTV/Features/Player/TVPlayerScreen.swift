@@ -5,17 +5,25 @@ struct TVPlayerScreen: View {
   @ObservedObject var playback: LivePlaybackCoordinator
   let dependencies: AppDependencies
   var onOpenChannel: (String) -> Void = { _ in }
+  var onOpenPlaylist: (LivePlaylistResult) -> Void = { _ in }
   let onClose: () -> Void
 
   var body: some View {
     ZStack {
       Color.black.ignoresSafeArea()
       if let controller = playback.controller {
-        TVPlayerContent(controller: controller, playback: playback, dependencies: dependencies, onClose: close) { url in
-          close()
-          onOpenChannel(url)
-        }
-          .id(ObjectIdentifier(controller))
+        TVPlayerContent(
+          controller: controller, playback: playback, dependencies: dependencies, onClose: close,
+          onOpenChannel: { url in
+            close()
+            onOpenChannel(url)
+          },
+          onOpenPlaylist: { playlist in
+            close()
+            onOpenPlaylist(playlist)
+          }
+        )
+        .id(ObjectIdentifier(controller))
       }
     }
     .onAppear { playback.open(video) }
@@ -33,6 +41,7 @@ struct TVPlayerContent: View {
   @ObservedObject var playback: LivePlaybackCoordinator
   let onClose: () -> Void
   let onOpenChannel: (String) -> Void
+  let onOpenPlaylist: (LivePlaylistResult) -> Void
   let channelService: LiveChannelServiceProtocol
   @StateObject var session: TVPlayerSession
   @StateObject var actions: LiveVideoQuickActionsViewModel
@@ -46,10 +55,12 @@ struct TVPlayerContent: View {
   @FocusState var relatedFocus: Bool
   @State var panelOrigin: TVPlayerFocus?
   @State var chatMayConnect = false
+  @State var endScreenFocused = false
 
   init(
     controller: LivePlayerController, playback: LivePlaybackCoordinator, dependencies: AppDependencies,
-    onClose: @escaping () -> Void, onOpenChannel: @escaping (String) -> Void
+    onClose: @escaping () -> Void, onOpenChannel: @escaping (String) -> Void,
+    onOpenPlaylist: @escaping (LivePlaylistResult) -> Void
   ) {
     self.controller = controller
     self.playback = playback
@@ -57,6 +68,7 @@ struct TVPlayerContent: View {
     hasChatService = dependencies.liveChatService != nil
     _chat = StateObject(wrappedValue: TVLiveChatModel(videoURL: controller.video.url, service: dependencies.liveChatService))
     self.onOpenChannel = onOpenChannel
+    self.onOpenPlaylist = onOpenPlaylist
     channelService = dependencies.channelService
     _session = StateObject(wrappedValue: TVPlayerSession(controller: controller))
     _actions = StateObject(wrappedValue: LiveVideoQuickActionsViewModel(video: controller.video, dependencies: dependencies))
@@ -80,6 +92,7 @@ struct TVPlayerContent: View {
       }
       if isOpening { TVOpeningPoster(video: controller.video).padding(.trailing, chatInset) }
       catcher
+      endScreen
       if session.controlsVisible, session.panel == nil {
         VStack(spacing: 0) {
           TVPlayerControls(controller: controller, session: session, focus: $focus, onNext: nextVideo.map { next in { playback.open(next) } }, chatAvailable: chatAvailable)
@@ -123,6 +136,7 @@ struct TVPlayerContent: View {
     }
     .onExitCommand {
       TVJournal.note("player", "back command, panel \(session.panel != nil), controls \(session.controlsVisible)")
+      if endScreenFocused { return leaveEndScreen() }
       if upNextVideo != nil { return session.upNextDismissed = true }
       let hadPanel = session.panel != nil
       guard session.back() else { return onClose() }
