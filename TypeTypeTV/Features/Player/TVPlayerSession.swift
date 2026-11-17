@@ -15,6 +15,7 @@ final class TVPlayerSession: ObservableObject {
     case comments
     case channel
     case info
+    case rewind
   }
 
   @Published var controlsVisible = true

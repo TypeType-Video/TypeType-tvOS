@@ -15,6 +15,13 @@ struct TVPlayerPanel: View {
 
   private static let speeds: [Float] = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
+  private func onRewind(_ archive: LiveTwitchArchive) -> (TimeInterval) -> Void {
+    { position in
+      session.closePanel()
+      Task { onOpen(await controller.prepareTwitchRewind(archive, to: position)) }
+    }
+  }
+
   var body: some View {
     HStack {
       Spacer()
@@ -69,22 +76,6 @@ struct TVPlayerPanel: View {
     speed == 1 ? String(localized: "Normal") : "\(speed.formatted())×"
   }
 
-  private var title: LocalizedStringKey {
-    switch panel {
-    case .menu: "Player options"
-    case .chapters: "Chapters"
-    case .quality: "Quality"
-    case .audio: "Audio language"
-    case .speed: "Playback speed"
-    case .playlists: "Add to a playlist"
-    case .comments: "Comments"
-    case .queue: "Up next"
-    case .captionStyle: "Subtitle style"
-    case .info: "Description"
-    case .channel: ""
-    }
-  }
-
   @ViewBuilder
   private var rows: some View {
     switch panel {
@@ -131,6 +122,10 @@ struct TVPlayerPanel: View {
       }
     case .channel:
       EmptyView()
+    case .rewind:
+      if let archive = controller.stream?.twitchMedia?.live?.archive {
+        TVTwitchRewindRows(archive: archive, onRewind: onRewind(archive))
+      }
     case .info:
       Text(verbatim: controller.video.title).font(TVType.title).foregroundStyle(TVPalette.textHigh)
       Text(verbatim: controller.video.uploaderName).font(TVType.meta).foregroundStyle(TVPalette.textMid)

@@ -14,7 +14,12 @@ struct TVPlayerMenuRows: View {
         row("chapters", "Chapters", "list.bullet") { session.open(.chapters) }
       }
       row("description", "Description", "info.circle") { session.open(.info) }
-      row("comments", "Comments", "text.bubble") { session.open(.comments) }
+      if controller.stream?.isLive == true, controller.stream?.twitchMedia?.live?.archive != nil {
+        row("rewind", "Go back in the live", "gobackward") { session.open(.rewind) }
+      }
+      if controller.video.twitchLink == nil {
+        row("comments", "Comments", "text.bubble") { session.open(.comments) }
+      }
       if queueCount > 0 {
         row("queue", "Up next", "list.and.film", value: String(queueCount)) { session.open(.queue) }
       }
@@ -27,7 +32,7 @@ struct TVPlayerMenuRows: View {
         Task { await actions.toggleWatchLater() }
       }
       .disabled(!actions.isPrepared || actions.isBusy)
-      if engagement.canSubscribe {
+      if engagement.canSubscribe, controller.video.twitchLink == nil {
         let name = controller.video.uploaderName
         row("subscribe", engagement.isSubscribed ? "Subscribed to \(name)" : "Subscribe to \(name)",
             engagement.isSubscribed ? "checkmark" : "bell") {

@@ -110,7 +110,7 @@ struct TVPlayerContent: View {
       }
       if !session.controlsVisible, session.panel == nil, !countdownActive { TVSponsorNotice(controller: controller) }
       if let next = upNextVideo { TVUpNextCard(next: next, fill: upNextFill, secondsLeft: upNextSecondsLeft) }
-      if session.panel == .channel {
+      if session.panel == .channel, controller.video.twitchLink == nil {
         TVPlayerChannelPanel(video: controller.video, service: channelService, engagement: engagement) {
           onOpenChannel(controller.video.uploaderURL)
         }
@@ -152,6 +152,7 @@ struct TVPlayerContent: View {
       if open { Task { relatedFocus = true } }
     }
     .onChange(of: session.panel) { old, new in
+      if new == .channel, controller.video.twitchLink != nil { return openTwitchChannel() }
       if old == nil, new != nil { panelOrigin = focus }
       if old != nil, new == nil { Task { focus = panelOrigin ?? .seek } }
     }
@@ -159,10 +160,6 @@ struct TVPlayerContent: View {
       focus = .seek
       session.touch()
     }
-    .task {
-      async let state: Void = actions.prepare()
-      async let subscription: Void = engagement.prepare()
-      _ = await (state, subscription)
-    }
+    .task { await prepareActions() }
   }
 }
