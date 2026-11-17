@@ -53,6 +53,8 @@ extension TVPlayerContent {
       onOpenChannel(channelURL)
     case let .playlist(playlist):
       onOpenPlaylist(playlist)
+    case .twitch:
+      focus = restingFocus
     }
   }
 }
