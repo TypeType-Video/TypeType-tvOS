@@ -2,8 +2,8 @@
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/TypeType-Video/TypeType/main/assets/banner.svg" alt="TypeType" width="100%">
-  <h1>TypeType iOS</h1>
-  <p>Native iPhone and iPad client for TypeType.</p>
+  <h1>TypeType for Apple TV</h1>
+  <p>Native Apple TV client for TypeType.</p>
 </div>
 
 You want to know the current position of TypeType about AI ? Go check [this](https://github.com/TypeType-Video/TypeType/blob/dev/AI_TRANSPARENCY.md).
@@ -11,65 +11,77 @@ You want to know the current position of TypeType about AI ? Go check [this](htt
 <div align="center">
 
 [![MPL 2.0](https://img.shields.io/badge/license-MPL--2.0-orange.svg)](LICENSE)
-[![iOS 17+](https://img.shields.io/badge/iOS-17%2B-000000.svg?logo=apple)](project.yml)
+[![tvOS 17+](https://img.shields.io/badge/tvOS-17%2B-000000.svg?logo=apple)](project.yml)
 [![TypeType](https://img.shields.io/badge/TypeType-ecosystem-7c3aed.svg)](https://github.com/TypeType-Video/TypeType)
 
-[User guide](https://typetype-video.github.io/Docs-TypeType/guide/) · [Download](https://github.com/TypeType-Video/TypeType-IOS/releases/latest) · [Report a problem](https://github.com/TypeType-Video/TypeType-IOS/issues)
+[User guide](https://typetype-video.github.io/Docs-TypeType/guide/) · [Download](https://github.com/TypeType-Video/TypeType-tvOS/releases) · [Report a problem](https://github.com/TypeType-Video/TypeType-tvOS/issues)
 
 </div>
 
-TypeType iOS is the native client for
+TypeType for Apple TV is the living-room client for
 [TypeType](https://github.com/TypeType-Video/TypeType), a self-hosted video
-platform. It runs on iPhone and iPad with iOS 17 or newer and plays YouTube,
-BiliBili and NicoNico without a WebView.
+platform. It runs on Apple TV with tvOS 17 or newer and plays YouTube,
+BiliBili and NicoNico with a native player made for the Siri Remote, without a
+WebView.
 
 The app uses the TypeType Server selected during setup for extraction, playback
-sessions, recommendations, synchronization, and downloads.
+sessions, recommendations, and synchronization. Your subscriptions, history,
+playlists, and settings are the same as on the web and on your phone.
+
+> [!NOTE]
+> The Apple TV app is in early access: releases are marked as pre-releases while
+> it matures.
 
 ## Screenshots
 
-| Subscriptions | Search | Watch | Library |
-| --- | --- | --- | --- |
-| ![TypeType iOS subscriptions feed](assets/screenshots/iphone-subscriptions.png) | ![TypeType iOS search](assets/screenshots/iphone-search.png) | ![TypeType iOS watch page](assets/screenshots/iphone-player.png) | ![TypeType iOS library](assets/screenshots/iphone-playlists.png) |
-
-| iPad library | iPad watch |
+| Subscriptions | Search |
 | --- | --- |
-| ![TypeType iOS library with its sidebar on iPad](assets/screenshots/ipad-library.png) | ![TypeType iOS watch page on iPad](assets/screenshots/ipad-player.png) |
+| ![Subscriptions feed with the channel strip](assets/screenshots/tv-subscriptions.jpg) | ![Search results for a Blender open movie](assets/screenshots/tv-search.jpg) |
+
+| Video page | Player |
+| --- | --- |
+| ![Video page with its actions and related videos](assets/screenshots/tv-video.jpg) | ![The player and its controls on a BiliBili video](assets/screenshots/tv-player.jpg) |
+
+| Channel | Settings |
+| --- | --- |
+| ![Channel page with its tabs](assets/screenshots/tv-channel.jpg) | ![Playback settings](assets/screenshots/tv-settings.jpg) |
 
 ## Features
 
-- Browse and search videos, channels, playlists, and subscriptions.
-- Get recommendations from your instance, and mark the ones that are not for
-  you.
-- Start videos quickly: the videos in view are prepared when you stop
-  scrolling.
-- Resume videos, manage history, favorites, Watch Later, playlists, and
-  notifications.
-- Use the Library with a sidebar on iPad and on large iPhones in landscape.
-- Play in the background, in Picture in Picture, or with the mini-player.
-- Swipe for volume, brightness and seeking, double tap to skip, hold for 2x,
-  like the Android app.
-- Use chapters, SponsorBlock, DeArrow, comments, related videos, the queue,
-  autoplay, and the sleep timer.
-- Download videos, audio or thumbnails and watch them offline, with saving that
-  picks up again after leaving the app or losing the network.
-- Switch between several accounts, themes, and English or French.
+- Browse Home, Subscriptions, Search, and Library from the top bar, with a
+  featured video and a short preview when you rest on a card.
+- Sign in by scanning a QR code with your phone, with a password, or continue
+  as a guest when the instance allows it.
+- Search YouTube, BiliBili, and NicoNico with the Apple TV keyboard, including
+  dictation and typing from an iPhone.
+- Watch with a player built for the remote: hold ±10 seconds to keep skipping,
+  scrub on the clickpad with frame previews, chapters, captions, audio tracks,
+  quality, and audio only.
+- Skip sponsors with SponsorBlock, see the next video before it starts, and
+  follow bullet comments on BiliBili and NicoNico.
+- Read comments with their replies, images, and creator voice replies, and
+  follow the chat of YouTube lives next to the picture.
+- Open the creator's end screen cards at the end of a YouTube video.
+- Visit channels with their videos, lives, posts, playlists, and courses, and
+  search inside a channel.
+- Resume videos, and keep your history, favorites, Watch Later, and playlists.
+- Link your YouTube and BiliBili accounts, and change your instance settings
+  from the TV.
+- Use the app in English or French.
 
 ## Install
 
 1. Download the IPA from the
-   [latest Release](https://github.com/TypeType-Video/TypeType-IOS/releases/latest).
+   [Releases](https://github.com/TypeType-Video/TypeType-tvOS/releases).
 2. Verify it with the matching SHA-256 file if desired.
-3. Sign and install it with a sideloading tool such as
-   [SideStore](https://sidestore.io) or [AltStore](https://altstore.io), or with
-   Xcode.
-4. On iOS 16 and newer, turn on **Settings > Privacy & Security > Developer
-   Mode** the first time.
-5. Enter your TypeType instance address and sign in, use OIDC, or continue as a
-   guest when supported.
+3. The IPA is unsigned: sign it with your own Apple ID and install it on your
+   Apple TV, or build and run the `TypeTypeTV` scheme from Xcode. With a free
+   Apple ID, the app has to be signed again every 7 days.
+4. Enter your TypeType instance address, then sign in or continue as a guest
+   when supported.
 
 > [!NOTE]
-> TypeType iOS is a client for
+> TypeType for Apple TV is a client for
 > [TypeType-Server](https://github.com/TypeType-Video/TypeType-Server). You need
 > access to a compatible TypeType instance. If you want to host one, start with
 > the [self-hosting guide](https://typetype-video.github.io/Docs-TypeType/self-hosting/introduction).
@@ -83,6 +95,11 @@ xcodegen generate
 open TypeTypeIOS.xcodeproj
 ```
 
+Choose the `TypeTypeTV` scheme and an Apple TV simulator or device. The app
+shares its networking, accounts, and playback core with
+[TypeType iOS](https://github.com/TypeType-Video/TypeType-IOS), in the
+`TypeTypeIOS` folder.
+
 Run the unit tests before opening a pull request against `dev`:
 
 ```sh
@@ -90,27 +107,26 @@ xcodebuild -project TypeTypeIOS.xcodeproj -scheme TypeTypeIOSUnit \
   -destination "platform=iOS Simulator,name=iPhone 17" test
 ```
 
-GitHub Actions runs the same unit tests and an unsigned build on every push and
-pull request. A version tag builds the unsigned IPA and its SHA-256 and attaches
-them to the release. The IPA is never signed in CI: sign it when you sideload
-it.
+GitHub Actions runs the same unit tests and an unsigned build of the Apple TV
+app on every push and pull request.
 
 ## Help and feedback
 
 - Read the [TypeType user guide](https://typetype-video.github.io/Docs-TypeType/guide/).
-- Check the [latest iOS Releases](https://github.com/TypeType-Video/TypeType-IOS/releases).
+- Check the [Apple TV Releases](https://github.com/TypeType-Video/TypeType-tvOS/releases).
 - Report bugs and request features in the
-  [TypeType iOS issue tracker](https://github.com/TypeType-Video/TypeType-IOS/issues).
+  [Apple TV issue tracker](https://github.com/TypeType-Video/TypeType-tvOS/issues).
 
-When reporting a problem, include the iOS version, app version, TypeType Server
-version, the action that failed, and the request ID from **Settings >
-Diagnostics** when available.
+When reporting a problem, include the tvOS version, app version, TypeType
+Server version, and the action that failed. **Settings > Journal > Send the
+journal** sends the app's journal to your instance as a bug report.
 
 ## License
 
-TypeType iOS is licensed under the [Mozilla Public License 2.0](LICENSE).
+TypeType for Apple TV is licensed under the
+[Mozilla Public License 2.0](LICENSE).
 
 Copyright © 2026 Priveetee and TypeType contributors.
 
-The screenshots show public YouTube videos, taken with a test account on a test
-instance.
+The screenshots show public YouTube and BiliBili videos, taken on the Apple TV
+simulator with a test account on a test instance.
