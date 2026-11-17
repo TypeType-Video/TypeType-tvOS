@@ -54,8 +54,8 @@ playlists, and settings are the same as on the web and on your phone.
   as a guest when the instance allows it.
 - Search YouTube, BiliBili, and NicoNico with the Apple TV keyboard, including
   dictation and typing from an iPhone.
-- Browse Twitch lives, categories, tags, and channels in the Live tab when your
-  instance enables Twitch.
+- Browse and watch Twitch lives, past broadcasts, and clips in the Live tab when
+  your instance enables Twitch, and go back in a live from the player.
 - Watch with a player built for the remote: hold ±10 seconds to keep skipping,
   scrub on the clickpad with frame previews, chapters, captions, audio tracks,
   quality, and audio only.
