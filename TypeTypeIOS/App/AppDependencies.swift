@@ -32,6 +32,7 @@ final class AppDependencies {
     LiveNotificationPermissionService()
   var pushNotificationsEnabled = false
   var rssEnabled = false
+  var twitchEnabled = false
   let sessionActivityService: LiveSessionActivityServiceProtocol
   let adminService: LiveAdminServiceProtocol
   let adminAccessService: LiveAdminAccessServiceProtocol
@@ -45,6 +46,7 @@ final class AppDependencies {
   let playbackService: LivePlaybackServiceProtocol?
   let liveChatService: LiveChatService?
   let linkedAccountsService: LiveLinkedAccountsServiceProtocol?
+  let twitchService: LiveTwitchServiceProtocol?
   let watchProgress: LiveWatchProgressStore
   let imagePipeline: TypeTypeImagePipeline
   let platform: LivePlatformServices
@@ -154,6 +156,7 @@ final class AppDependencies {
     playbackService: LivePlaybackServiceProtocol? = nil,
     liveChatService: LiveChatService? = nil,
     linkedAccountsService: LiveLinkedAccountsServiceProtocol? = nil,
+    twitchService: LiveTwitchServiceProtocol? = nil,
     watchProgress: LiveWatchProgressStore = LiveWatchProgressStore(),
     imagePipeline: TypeTypeImagePipeline = TypeTypeImagePipeline(),
     platform: LivePlatformServices,
@@ -199,6 +202,7 @@ final class AppDependencies {
     self.playbackService = playbackService
     self.liveChatService = liveChatService
     self.linkedAccountsService = linkedAccountsService
+    self.twitchService = twitchService
     self.watchProgress = watchProgress
     self.imagePipeline = imagePipeline
     self.platform = platform
