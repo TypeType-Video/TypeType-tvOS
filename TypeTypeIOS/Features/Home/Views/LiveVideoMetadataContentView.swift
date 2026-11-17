@@ -63,11 +63,15 @@ struct LiveVideoMetadataContentView: View {
         LiveVideoEngagementView(
           video: resolvedVideo,
           stream: playerController.stream,
-          allowsSubscription: hasPersistentAccount,
+          allowsSubscription: hasPersistentAccount && resolvedVideo.twitchLink == nil,
           service: dependencies.subscriptionsService,
           subscriberCount: subscriberCount,
           onChannel: {
-            selectedChannelURL = resolvedVideo.uploaderURL
+            if let link = URL(string: resolvedVideo.uploaderURL).flatMap(LiveTwitchLink.target(for:)) {
+              selectedTwitchLink = link
+            } else {
+              selectedChannelURL = resolvedVideo.uploaderURL
+            }
           }
         )
         .id(engagementIdentity)
@@ -80,12 +84,17 @@ struct LiveVideoMetadataContentView: View {
 
         LivePlaybackQueueView(coordinator: playbackCoordinator)
 
+        if resolvedVideo.twitchLink != nil {
+          LiveTwitchWatchExtras(controller: playerController, onRewind: rewindTwitchLive)
+        }
+
         // The stream arrives with an empty relatedStreams before the real list: empty means still loading.
         let relatedReady = !(
           playerController.stream?.relatedStreams.isEmpty ?? true
         )
         if !playerController.isOfflineContent,
-          !(playerController.settings.hideRelatedVideos) {
+          !(playerController.settings.hideRelatedVideos),
+          resolvedVideo.twitchLink == nil {
           if relatedReady, let related = playerController.stream?.relatedStreams {
             LiveRelatedVideosSection(
               playerController: playerController,
@@ -102,7 +111,8 @@ struct LiveVideoMetadataContentView: View {
         }
 
         if !playerController.isOfflineContent,
-          !playerController.supportsBulletComments {
+          !playerController.supportsBulletComments,
+          resolvedVideo.twitchLink == nil {
           if playerController.settings.hideRelatedVideos || relatedReady {
             LiveCommentsSectionView(
               videoURL: resolvedVideo.url,
