@@ -1,26 +1,12 @@
 import SwiftUI
 
-enum TVRoute: Hashable {
-  case detail(LiveVideoItem)
-  case channel(String)
-  case playlist(LivePlaylistResult)
-}
-
-enum TVTab: Hashable {
-  case home
-  case subscriptions
-  case search
-  case library
-  case settings
-}
-
 struct TVShellView: View {
   @ObservedObject var coordinator: RootCoordinator
   @State private var tab = TVTab.home
   @State private var paths = TVTabPaths()
   @State private var subscriptionsReset = 0
-  @State private var playing: LiveVideoItem?
-  @State private var playbackEnded = 0
+  @State var playing: LiveVideoItem?
+  @State var playbackEnded = 0
   @State private var menuRequest: TVVideoMenuRequest?
   @State private var contentScrolled = false
   @State private var librarySection = TVLibrarySection.history
@@ -73,6 +59,16 @@ struct TVShellView: View {
       .environment(\.tvContentFocusRequest, contentFocus[.subscriptions] ?? 0)
       .tabItem { Label("Subscriptions", systemImage: "play.square.stack") }
       .tag(TVTab.subscriptions)
+
+      if let twitch = twitchService {
+        NavigationStack(path: $paths.twitch) {
+          TVTwitchView(service: twitch) { push($0) }
+            .navigationDestination(for: TVRoute.self, destination: destination)
+        }
+        .environment(\.tvContentFocusRequest, contentFocus[.twitch] ?? 0)
+        .tabItem { Label("Live", systemImage: "dot.radiowaves.left.and.right") }
+        .tag(TVTab.twitch)
+      }
 
       NavigationStack(path: $paths.search) {
         TVSearchView(
@@ -154,11 +150,11 @@ struct TVShellView: View {
     tab = .library
   }
 
-  private func open(_ video: LiveVideoItem) { push(.detail(video)) }
+  func open(_ video: LiveVideoItem) { push(.detail(video)) }
 
-  private func openChannel(_ url: String) { push(.channel(url)) }
+  func openChannel(_ url: String) { push(.channel(url)) }
 
-  private func push(_ route: TVRoute) { paths.push(route, on: tab) }
+  func push(_ route: TVRoute) { paths.push(route, on: tab) }
 
   private func returnToRoot() {
     TVJournal.note("tabs", "reselect \(tab), stack empty \(paths.isEmpty(tab))")
@@ -167,31 +163,5 @@ struct TVShellView: View {
     } else {
       paths.popToRoot(tab)
     }
-  }
-
-  @ViewBuilder
-  private func destination(_ route: TVRoute) -> some View {
-    switch route {
-    case let .detail(video):
-      TVVideoDetailView(
-        video: video,
-        dependencies: coordinator.dependencies,
-        refresh: playbackEnded,
-        onPlay: { video, _ in playing = video },
-        onOpen: { open($0) },
-        onOpenChannel: { openChannel($0) }
-      )
-    case let .channel(url):
-      TVChannelScreen(url: url, dependencies: coordinator.dependencies, onOpen: { open($0) },
-                      onOpenPlaylist: { push(.playlist($0)) })
-    case let .playlist(playlist):
-      TVPlaylistView(playlist: playlist, dependencies: coordinator.dependencies, onOpen: { open($0) })
-    }
-  }
-}
-
-extension View {
-  func tvContentEdges() -> some View {
-    ignoresSafeArea(.container, edges: .horizontal)
   }
 }
