@@ -2,13 +2,15 @@ import SwiftUI
 
 struct TVTwitchView: View {
   let service: LiveTwitchServiceProtocol
+  let onPlay: (LiveVideoItem) -> Void
   let onRoute: (TVRoute) -> Void
   @StateObject private var games: LiveTwitchPagedList<LiveTwitchGame>
   @StateObject private var streams: LiveTwitchPagedList<LiveTwitchStream>
   @State private var query = ""
 
-  init(service: LiveTwitchServiceProtocol, onRoute: @escaping (TVRoute) -> Void) {
+  init(service: LiveTwitchServiceProtocol, onPlay: @escaping (LiveVideoItem) -> Void, onRoute: @escaping (TVRoute) -> Void) {
     self.service = service
+    self.onPlay = onPlay
     self.onRoute = onRoute
     _games = StateObject(wrappedValue: LiveTwitchPagedList { try await service.games(after: $0) })
     _streams = StateObject(wrappedValue: LiveTwitchPagedList { try await service.streams(after: $0) })
@@ -40,7 +42,7 @@ struct TVTwitchView: View {
         }
         VStack(alignment: .leading, spacing: 24) {
           TVTwitchSectionTitle(title: "Popular lives")
-          TVTwitchStreamGrid(list: streams, empty: "No live right now.") { onRoute(.twitch(.channel($0.user.login))) }
+          TVTwitchStreamGrid(list: streams, empty: "No live right now.") { onPlay(LiveTwitchPlayback.item(live: $0)) }
         }
         .padding(.horizontal, TVDimens.safeStart)
       }

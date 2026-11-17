@@ -2,11 +2,16 @@ import SwiftUI
 
 struct TVTwitchStreamsScreen: View {
   let title: Text
+  let onPlay: (LiveVideoItem) -> Void
   let onRoute: (TVRoute) -> Void
   @StateObject private var list: LiveTwitchPagedList<LiveTwitchStream>
 
-  init(title: Text, load: @escaping (String?) async throws -> LiveTwitchPage<LiveTwitchStream>, onRoute: @escaping (TVRoute) -> Void) {
+  init(
+    title: Text, load: @escaping (String?) async throws -> LiveTwitchPage<LiveTwitchStream>,
+    onPlay: @escaping (LiveVideoItem) -> Void, onRoute: @escaping (TVRoute) -> Void
+  ) {
     self.title = title
+    self.onPlay = onPlay
     self.onRoute = onRoute
     _list = StateObject(wrappedValue: LiveTwitchPagedList(load: load))
   }
@@ -15,7 +20,7 @@ struct TVTwitchStreamsScreen: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 40) {
         title.font(TVType.headline).foregroundStyle(TVPalette.textHigh)
-        TVTwitchStreamGrid(list: list, empty: "No live right now.") { onRoute(.twitch(.channel($0.user.login))) }
+        TVTwitchStreamGrid(list: list, empty: "No live right now.") { onPlay(LiveTwitchPlayback.item(live: $0)) }
       }
       .padding(.horizontal, TVDimens.safeStart)
       .padding(.vertical, 40)
@@ -28,13 +33,15 @@ struct TVTwitchStreamsScreen: View {
 
 struct TVTwitchSearchScreen: View {
   let query: String
+  let onPlay: (LiveVideoItem) -> Void
   let onRoute: (TVRoute) -> Void
   @StateObject private var channels: LiveTwitchPagedList<LiveTwitchChannel>
   @StateObject private var games: LiveTwitchPagedList<LiveTwitchGame>
   @StateObject private var streams: LiveTwitchPagedList<LiveTwitchStream>
 
-  init(query: String, service: LiveTwitchServiceProtocol, onRoute: @escaping (TVRoute) -> Void) {
+  init(query: String, service: LiveTwitchServiceProtocol, onPlay: @escaping (LiveVideoItem) -> Void, onRoute: @escaping (TVRoute) -> Void) {
     self.query = query
+    self.onPlay = onPlay
     self.onRoute = onRoute
     _channels = StateObject(wrappedValue: LiveTwitchPagedList { try await service.searchChannels(query, after: $0) })
     _games = StateObject(wrappedValue: LiveTwitchPagedList { try await service.searchGames(query, after: $0) })
@@ -66,7 +73,7 @@ struct TVTwitchSearchScreen: View {
           TVTwitchGameCard(game: game) { onRoute(.twitch(.game(slug: game.slug, name: game.name))) }
         }
         shelf("Lives", list: streams) { stream in
-          TVTwitchStreamCard(stream: stream, width: 440) { onRoute(.twitch(.channel(stream.user.login))) }
+          TVTwitchStreamCard(stream: stream, width: 440) { onPlay(LiveTwitchPlayback.item(live: stream)) }
         }
       }
       .padding(.vertical, 40)

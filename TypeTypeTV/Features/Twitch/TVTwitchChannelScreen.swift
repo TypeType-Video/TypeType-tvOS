@@ -2,13 +2,15 @@ import SwiftUI
 
 struct TVTwitchChannelScreen: View {
   let login: String
+  let onPlay: (LiveVideoItem) -> Void
   let onRoute: (TVRoute) -> Void
   @StateObject private var model: LiveTwitchChannelViewModel
   @StateObject private var videos: LiveTwitchPagedList<LiveTwitchVideo>
   @StateObject private var clips: LiveTwitchPagedList<LiveTwitchClip>
 
-  init(login: String, service: LiveTwitchServiceProtocol, onRoute: @escaping (TVRoute) -> Void) {
+  init(login: String, service: LiveTwitchServiceProtocol, onPlay: @escaping (LiveVideoItem) -> Void, onRoute: @escaping (TVRoute) -> Void) {
     self.login = login
+    self.onPlay = onPlay
     self.onRoute = onRoute
     _model = StateObject(wrappedValue: LiveTwitchChannelViewModel(login: login, service: service))
     _videos = StateObject(wrappedValue: LiveTwitchPagedList { try await service.channelVideos(login: login, after: $0) })
@@ -37,11 +39,15 @@ struct TVTwitchChannelScreen: View {
           }
           row(title: "Past broadcasts", list: videos, empty: "No past broadcasts.") { video in
             TVTwitchMediaTile(title: video.title, previewURL: video.previewURL, duration: video.lengthSeconds,
-                              detail: LiveTwitchFormat.videoDetail(views: video.views, created: video.createdAt))
+                              detail: LiveTwitchFormat.videoDetail(views: video.views, created: video.createdAt)) {
+              onPlay(LiveTwitchPlayback.item(video: video))
+            }
           }
           row(title: "Clips", list: clips, empty: "No clips.") { clip in
             TVTwitchMediaTile(title: clip.title, previewURL: clip.thumbnailURL, duration: Int(clip.durationSeconds.rounded()),
-                              detail: LiveTwitchFormat.videoDetail(views: clip.views, created: clip.createdAt))
+                              detail: LiveTwitchFormat.videoDetail(views: clip.views, created: clip.createdAt)) {
+              onPlay(LiveTwitchPlayback.item(clip: clip))
+            }
           }
         }
       }
@@ -81,7 +87,9 @@ struct TVTwitchChannelScreen: View {
     VStack(alignment: .leading, spacing: 28) {
       TVTwitchMediaTile(title: live.title, previewURL: live.previewURL, duration: 0,
                         detail: [live.game?.name, String(localized: "\(LiveTwitchFormat.count(live.viewers)) watching")]
-                          .compactMap { $0 }.joined(separator: " · "), width: 640)
+                          .compactMap { $0 }.joined(separator: " · "), width: 640) {
+        onPlay(LiveTwitchPlayback.item(live: live))
+      }
       if !live.tags.isEmpty {
         ScrollView(.horizontal) {
           HStack(spacing: 20) {

@@ -10,11 +10,11 @@ extension TVShellView {
     if let twitch = twitchService {
       switch route {
       case let .channel(login):
-        TVTwitchChannelScreen(login: login, service: twitch) { push($0) }
+        TVTwitchChannelScreen(login: login, service: twitch, onPlay: { playing = $0 }) { push($0) }
       case let .game(slug, name):
-        TVTwitchStreamsScreen(title: Text(verbatim: name), load: { try await twitch.gameStreams(slug: slug, after: $0).streams }) { push($0) }
+        TVTwitchStreamsScreen(title: Text(verbatim: name), load: { try await twitch.gameStreams(slug: slug, after: $0).streams }, onPlay: { playing = $0 }) { push($0) }
       case let .tag(tag):
-        TVTwitchStreamsScreen(title: Text("\(tag) lives"), load: { try await twitch.tagStreams(tag: tag, after: $0) }) { push($0) }
+        TVTwitchStreamsScreen(title: Text("\(tag) lives"), load: { try await twitch.tagStreams(tag: tag, after: $0) }, onPlay: { playing = $0 }) { push($0) }
       }
     }
   }
@@ -40,7 +40,7 @@ extension TVShellView {
       twitchDestination(route)
     case let .twitchSearch(query):
       if let twitch = twitchService {
-        TVTwitchSearchScreen(query: query, service: twitch) { push($0) }
+        TVTwitchSearchScreen(query: query, service: twitch, onPlay: { playing = $0 }) { push($0) }
       }
     }
   }

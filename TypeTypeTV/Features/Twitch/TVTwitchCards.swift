@@ -72,22 +72,23 @@ struct TVTwitchMediaTile: View {
   let duration: Int
   let detail: String
   var width: CGFloat = 440
-  @FocusState private var focused: Bool
+  let onOpen: () -> Void
 
   var body: some View {
     VStack(alignment: .leading, spacing: 18) {
-      ZStack {
-        TVRemoteImage(url: LiveImageURLResolver.resolve(previewURL))
-        if duration > 0 {
-          TVTwitchTag(text: Text(verbatim: LiveVideoMetadataFormatter.duration(Int64(duration))), tint: .black.opacity(0.72))
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+      Button(action: onOpen) {
+        ZStack {
+          TVRemoteImage(url: LiveImageURLResolver.resolve(previewURL))
+          if duration > 0 {
+            TVTwitchTag(text: Text(verbatim: LiveVideoMetadataFormatter.duration(Int64(duration))), tint: .black.opacity(0.72))
+              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+          }
         }
+        .frame(width: width, height: width * 9 / 16)
       }
-      .frame(width: width, height: width * 9 / 16)
-      .clipShape(RoundedRectangle(cornerRadius: TVDimens.cardRadius))
-      .scaleEffect(focused ? TVDimens.focusScale : 1)
-      .shadow(color: .black.opacity(focused ? 0.5 : 0), radius: 24, y: 12)
-      .animation(.easeOut(duration: 0.16), value: focused)
+      .buttonStyle(.card)
+      .accessibilityLabel(Text(verbatim: title))
+      .accessibilityValue(Text(verbatim: detail))
       VStack(alignment: .leading, spacing: 4) {
         Text(verbatim: title)
           .font(TVType.meta)
@@ -98,12 +99,8 @@ struct TVTwitchMediaTile: View {
           .foregroundStyle(TVPalette.textMid)
       }
       .frame(width: width, alignment: .leading)
+      .accessibilityHidden(true)
     }
-    .focusable()
-    .focused($focused)
-    .accessibilityElement(children: .ignore)
-    .accessibilityLabel(Text(verbatim: title))
-    .accessibilityValue(Text(verbatim: detail))
   }
 }
 

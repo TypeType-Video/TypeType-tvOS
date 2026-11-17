@@ -62,7 +62,7 @@ struct TVShellView: View {
 
       if let twitch = twitchService {
         NavigationStack(path: $paths.twitch) {
-          TVTwitchView(service: twitch) { push($0) }
+          TVTwitchView(service: twitch, onPlay: { playing = $0 }) { push($0) }
             .navigationDestination(for: TVRoute.self, destination: destination)
         }
         .environment(\.tvContentFocusRequest, contentFocus[.twitch] ?? 0)
@@ -152,7 +152,12 @@ struct TVShellView: View {
 
   func open(_ video: LiveVideoItem) { push(.detail(video)) }
 
-  func openChannel(_ url: String) { push(.channel(url)) }
+  func openChannel(_ url: String) {
+    if case let .channel(login)? = URL(string: url).flatMap(LiveTwitchLink.target(for:)) {
+      return push(.twitch(.channel(login)))
+    }
+    push(.channel(url))
+  }
 
   func push(_ route: TVRoute) { paths.push(route, on: tab) }
 
