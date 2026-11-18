@@ -116,6 +116,7 @@ struct TVShellView: View {
     .environment(\.livePrewarm) { video in
       coordinator.dependencies.playbackPrewarmer?.prewarm(video)
     }
+    .modifier(TVServerStatusOverlay(monitor: coordinator.dependencies.serverStatus, runs: true))
     .fullScreenCover(item: $playing) { video in
       TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies,
                      onOpenChannel: { url in Task { openChannel(url) } },
@@ -123,6 +124,7 @@ struct TVShellView: View {
         playing = nil
         playbackEnded += 1
       }
+      .modifier(TVServerStatusOverlay(monitor: coordinator.dependencies.serverStatus))
     }
   }
 
