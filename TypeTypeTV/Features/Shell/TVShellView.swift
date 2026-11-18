@@ -117,6 +117,9 @@ struct TVShellView: View {
       coordinator.dependencies.playbackPrewarmer?.prewarm(video)
     }
     .modifier(TVServerStatusOverlay(monitor: coordinator.dependencies.serverStatus, runs: true))
+    .onChange(of: account.settings) { _, settings in
+      if let settings { coordinator.dependencies.playbackCoordinator.applySettings(settings) }
+    }
     .fullScreenCover(item: $playing) { video in
       TVPlayerScreen(video: video, playback: coordinator.dependencies.playbackCoordinator, dependencies: coordinator.dependencies,
                      onOpenChannel: { url in Task { openChannel(url) } },

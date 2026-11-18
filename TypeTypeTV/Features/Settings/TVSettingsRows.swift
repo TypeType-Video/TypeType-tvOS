@@ -113,6 +113,11 @@ struct TVSettingsRows: View {
       toggle("rectangle.portrait", "Shorts", "Short vertical videos in lists and search.", !settings.hideShorts) {
         $0.hideShorts.toggle()
       }
+      if let hidesMembersOnly = settings.hideMembersOnlyContent {
+        toggle("person.badge.key", "Members-only videos", "Videos reserved for channel members.", !hidesMembersOnly) {
+          $0.hideMembersOnlyContent = !hidesMembersOnly
+        }
+      }
     } else {
       ProgressView()
     }
