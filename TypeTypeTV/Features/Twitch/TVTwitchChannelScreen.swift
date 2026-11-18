@@ -2,14 +2,19 @@ import SwiftUI
 
 struct TVTwitchChannelScreen: View {
   let login: String
+  let account: LiveTwitchAccountServiceProtocol?
   let onPlay: (LiveVideoItem) -> Void
   let onRoute: (TVRoute) -> Void
   @StateObject private var model: LiveTwitchChannelViewModel
   @StateObject private var videos: LiveTwitchPagedList<LiveTwitchVideo>
   @StateObject private var clips: LiveTwitchPagedList<LiveTwitchClip>
 
-  init(login: String, service: LiveTwitchServiceProtocol, onPlay: @escaping (LiveVideoItem) -> Void, onRoute: @escaping (TVRoute) -> Void) {
+  init(
+    login: String, service: LiveTwitchServiceProtocol, account: LiveTwitchAccountServiceProtocol?,
+    onPlay: @escaping (LiveVideoItem) -> Void, onRoute: @escaping (TVRoute) -> Void
+  ) {
     self.login = login
+    self.account = account
     self.onPlay = onPlay
     self.onRoute = onRoute
     _model = StateObject(wrappedValue: LiveTwitchChannelViewModel(login: login, service: service))
@@ -34,6 +39,9 @@ struct TVTwitchChannelScreen: View {
             .frame(maxWidth: .infinity, minHeight: 400)
         case let .loaded(channel):
           header(channel).padding(.horizontal, TVDimens.safeStart)
+          if let account {
+            TVTwitchFollowButton(login: channel.user.login, account: account, onRoute: onRoute).padding(.horizontal, TVDimens.safeStart)
+          }
           if let live = channel.live {
             liveSection(live).padding(.horizontal, TVDimens.safeStart)
           }

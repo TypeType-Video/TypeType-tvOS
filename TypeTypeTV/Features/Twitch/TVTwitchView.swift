@@ -2,14 +2,19 @@ import SwiftUI
 
 struct TVTwitchView: View {
   let service: LiveTwitchServiceProtocol
+  let account: LiveTwitchAccountServiceProtocol?
   let onPlay: (LiveVideoItem) -> Void
   let onRoute: (TVRoute) -> Void
   @StateObject private var games: LiveTwitchPagedList<LiveTwitchGame>
   @StateObject private var streams: LiveTwitchPagedList<LiveTwitchStream>
   @State private var query = ""
 
-  init(service: LiveTwitchServiceProtocol, onPlay: @escaping (LiveVideoItem) -> Void, onRoute: @escaping (TVRoute) -> Void) {
+  init(
+    service: LiveTwitchServiceProtocol, account: LiveTwitchAccountServiceProtocol?,
+    onPlay: @escaping (LiveVideoItem) -> Void, onRoute: @escaping (TVRoute) -> Void
+  ) {
     self.service = service
+    self.account = account
     self.onPlay = onPlay
     self.onRoute = onRoute
     _games = StateObject(wrappedValue: LiveTwitchPagedList { try await service.games(after: $0) })
@@ -24,6 +29,7 @@ struct TVTwitchView: View {
           .accessibilityLabel(Text("Search Twitch"))
           .frame(maxWidth: 1000)
           .padding(.horizontal, TVDimens.safeStart)
+        if let account { TVTwitchFollowedRows(account: account, onPlay: onPlay, onRoute: onRoute) }
         if !games.items.isEmpty {
           VStack(alignment: .leading, spacing: 24) {
             TVTwitchSectionTitle(title: "Categories")

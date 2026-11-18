@@ -6,15 +6,30 @@ extension TVShellView {
   }
 
   @ViewBuilder
+  var twitchTab: some View {
+    if let twitch = twitchService {
+      NavigationStack(path: $paths.twitch) {
+        TVTwitchView(service: twitch, account: coordinator.dependencies.twitchAccountService, onPlay: { playing = $0 }) { push($0) }
+          .navigationDestination(for: TVRoute.self, destination: destination)
+      }
+      .environment(\.tvContentFocusRequest, contentFocus[.twitch] ?? 0)
+      .tabItem { Label("Live", systemImage: "dot.radiowaves.left.and.right") }
+      .tag(TVTab.twitch)
+    }
+  }
+
+  @ViewBuilder
   func twitchDestination(_ route: LiveTwitchRoute) -> some View {
     if let twitch = twitchService {
       switch route {
       case let .channel(login):
-        TVTwitchChannelScreen(login: login, service: twitch, onPlay: { playing = $0 }) { push($0) }
+        TVTwitchChannelScreen(login: login, service: twitch, account: coordinator.dependencies.twitchAccountService, onPlay: { playing = $0 }) { push($0) }
       case let .game(slug, name):
         TVTwitchStreamsScreen(title: Text(verbatim: name), load: { try await twitch.gameStreams(slug: slug, after: $0).streams }, onPlay: { playing = $0 }) { push($0) }
       case let .tag(tag):
         TVTwitchStreamsScreen(title: Text("\(tag) lives"), load: { try await twitch.tagStreams(tag: tag, after: $0) }, onPlay: { playing = $0 }) { push($0) }
+      case .linkAccount:
+        if let account = coordinator.dependencies.twitchAccountService { TVTwitchLinkScreen(service: account) }
       }
     }
   }

@@ -3,7 +3,7 @@ import SwiftUI
 struct TVShellView: View {
   @ObservedObject var coordinator: RootCoordinator
   @State private var tab = TVTab.home
-  @State private var paths = TVTabPaths()
+  @State var paths = TVTabPaths()
   @State private var subscriptionsReset = 0
   @State var playing: LiveVideoItem?
   @State var playbackEnded = 0
@@ -12,7 +12,7 @@ struct TVShellView: View {
   @State private var librarySection = TVLibrarySection.history
   @State private var landed = false
   @AppStorage(TVDeviceSetting.backReturnsKey) private var backReturns = false
-  @State private var contentFocus: [TVTab: Int] = [:]
+  @State var contentFocus: [TVTab: Int] = [:]
   @StateObject private var account: TVAccountSettings
 
   init(coordinator: RootCoordinator) {
@@ -60,15 +60,7 @@ struct TVShellView: View {
       .tabItem { Label("Subscriptions", systemImage: "play.square.stack") }
       .tag(TVTab.subscriptions)
 
-      if let twitch = twitchService {
-        NavigationStack(path: $paths.twitch) {
-          TVTwitchView(service: twitch, onPlay: { playing = $0 }) { push($0) }
-            .navigationDestination(for: TVRoute.self, destination: destination)
-        }
-        .environment(\.tvContentFocusRequest, contentFocus[.twitch] ?? 0)
-        .tabItem { Label("Live", systemImage: "dot.radiowaves.left.and.right") }
-        .tag(TVTab.twitch)
-      }
+      twitchTab
 
       NavigationStack(path: $paths.search) {
         TVSearchView(
