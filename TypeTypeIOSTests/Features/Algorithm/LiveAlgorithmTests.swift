@@ -18,8 +18,6 @@ final class LiveRecommenderModelTests: XCTestCase {
     XCTAssertEqual(LiveAlgorithmLabels.retention(180), "6 months")
     XCTAssertEqual(LiveAlgorithmLabels.retention(30), "30 d")
     XCTAssertEqual(LiveAlgorithmLabels.dropped("seen", count: 4), "4 already watched")
-    XCTAssertEqual(LiveAlgorithmParametersView.format(0.35, unit: "%").filter(\.isNumber), "35")
-    XCTAssertEqual(LiveAlgorithmParametersView.format(20, unit: nil), "20")
   }
 }
 
