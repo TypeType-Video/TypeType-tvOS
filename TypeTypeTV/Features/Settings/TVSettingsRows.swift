@@ -25,7 +25,12 @@ struct TVSettingsRows: View {
   var body: some View {
     switch group {
     case .playback: playback
-    case .content: content
+    case .content:
+      content
+      if coordinator.dependencies.recommenderEnabled, coordinator.currentUser?.id.hasPrefix("guest:") == false,
+        let recommender = coordinator.dependencies.recommenderService {
+        TVAlgorithmRows(service: recommender, picker: $picker)
+      }
     case .blocked: blocked
     case .performance: performance
     case .account: account
