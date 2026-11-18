@@ -49,6 +49,7 @@ final class AppDependencies {
   let twitchService: LiveTwitchServiceProtocol?
   let twitchAccountService: LiveTwitchAccountServiceProtocol?
   let twitchChatService: LiveTwitchChatService?
+  let serverStatus: LiveServerStatusMonitor?
   let watchProgress: LiveWatchProgressStore
   let imagePipeline: TypeTypeImagePipeline
   let platform: LivePlatformServices
@@ -161,6 +162,7 @@ final class AppDependencies {
     twitchService: LiveTwitchServiceProtocol? = nil,
     twitchAccountService: LiveTwitchAccountServiceProtocol? = nil,
     twitchChatService: LiveTwitchChatService? = nil,
+    serverStatus: LiveServerStatusMonitor? = nil,
     watchProgress: LiveWatchProgressStore = LiveWatchProgressStore(),
     imagePipeline: TypeTypeImagePipeline = TypeTypeImagePipeline(),
     platform: LivePlatformServices,
@@ -209,6 +211,7 @@ final class AppDependencies {
     self.twitchService = twitchService
     self.twitchAccountService = twitchAccountService
     self.twitchChatService = twitchChatService
+    self.serverStatus = serverStatus
     self.watchProgress = watchProgress
     self.imagePipeline = imagePipeline
     self.platform = platform

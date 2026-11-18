@@ -180,6 +180,7 @@ extension AppDependencies {
       twitchService: LiveTwitchService(apiClient: client),
       twitchAccountService: LiveTwitchAccountService(apiClient: client),
       twitchChatService: LiveTwitchChatService(transport: URLSessionLiveChatTransport(client: client)),
+      serverStatus: LiveServerStatusMonitor(service: LiveServerEventsService(transport: URLSessionLiveChatTransport(client: client))),
       platform: platform,
       crashReports: crashReports
     )
