@@ -85,7 +85,10 @@ struct LiveVideoMetadataContentView: View {
         LivePlaybackQueueView(coordinator: playbackCoordinator)
 
         if resolvedVideo.twitchLink != nil {
-          LiveTwitchWatchExtras(controller: playerController, onRewind: rewindTwitchLive)
+          LiveTwitchWatchExtras(
+            controller: playerController, dependencies: dependencies, signedIn: hasPersistentAccount,
+            onRewind: rewindTwitchLive, onOpenURL: routeLink
+          )
         }
 
         // The stream arrives with an empty relatedStreams before the real list: empty means still loading.
