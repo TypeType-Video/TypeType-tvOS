@@ -120,7 +120,7 @@ struct TVPlayerPanel: View {
           controller.setPlaybackRate(speed)
         }
       }
-    case .channel:
+    case .channel, .twitchChat:
       EmptyView()
     case .rewind:
       if let archive = controller.stream?.twitchMedia?.live?.archive {

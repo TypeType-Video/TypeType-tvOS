@@ -21,11 +21,12 @@ extension TVPlayerContent {
   }
 
   var chatAvailable: Bool {
-    hasChatService && session.isLive && LiveChatSupport.supports(videoURL: controller.video.url)
+    if twitchChat.isAvailable { return true }
+    return hasChatService && session.isLive && LiveChatSupport.supports(videoURL: controller.video.url)
   }
 
   var chatVisible: Bool {
-    chatAvailable && session.chatShown && chat.buffer.status != .ended
+    chatAvailable && session.chatShown && (twitchChat.isAvailable || chat.buffer.status != .ended)
   }
 
   var chatInset: CGFloat { chatVisible ? TVLiveChatPanel.width : 0 }

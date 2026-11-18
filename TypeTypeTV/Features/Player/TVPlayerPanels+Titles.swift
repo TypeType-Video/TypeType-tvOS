@@ -15,6 +15,7 @@ extension TVPlayerPanel {
     case .info: "Description"
     case .channel: ""
     case .rewind: "Go back in the live"
+    case .twitchChat: "Chat"
     }
   }
 }

@@ -19,6 +19,8 @@ struct TVPlayerMenuRows: View {
       }
       if controller.video.twitchLink == nil {
         row("comments", "Comments", "text.bubble") { session.open(.comments) }
+      } else if controller.stream?.isLive == true {
+        row("twitch-chat", "Chat", "bubble.left.and.bubble.right") { session.open(.twitchChat) }
       }
       if queueCount > 0 {
         row("queue", "Up next", "list.and.film", value: String(queueCount)) { session.open(.queue) }
