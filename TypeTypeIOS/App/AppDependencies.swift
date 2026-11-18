@@ -33,6 +33,7 @@ final class AppDependencies {
   var pushNotificationsEnabled = false
   var rssEnabled = false
   var twitchEnabled = false
+  var recommenderEnabled = false
   let sessionActivityService: LiveSessionActivityServiceProtocol
   let adminService: LiveAdminServiceProtocol
   let adminAccessService: LiveAdminAccessServiceProtocol
@@ -50,6 +51,7 @@ final class AppDependencies {
   let twitchAccountService: LiveTwitchAccountServiceProtocol?
   let twitchChatService: LiveTwitchChatService?
   let serverStatus: LiveServerStatusMonitor?
+  let recommenderService: LiveRecommenderServiceProtocol?
   let watchProgress: LiveWatchProgressStore
   let imagePipeline: TypeTypeImagePipeline
   let platform: LivePlatformServices
@@ -163,6 +165,7 @@ final class AppDependencies {
     twitchAccountService: LiveTwitchAccountServiceProtocol? = nil,
     twitchChatService: LiveTwitchChatService? = nil,
     serverStatus: LiveServerStatusMonitor? = nil,
+    recommenderService: LiveRecommenderServiceProtocol? = nil,
     watchProgress: LiveWatchProgressStore = LiveWatchProgressStore(),
     imagePipeline: TypeTypeImagePipeline = TypeTypeImagePipeline(),
     platform: LivePlatformServices,
@@ -212,6 +215,7 @@ final class AppDependencies {
     self.twitchAccountService = twitchAccountService
     self.twitchChatService = twitchChatService
     self.serverStatus = serverStatus
+    self.recommenderService = recommenderService
     self.watchProgress = watchProgress
     self.imagePipeline = imagePipeline
     self.platform = platform
