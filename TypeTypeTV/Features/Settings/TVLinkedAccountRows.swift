@@ -56,7 +56,7 @@ struct TVLinkedAccountRows: View {
         if let image = Self.qrImage(login.qrURL) {
           qr(image, label: "BiliBili sign-in QR code")
         }
-        Text(model.biliBiliScanned ? "Scanned. Confirm in the BiliBili app." : "Scan this code with the BiliBili app.")
+        (model.biliBiliScanned ? Text("Scanned. Confirm in the BiliBili app.") : Text("Scan this code with the BiliBili app."))
           .font(TVType.meta).foregroundStyle(TVPalette.textMid)
       }
       .padding(.vertical, 12)

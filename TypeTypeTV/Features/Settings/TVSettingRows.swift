@@ -74,7 +74,7 @@ struct TVSettingRow: View {
 
   private var accessibilityValue: Text {
     switch trailing {
-    case let .toggle(isOn): Text(isOn ? "On" : "Off")
+    case let .toggle(isOn): (isOn ? Text("On") : Text("Off"))
     case let .value(text): Text(verbatim: text)
     case .none: Text(verbatim: "")
     }

@@ -58,7 +58,7 @@ struct TVTwitchChatActions: View {
         .focused($focused, equals: choice.id)
         .accessibilityLabel(Text("Vote for \(choice.title) (\(percent)%)"))
       }
-      Text(poll.isActive ? "\(poll.votes) votes" : "Poll ended").font(TVType.meta).foregroundStyle(TVPalette.textMid)
+      (poll.isActive ? Text("\(poll.votes) votes") : Text("Poll ended")).font(TVType.meta).foregroundStyle(TVPalette.textMid)
     }
     if let pinned = model.visiblePinned {
       VStack(alignment: .leading, spacing: 8) {

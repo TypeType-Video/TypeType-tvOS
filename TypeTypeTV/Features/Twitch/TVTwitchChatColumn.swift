@@ -86,7 +86,7 @@ struct TVTwitchReplayLines: View {
     VStack(alignment: .leading, spacing: 14) {
       TVTwitchChatHeader(title: "CHAT REPLAY", active: !model.unavailable)
       if model.unavailable || comments.isEmpty {
-        Text(model.unavailable ? "The chat replay of this video is not available." : "No messages at this point of the video.")
+        (model.unavailable ? Text("The chat replay of this video is not available.") : Text("No messages at this point of the video."))
           .font(TVType.meta).foregroundStyle(TVPalette.textMid)
         Spacer(minLength: 0)
       } else {
