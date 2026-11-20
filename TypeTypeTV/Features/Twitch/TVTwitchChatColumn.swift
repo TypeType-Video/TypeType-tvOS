@@ -58,10 +58,16 @@ struct TVTwitchLiveChatLines: View {
       } else {
         TVNewestThatFit(spacing: 10) {
           ForEach(model.chat.messages) { event in
-            Text(TVTwitchChatLine.event(event, emotes: model.emotes, selfLogin: model.account?.login ?? ""))
-              .font(TVType.body)
-              .lineLimit(3)
-              .frame(maxWidth: .infinity, alignment: .leading)
+            if event.kind == .message, let text = event.text {
+              TVTwitchChatMessage(
+                author: event.author, login: event.login ?? event.author, color: event.color,
+                badges: event.badges.compactMap { model.badges[$0] },
+                parts: LiveTwitchChatParts.parts(text: text, native: event.emotes, emotes: model.emotes, selfLogin: model.account?.login ?? ""),
+                deleted: event.deleted
+              )
+            } else {
+              TVTwitchSystemLine(text: event.system ?? event.text ?? "")
+            }
           }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -86,10 +92,11 @@ struct TVTwitchReplayLines: View {
       } else {
         TVNewestThatFit(spacing: 10) {
           ForEach(comments) { comment in
-            Text(TVTwitchChatLine.comment(comment, emotes: model.emotes))
-              .font(TVType.body)
-              .lineLimit(3)
-              .frame(maxWidth: .infinity, alignment: .leading)
+            TVTwitchChatMessage(
+              author: comment.author, login: comment.login ?? comment.author, color: comment.color,
+              badges: (comment.badges ?? []).compactMap { model.badges[$0] },
+              parts: LiveTwitchChatParts.parts(text: comment.text, native: comment.emotes ?? [], emotes: model.emotes)
+            )
           }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
