@@ -7,10 +7,14 @@ enum LiveUserError: Equatable {
   case providerBlocked
   case contentBlocked
   case membersOnly
+  case liveNotStarted
   case ageRestricted
   case privateContent
   case contentUnavailable
   case signInAgain
+  case twitchRelink
+  case twitchNotLinked
+  case twitchDisabled
   case permissionDenied
   case conflict
   case rateLimited
@@ -41,9 +45,13 @@ enum LiveUserError: Equatable {
     case "upstream_timeout", "sabr_upstream_timeout": .serverSlow
     case "content_blocked": .contentBlocked
     case "members_only": .membersOnly
+    case "live_not_started": .liveNotStarted
     case "age_restricted": .ageRestricted
     case "private_content": .privateContent
     case "content_unavailable": .contentUnavailable
+    case "twitch_token_rejected": .twitchRelink
+    case "twitch_not_linked": .twitchNotLinked
+    case "twitch_disabled": .twitchDisabled
     case "authentication_required", "invalid_token", "unauthorized": .signInAgain
     default: classify(status: status)
     }
@@ -80,10 +88,14 @@ enum LiveUserError: Equatable {
     case .providerBlocked: String(localized: "YouTube is refusing requests from this instance right now. Try again later.")
     case .contentBlocked: String(localized: "This is blocked for this account, or outside the family list.")
     case .membersOnly: String(localized: "This video is for channel members only.")
+    case .liveNotStarted: String(localized: "This live has not started yet. Come back when the channel goes live.")
     case .ageRestricted: String(localized: "This video is age-restricted.")
     case .privateContent: String(localized: "This video is private.")
     case .contentUnavailable: String(localized: "This content is no longer available.")
     case .signInAgain: String(localized: "Sign in again to continue.")
+    case .twitchRelink: String(localized: "Twitch no longer accepts the linked account. Link it again in Linked accounts.")
+    case .twitchNotLinked: String(localized: "Link a Twitch account to do this.")
+    case .twitchDisabled: String(localized: "Twitch is turned off on this instance.")
     case .permissionDenied: String(localized: "Your account cannot do this.")
     case .conflict: String(localized: "This changed elsewhere. Refresh and try again.")
     case .rateLimited: String(localized: "Too many requests. Try again in a moment.")

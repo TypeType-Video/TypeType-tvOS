@@ -61,9 +61,23 @@ struct TVTwitchFollowedRows: View {
   @State private var live: [LiveTwitchStream] = []
   @State private var videos: [LiveTwitchVideo] = []
   @State private var channels: [LiveTwitchUser] = []
+  @State private var rejected = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: 56) {
+      if rejected {
+        VStack(alignment: .leading, spacing: 20) {
+          Text("Twitch no longer accepts the linked account. Link it again in Linked accounts.")
+            .font(TVType.body)
+            .foregroundStyle(TVPalette.textMid)
+          Button { onRoute(.twitch(.linkAccount)) } label: {
+            Label("Link your Twitch account again", systemImage: "exclamationmark.triangle.fill")
+          }
+          .buttonStyle(.tvPill)
+          .accessibilityIdentifier("tv.twitch.relink")
+        }
+        .padding(.horizontal, TVDimens.safeStart)
+      }
       if linked == false {
         Button { onRoute(.twitch(.linkAccount)) } label: { Label("Link a Twitch account", systemImage: "person.crop.circle.badge.plus") }
           .buttonStyle(.tvPill)
@@ -122,10 +136,14 @@ struct TVTwitchFollowedRows: View {
     guard let status = try? await account.account() else { return }
     linked = status.linked
     guard status.linked else { return }
-    async let followedLive = try? account.followedLive(after: nil)
+    do {
+      live = try await account.followedLive(after: nil).items
+    } catch {
+      rejected = LiveUserError(error) == .twitchRelink
+      guard !rejected else { return }
+    }
     async let followedVideos = try? account.followedVideos(after: nil)
     async let followedChannels = try? account.followedChannels(after: nil)
-    live = await followedLive?.items ?? []
     videos = await followedVideos?.items ?? []
     channels = await followedChannels?.items ?? []
   }
