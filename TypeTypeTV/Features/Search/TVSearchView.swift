@@ -67,7 +67,7 @@ struct TVSearchView: View {
       TVSearchField(query: $model.query, recent: model.history.map(\.term), focus: $barFocused)
       panel
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: 580, alignment: .topLeading)
+        .frame(minHeight: 580, alignment: .topLeading)
         .focusSection()
     }
     .focusSection()
@@ -91,7 +91,10 @@ struct TVSearchView: View {
         if !model.history.isEmpty { recentSearches }
       }
     case .loading:
-      VStack(spacing: 20) { ForEach(0..<4, id: \.self) { _ in TVResultSkeleton() } }.padding(.top, 56)
+      LazyVGrid(columns: TVSearchResultList.columns, alignment: .leading, spacing: 56) {
+        ForEach(0..<8, id: \.self) { _ in TVResultSkeleton() }
+      }
+      .padding(.top, 56)
     case .empty:
       TVSearchMessage(title: "Nothing found", detail: "Try a shorter word, or search by genre or channel.") {}
     case let .failed(message):

@@ -8,8 +8,6 @@ struct TVSearchField: View {
 
   var body: some View {
     ZStack {
-      TVQueryField(query: query, recent: recent, focused: focus.wrappedValue)
-        .accessibilityHidden(true)
       TextField("", text: $typed)
         .textFieldStyle(.plain)
         .foregroundStyle(.clear)
@@ -20,6 +18,9 @@ struct TVSearchField: View {
         .focused(focus)
         .accessibilityLabel(Text("Search"))
         .accessibilityValue(Text(verbatim: query))
+      TVQueryField(query: query, recent: recent, focused: focus.wrappedValue)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
     .frame(height: 96)
     .onChange(of: focus.wrappedValue) { _, focused in if focused { typed = query } }
