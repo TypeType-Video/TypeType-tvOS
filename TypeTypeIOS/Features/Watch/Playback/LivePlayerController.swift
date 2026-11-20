@@ -25,6 +25,8 @@ final class LivePlayerController: ObservableObject {
   let nativeSubtitles = LiveNativeSubtitleTrack()
   var nativeFallbackUsed = false
   let airPlay = LiveAirPlayHandoff()
+  let audioEvents = LiveAudioSessionEvents()
+  var queueNavigation: LiveQueueNavigation?
   @Published var isPresentingFullscreen = false
 #if os(iOS)
   lazy var fullscreen = LiveNativeFullscreenPresenter(controller: self)
@@ -148,6 +150,7 @@ final class LivePlayerController: ObservableObject {
     Self.moveLegacyBulletCommentChoices(into: appPreferences, from: defaults)
     observeBulletCommentPreferences()
     observeAirPlayRoute()
+    observeAudioSessionEvents()
     player.automaticallyWaitsToMinimizeStalling = true
     installPeriodicObserver()
   }
