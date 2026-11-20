@@ -127,6 +127,7 @@ extension LivePlayerController {
 
   func stop() {
     isTornDown = true
+    updateScreenAwake()
     pictureInPicture.cancelPendingStart()
     presentationResumeTask?.cancel()
     presentationResumeTask = nil
@@ -261,6 +262,7 @@ extension LivePlayerController {
   func setAudioOnly(_ enabled: Bool, remembers: Bool) {
     guard audioOnly != enabled else { return }
     audioOnly = enabled
+    updateScreenAwake()
     if remembers {
       appPreferences.update {
         $0.playerAudioOnlyPlayback = enabled
