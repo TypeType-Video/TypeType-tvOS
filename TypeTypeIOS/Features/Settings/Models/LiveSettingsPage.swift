@@ -17,14 +17,14 @@ enum LiveSettingsPage: String, Hashable, Identifiable {
   var id: String { rawValue }
 
   static let groups: [[LiveSettingsPage]] = [
-    [.appearance, .player, .notifications],
-    [.content, .rss],
-    [.downloads, .data, .privacy],
-    [.blocked, .diagnostics],
-    [.about],
+    [.player, .downloads],
+    [.content, .blocked, .notifications],
+    [.appearance],
+    [.privacy, .data, .rss],
+    [.diagnostics, .about],
   ]
 
-  static let groupTitles: [String?] = [nil, nil, "Your data", "Advanced", nil]
+  static let groupTitles: [String?] = ["Watching", "What you see", "Look and feel", "Your data", "Help"]
 
   var title: String {
     switch self {
