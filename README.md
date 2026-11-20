@@ -44,7 +44,7 @@ playlists, and settings are the same as on the web and on your phone.
 
 | Channel | Settings |
 | --- | --- |
-| ![Channel page with its tabs](assets/screenshots/tv-channel.jpg) | ![Playback settings](assets/screenshots/tv-settings.jpg) |
+| ![Channel page with its tabs](assets/screenshots/tv-channel.jpg) | ![Content settings with the search field](assets/screenshots/tv-settings.jpg) |
 
 ## Features
 
@@ -56,8 +56,9 @@ playlists, and settings are the same as on the web and on your phone.
   dictation and typing from an iPhone.
 - Browse and watch Twitch lives, past broadcasts, and clips in the Live tab when
   your instance enables Twitch, and go back in a live from the player.
-- Read the Twitch chat beside the picture, vote in polls and write with a linked
-  account, link it with a code or a QR code, and follow channels.
+- Read the Twitch chat beside the picture with its emotes and badges, vote in
+  polls and write with a linked account, link it with a code or a QR code, and
+  follow channels.
 - Choose the home page algorithm, and see server restarts, updates, and outages.
 - Watch with a player built for the remote: hold ±10 seconds to keep skipping,
   scrub on the clickpad with frame previews, chapters, captions, audio tracks,
@@ -72,6 +73,7 @@ playlists, and settings are the same as on the web and on your phone.
 - Resume videos, and keep your history, favorites, Watch Later, and playlists.
 - Link your YouTube and BiliBili accounts, and change your instance settings
   from the TV.
+- Find any setting by typing its name in Settings.
 - Use the app in English or French.
 
 ## Install
