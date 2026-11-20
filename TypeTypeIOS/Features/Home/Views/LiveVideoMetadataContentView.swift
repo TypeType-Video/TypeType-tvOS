@@ -8,7 +8,8 @@ struct LiveVideoMetadataContentView: View {
   @ObservedObject var playbackCoordinator: LivePlaybackCoordinator
   @StateObject var channelMetadataViewModel:
     LiveVideoChannelMetadataViewModel
-  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @Environment(\.verticalSizeClass) var verticalSizeClass
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @State var selectedChannelURL: String?
   @State var selectedPublicPlaylist: LivePlaylistResult?
   @State var selectedTwitchLink: LiveTwitchLink?
@@ -45,6 +46,9 @@ struct LiveVideoMetadataContentView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
+    if resolvedVideo.twitchLink != nil {
+      twitchPage
+    } else {
     VStack(spacing: 0) {
       Color.clear
         .aspectRatio(16 / 9, contentMode: .fit)
@@ -84,12 +88,6 @@ struct LiveVideoMetadataContentView: View {
 
         LivePlaybackQueueView(coordinator: playbackCoordinator)
 
-        if resolvedVideo.twitchLink != nil {
-          LiveTwitchWatchExtras(
-            controller: playerController, dependencies: dependencies, signedIn: hasPersistentAccount,
-            onRewind: rewindTwitchLive, onOpenURL: routeLink
-          )
-        }
 
         // The stream arrives with an empty relatedStreams before the real list: empty means still loading.
         let relatedReady = !(
@@ -150,6 +148,7 @@ struct LiveVideoMetadataContentView: View {
     .watchNavigation(self)
     }
     }
+    }
     .overlay(alignment: .top) {
       LivePlayerView(
         controller: playerController,
@@ -160,6 +159,7 @@ struct LiveVideoMetadataContentView: View {
         isScrolled: isScrolled
       )
       .padding(.horizontal, playerInset)
+      .padding(.trailing, twitchChatInset)
     }
     .toolbar(showsFullscreenLayout ? .hidden : .automatic, for: .navigationBar)
     .statusBarHidden(showsFullscreenLayout)
