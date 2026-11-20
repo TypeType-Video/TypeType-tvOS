@@ -72,6 +72,7 @@ extension TVSettingsRows {
     TVSettingRow(systemImage: systemImage, title: title, summary: summary, trailing: .toggle(isOn)) {
       Task { await model.change(edit) }
     }
+    .focused(rowFocus, equals: systemImage)
   }
 
   func choice(

@@ -52,6 +52,7 @@ struct TVSettingsView: View {
   @FocusState private var railFocus: TVSettingsGroup?
   @Environment(\.tvContentFocusRequest) private var focusRequest
   @FocusState private var rowFocus: String?
+  @State private var query = ""
 
   init(coordinator: RootCoordinator) {
     self.coordinator = coordinator
@@ -66,7 +67,11 @@ struct TVSettingsView: View {
     ZStack {
       HStack(alignment: .top, spacing: 64) {
         VStack(alignment: .leading, spacing: 12) {
-          Text("Settings").font(TVType.headline).foregroundStyle(TVPalette.textHigh).padding(.bottom, 28)
+          Text("Settings").font(TVType.headline).foregroundStyle(TVPalette.textHigh).padding(.bottom, 12)
+          TextField("Find a setting", text: $query)
+            .frame(width: 460)
+            .padding(.bottom, 16)
+            .accessibilityLabel(Text("Search settings"))
           ForEach(TVSettingsGroup.allCases) { item in
             Button { railFocus = item } label: {
               Label(item.title, systemImage: item.systemImage)
@@ -77,8 +82,16 @@ struct TVSettingsView: View {
         .focusSection()
         ScrollView(.vertical) {
           VStack(alignment: .leading, spacing: 18) {
-            Text(group.title).textCase(.uppercase).font(TVType.label).tracking(3.6).foregroundStyle(TVPalette.textMid)
-            TVSettingsRows(group: group, model: model, coordinator: coordinator, picker: $picker, rowFocus: $rowFocus)
+            if query.trimmingCharacters(in: .whitespaces).isEmpty {
+              Text(group.title).textCase(.uppercase).font(TVType.label).tracking(3.6).foregroundStyle(TVPalette.textMid)
+              TVSettingsRows(group: group, model: model, coordinator: coordinator, picker: $picker, rowFocus: $rowFocus)
+            } else {
+              TVSettingsSearchResults(query: query) { entry in
+                query = ""
+                group = entry.group
+                Task { rowFocus = entry.icon }
+              }
+            }
             if let failure = model.failure {
               Text(verbatim: failure).font(TVType.meta).foregroundStyle(TVPalette.accentSoft)
             }
