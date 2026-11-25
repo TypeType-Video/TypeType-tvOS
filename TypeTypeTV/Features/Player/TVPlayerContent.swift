@@ -21,6 +21,8 @@ struct TVPlayerContent: View {
   @State var panelOrigin: TVPlayerFocus?
   @State var chatMayConnect = false
   @State var endScreenFocused = false
+  @AppStorage(TVChatLayout.key) var chatLayoutValue = TVChatLayout.over.rawValue
+  @AppStorage(TVChatDensity.key) var chatDensityValue = TVChatDensity.medium.rawValue
 
   init(
     controller: LivePlayerController, playback: LivePlaybackCoordinator, dependencies: AppDependencies,
@@ -53,10 +55,10 @@ struct TVPlayerContent: View {
     ZStack {
       picture
       if chatVisible, twitchChat.isAvailable {
-        TVTwitchChatColumn(controller: controller, chat: twitchChat, underControls: session.controlsVisible && session.panel == nil)
+        TVTwitchChatColumn(controller: controller, chat: twitchChat, layout: chatLayout, density: chatDensity, dimmed: chatDimmed)
           .frame(maxWidth: .infinity, alignment: .trailing)
       } else if chatVisible {
-        TVLiveChatPanel(model: chat, underControls: session.controlsVisible && session.panel == nil, connects: chatMayConnect)
+        TVLiveChatPanel(model: chat, layout: chatLayout, density: chatDensity, dimmed: chatDimmed, connects: chatMayConnect)
           .frame(maxWidth: .infinity, alignment: .trailing)
       }
       if isOpening { TVOpeningPoster(video: controller.video).padding(.trailing, chatInset) }

@@ -1,13 +1,22 @@
 import SwiftUI
 
 struct TVLiveChatPanel: View {
-  static let width: CGFloat = 480
-
   @ObservedObject var model: TVLiveChatModel
-  let underControls: Bool
+  let layout: TVChatLayout
+  let density: TVChatDensity
+  let dimmed: Bool
   var connects = true
 
   var body: some View {
+    TVChatSurface(layout: layout, dimmed: dimmed) {
+      lines
+    }
+    .onAppear { if connects { model.start() } }
+    .onChange(of: connects) { _, connects in if connects { model.start() } }
+    .onDisappear { model.stop() }
+  }
+
+  private var lines: some View {
     VStack(alignment: .leading, spacing: 14) {
       HStack(spacing: 10) {
         Circle()
@@ -19,10 +28,10 @@ struct TVLiveChatPanel: View {
         Text(verbatim: status).font(TVType.meta).foregroundStyle(TVPalette.textMid)
         Spacer(minLength: 0)
       } else {
-        TVNewestThatFit(spacing: 10) {
+        TVNewestThatFit(spacing: density.spacing) {
           ForEach(model.buffer.messages) { message in
             Text(Self.line(message))
-              .font(TVType.body)
+              .font(density.font)
               .lineLimit(3)
               .frame(maxWidth: .infinity, alignment: .leading)
           }
@@ -31,17 +40,6 @@ struct TVLiveChatPanel: View {
         .clipped()
       }
     }
-    .padding(.leading, 28)
-    .padding(.trailing, TVDimens.safeEnd)
-    .padding(.top, 92)
-    .padding(.bottom, underControls ? 220 : 80)
-    .frame(width: Self.width, alignment: .leading)
-    .frame(maxHeight: .infinity)
-    .background(TVPalette.surface.ignoresSafeArea())
-    .accessibilityHidden(true)
-    .onAppear { if connects { model.start() } }
-    .onChange(of: connects) { _, connects in if connects { model.start() } }
-    .onDisappear { model.stop() }
   }
 
   private var statusText: String? {

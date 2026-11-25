@@ -29,5 +29,11 @@ extension TVPlayerContent {
     chatAvailable && session.chatShown && (twitchChat.isAvailable || chat.buffer.status != .ended)
   }
 
-  var chatInset: CGFloat { chatVisible ? TVLiveChatPanel.width : 0 }
+  var chatLayout: TVChatLayout { TVChatLayout(rawValue: chatLayoutValue) ?? .over }
+
+  var chatDensity: TVChatDensity { TVChatDensity(rawValue: chatDensityValue) ?? .medium }
+
+  var chatDimmed: Bool { session.controlsVisible || session.panel != nil }
+
+  var chatInset: CGFloat { chatVisible && chatLayout == .beside ? chatLayout.width : 0 }
 }

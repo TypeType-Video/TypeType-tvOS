@@ -3,51 +3,33 @@ import SwiftUI
 struct TVTwitchChatColumn: View {
   @ObservedObject var controller: LivePlayerController
   let chat: TVTwitchChat
-  let underControls: Bool
+  let layout: TVChatLayout
+  let density: TVChatDensity
+  let dimmed: Bool
 
   var body: some View {
-    Group {
+    TVChatSurface(layout: layout, dimmed: dimmed) {
       if let live = chat.live {
-        TVTwitchLiveChatLines(model: live)
+        TVTwitchLiveChatLines(model: live, density: density)
       } else if let replay = chat.replay {
-        TVTwitchReplayLines(controller: controller, model: replay)
+        TVTwitchReplayLines(controller: controller, model: replay, density: density)
       }
     }
-    .padding(.leading, 28)
-    .padding(.trailing, TVDimens.safeEnd)
-    .padding(.top, 92)
-    .padding(.bottom, underControls ? 220 : 80)
-    .frame(width: TVLiveChatPanel.width, alignment: .leading)
-    .frame(maxHeight: .infinity)
-    .background(TVPalette.surface.ignoresSafeArea())
-    .accessibilityHidden(true)
   }
 }
 
 struct TVTwitchLiveChatLines: View {
   @ObservedObject var model: LiveTwitchChatViewModel
+  let density: TVChatDensity
 
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
       TVTwitchChatHeader(title: "LIVE CHAT", active: model.status == .live)
       if let pinned = model.visiblePinned {
-        TVTwitchChatCard {
-          if let by = pinned.pinnedBy { Text("Pinned by \(by)").font(TVType.label).foregroundStyle(TVPalette.textMid) }
-          Text(verbatim: "\(pinned.author): \(pinned.text)").font(TVType.meta).lineLimit(3)
-        }
+        TVTwitchPinnedCard(pinned: pinned)
       }
       if let poll = model.visiblePoll {
-        TVTwitchChatCard {
-          Text(verbatim: poll.title).font(TVType.meta.weight(.semibold)).lineLimit(2)
-          ForEach(poll.choices) { choice in
-            HStack {
-              Text(verbatim: choice.title).lineLimit(1)
-              Spacer()
-              Text(verbatim: "\(LiveTwitchChatText.percent(choice, in: poll))%").monospacedDigit()
-            }
-            .font(TVType.label)
-          }
-        }
+        TVTwitchPollCard(poll: poll)
       }
       if let room = model.chat.room, !LiveTwitchChatText.modes(room).isEmpty {
         Text(verbatim: LiveTwitchChatText.modes(room).joined(separator: " · ")).font(TVType.label).foregroundStyle(TVPalette.textMid)
@@ -56,17 +38,18 @@ struct TVTwitchLiveChatLines: View {
         Text(model.status == .live ? "No messages yet" : "Connecting to the live chat").font(TVType.meta).foregroundStyle(TVPalette.textMid)
         Spacer(minLength: 0)
       } else {
-        TVNewestThatFit(spacing: 10) {
+        TVNewestThatFit(spacing: density.spacing) {
           ForEach(model.chat.messages) { event in
             if event.kind == .message, let text = event.text {
               TVTwitchChatMessage(
                 author: event.author, login: event.login ?? event.author, color: event.color,
                 badges: event.badges.compactMap { model.badges[$0] },
                 parts: LiveTwitchChatParts.parts(text: text, native: event.emotes, emotes: model.emotes, selfLogin: model.account?.login ?? ""),
+                density: density,
                 deleted: event.deleted
               )
             } else {
-              TVTwitchSystemLine(text: event.system ?? event.text ?? "")
+              TVTwitchSystemLine(text: event.system ?? event.text ?? "", density: density)
             }
           }
         }
@@ -80,6 +63,7 @@ struct TVTwitchLiveChatLines: View {
 struct TVTwitchReplayLines: View {
   @ObservedObject var controller: LivePlayerController
   @ObservedObject var model: LiveTwitchVodChatViewModel
+  let density: TVChatDensity
 
   var body: some View {
     let comments = model.window.visibleComments(at: controller.position)
@@ -90,12 +74,13 @@ struct TVTwitchReplayLines: View {
           .font(TVType.meta).foregroundStyle(TVPalette.textMid)
         Spacer(minLength: 0)
       } else {
-        TVNewestThatFit(spacing: 10) {
+        TVNewestThatFit(spacing: density.spacing) {
           ForEach(comments) { comment in
             TVTwitchChatMessage(
               author: comment.author, login: comment.login ?? comment.author, color: comment.color,
               badges: (comment.badges ?? []).compactMap { model.badges[$0] },
-              parts: LiveTwitchChatParts.parts(text: comment.text, native: comment.emotes ?? [], emotes: model.emotes)
+              parts: LiveTwitchChatParts.parts(text: comment.text, native: comment.emotes ?? [], emotes: model.emotes),
+              density: density
             )
           }
         }
@@ -117,17 +102,5 @@ struct TVTwitchChatHeader: View {
       Circle().fill(active ? TVPalette.accent : TVPalette.textLow).frame(width: 10, height: 10)
       Text(title).font(TVType.label).tracking(3).foregroundStyle(TVPalette.textMid)
     }
-  }
-}
-
-struct TVTwitchChatCard<Content: View>: View {
-  @ViewBuilder let content: Content
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 6) { content }
-      .foregroundStyle(TVPalette.textHigh)
-      .padding(14)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .background(TVPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 14))
   }
 }
