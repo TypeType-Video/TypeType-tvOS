@@ -9,6 +9,12 @@ extension LiveVideoMetadataContentView {
     resolvedVideo.twitchLink != nil && twitchWide ? LiveTwitchWatchPage.chatColumnWidth : 0
   }
 
+  // The channel, as the web names a Twitch page: the stream title already sits under the picture.
+  private var twitchTitle: String {
+    let name = playerController.stream?.uploaderName ?? ""
+    return name.isEmpty ? resolvedVideo.uploaderName : name
+  }
+
   var twitchPage: some View {
     LiveTwitchWatchPage(
       controller: playerController,
@@ -24,7 +30,7 @@ extension LiveVideoMetadataContentView {
       onOpenURL: routeLink
     )
     .background(LiveThemeBackground())
-    .navigationTitle("Video")
+    .navigationTitle(twitchTitle)
     .navigationBarTitleDisplayMode(.inline)
     .watchNavigation(self)
   }
