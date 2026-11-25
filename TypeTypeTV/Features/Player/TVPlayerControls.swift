@@ -34,9 +34,9 @@ struct TVPlayerControls: View {
       VStack(alignment: .leading) {
         titleBlock
         Spacer()
-        timeline
+        if session.isLive { liveTimeline } else { timeline }
         HStack {
-          transportRow.fixedSize()
+          Group { if session.isLive { liveTransportRow } else { transportRow } }.fixedSize()
           Spacer(minLength: 40)
           preferenceRow.fixedSize()
         }
@@ -61,6 +61,7 @@ struct TVPlayerControls: View {
         .font(TVType.headline)
         .foregroundStyle(TVPalette.textHigh)
         .lineLimit(1)
+      if session.isLive { liveFigures }
     }
     .padding(.trailing, 320)
   }
