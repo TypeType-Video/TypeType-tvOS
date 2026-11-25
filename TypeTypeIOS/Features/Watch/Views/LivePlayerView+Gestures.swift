@@ -42,6 +42,7 @@ extension LivePlayerView {
     LivePlayerView.logGesture("doubleTap x=\(Int(location.x))")
     guard
       !accessibleControls,
+      !controller.isLiveStream,
       preferences.preferences.playerDoubleTapSeekEnabled
     else {
       return
@@ -119,6 +120,7 @@ extension LivePlayerView {
   func handleHorizontalSeek(
     _ event: PlayerHorizontalSeekEvent
   ) {
+    guard !controller.isLiveStream else { return }
     switch event {
     case let .began(position):
       horizontalSeekPreview = (position, false)
@@ -150,7 +152,7 @@ extension LivePlayerView {
   }
 
   func beginSpeedRamp() {
-    guard !accessibleControls, preferences.preferences.playerLongPressSpeedEnabled,
+    guard !accessibleControls, !controller.isLiveStream, preferences.preferences.playerLongPressSpeedEnabled,
       longPressBaseRate == nil, swipeAdjustment == nil, horizontalSeekPreview == nil
     else { return }
     LivePlayerView.logGesture("speedRamp ON")
