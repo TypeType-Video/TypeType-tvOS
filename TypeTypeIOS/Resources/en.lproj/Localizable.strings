@@ -1686,3 +1686,14 @@
 "Go live" = "Go live";
 "Jumps to the latest moment of the live." = "Jumps to the latest moment of the live.";
 "Go back one minute" = "Go back one minute";
+"Over the picture" = "Over the picture";
+"Beside the picture" = "Beside the picture";
+"Small" = "Small";
+"Medium" = "Medium";
+"Large" = "Large";
+"Chat position" = "Chat position";
+"Chat text size" = "Chat text size";
+"Behind the live" = "Behind the live";
+"Press left to go back in the live." = "Press left to go back in the live.";
+"Where a live chat sits. Over the picture keeps the video full size." = "Where a live chat sits. Over the picture keeps the video full size.";
+"Larger text is easier to read from the couch; smaller text shows more messages." = "Larger text is easier to read from the couch; smaller text shows more messages.";

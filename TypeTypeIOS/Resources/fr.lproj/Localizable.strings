@@ -1686,3 +1686,14 @@
 "Go live" = "Au direct";
 "Jumps to the latest moment of the live." = "Revient au moment le plus récent du live.";
 "Go back one minute" = "Reculer d'une minute";
+"Over the picture" = "Sur l'image";
+"Beside the picture" = "À côté de l'image";
+"Small" = "Petite";
+"Medium" = "Moyenne";
+"Large" = "Grande";
+"Chat position" = "Position du chat";
+"Chat text size" = "Taille du texte du chat";
+"Behind the live" = "En retard sur le direct";
+"Press left to go back in the live." = "Appuyez à gauche pour revenir en arrière dans le live.";
+"Where a live chat sits. Over the picture keeps the video full size." = "Où se place le chat d'un live. Sur l'image garde la vidéo en plein écran.";
+"Larger text is easier to read from the couch; smaller text shows more messages." = "Un texte plus grand se lit mieux depuis le canapé ; plus petit, il montre plus de messages.";

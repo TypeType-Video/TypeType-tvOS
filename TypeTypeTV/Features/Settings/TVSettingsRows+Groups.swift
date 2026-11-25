@@ -34,6 +34,32 @@ extension TVSettingsRows {
   }
 
   @ViewBuilder
+  var chatRows: some View {
+    let layout = TVChatLayout(rawValue: chatLayout) ?? .over
+    TVSettingRow(systemImage: "rectangle.righthalf.inset.filled", title: "Chat position",
+                 summary: "Where a live chat sits. Over the picture keeps the video full size.",
+                 trailing: .value(layout.title)) {
+      picker = TVPickerRequest(
+        origin: "rectangle.righthalf.inset.filled", title: "Chat position",
+        summary: "Where a live chat sits. Over the picture keeps the video full size.",
+        choices: TVChatLayout.allCases.map { TVChoice(id: $0.rawValue, label: $0.title) }, selected: layout.rawValue
+      ) { chatLayout = $0 }
+    }
+    .focused(rowFocus, equals: "rectangle.righthalf.inset.filled")
+    let density = TVChatDensity(rawValue: chatDensity) ?? .medium
+    TVSettingRow(systemImage: "textformat.size", title: "Chat text size",
+                 summary: "Larger text is easier to read from the couch; smaller text shows more messages.",
+                 trailing: .value(density.title)) {
+      picker = TVPickerRequest(
+        origin: "textformat.size", title: "Chat text size",
+        summary: "Larger text is easier to read from the couch; smaller text shows more messages.",
+        choices: TVChatDensity.allCases.map { TVChoice(id: $0.rawValue, label: $0.title) }, selected: density.rawValue
+      ) { chatDensity = $0 }
+    }
+    .focused(rowFocus, equals: "textformat.size")
+  }
+
+  @ViewBuilder
   var account: some View {
     if let user = coordinator.currentUser {
       TVSettingRow(systemImage: "person", title: "Signed in as", trailing: .value(user.publicUsername ?? user.role.title))

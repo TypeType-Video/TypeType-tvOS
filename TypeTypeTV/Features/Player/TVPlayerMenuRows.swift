@@ -7,6 +7,8 @@ struct TVPlayerMenuRows: View {
   @ObservedObject var engagement: LiveVideoEngagementViewModel
   var queueCount = 0
   @FocusState private var focused: String?
+  @AppStorage(TVChatLayout.key) private var chatLayout = TVChatLayout.over.rawValue
+  @AppStorage(TVChatDensity.key) private var chatDensity = TVChatDensity.medium.rawValue
 
   var body: some View {
     Group {
@@ -21,6 +23,17 @@ struct TVPlayerMenuRows: View {
         row("comments", "Comments", "text.bubble") { session.open(.comments) }
       } else if controller.stream?.isLive == true {
         row("twitch-chat", "Chat", "bubble.left.and.bubble.right") { session.open(.twitchChat) }
+      }
+      if controller.video.twitchLink != nil || controller.stream?.isLive == true {
+        let layout = TVChatLayout(rawValue: chatLayout) ?? .over
+        row("chat-layout", "Chat position", "rectangle.righthalf.inset.filled", value: layout.title) {
+          chatLayout = (layout == .over ? TVChatLayout.beside : .over).rawValue
+        }
+        let density = TVChatDensity(rawValue: chatDensity) ?? .medium
+        row("chat-text", "Chat text size", "textformat.size", value: density.title) {
+          let all = TVChatDensity.allCases
+          chatDensity = all[((all.firstIndex(of: density) ?? 0) + 1) % all.count].rawValue
+        }
       }
       if queueCount > 0 {
         row("queue", "Up next", "list.and.film", value: String(queueCount)) { session.open(.queue) }
@@ -44,7 +57,9 @@ struct TVPlayerMenuRows: View {
       }
       row("playlists", "Add to a playlist", "text.badge.plus") { session.open(.playlists) }
         .disabled(!actions.isPrepared)
-      row("speed", "Playback speed", "speedometer", value: speedLabel) { session.open(.speed) }
+      if controller.stream?.isLive != true {
+        row("speed", "Playback speed", "speedometer", value: speedLabel) { session.open(.speed) }
+      }
       if controller.captionTrack != nil {
         row("caption-style", "Subtitle style", "captions.bubble") { session.open(.captionStyle) }
       }

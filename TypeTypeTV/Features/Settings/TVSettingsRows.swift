@@ -11,6 +11,8 @@ struct TVSettingsRows: View {
   @AppStorage(TVDeviceSetting.videoPreviewsKey) var videoPreviews = true
   @AppStorage(TVDeviceSetting.animatedAvatarKey) var animatedAvatar = true
   @AppStorage(TVDeviceSetting.backReturnsKey) var backReturns = false
+  @AppStorage(TVChatLayout.key) var chatLayout = TVChatLayout.over.rawValue
+  @AppStorage(TVChatDensity.key) var chatDensity = TVChatDensity.medium.rawValue
 
   private static let qualities = ["auto", "2160p", "1440p", "1080p", "720p", "480p", "360p"]
   private static let speeds: [Double] = [0.75, 1, 1.25, 1.5, 2]
@@ -77,6 +79,7 @@ struct TVSettingsRows: View {
       }
       toggle("clock.arrow.circlepath", "Save watch history", "Keep a record of what you watch to resume where you left off.",
              !settings.disableWatchHistory) { $0.disableWatchHistory.toggle() }
+      chatRows
     } else {
       ProgressView()
     }

@@ -17,6 +17,8 @@ enum TVSettingsSearchIndex {
     (.playback, "forward", "Sponsor segments"),
     (.playback, "tv", "Seekbar icon"),
     (.playback, "clock.arrow.circlepath", "Save watch history"),
+    (.playback, "rectangle.righthalf.inset.filled", "Chat position"),
+    (.playback, "textformat.size", "Chat text size"),
     (.content, "house", "Start on"),
     (.content, "arrow.uturn.down", "Back from the top bar"),
     (.content, "magnifyingglass", "Search service"),
