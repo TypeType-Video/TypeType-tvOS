@@ -1298,7 +1298,6 @@
 "Go back in the live" = "Go back in the live";
 "%@ behind live" = "%@ behind live";
 "Moving back by more than 30 seconds opens the recording of this live." = "Moving back by more than 30 seconds opens the recording of this live.";
-"Plays the sound without the picture." = "Plays the sound without the picture.";
 "From the start of the live" = "From the start of the live";
 "The recording of this live is not long enough yet." = "The recording of this live is not long enough yet.";
 "Message deleted by a moderator" = "Message deleted by a moderator";
@@ -1326,7 +1325,6 @@
 "Link a Twitch account to chat." = "Link a Twitch account to chat.";
 "Twitch" = "Twitch";
 "Search an emote" = "Search an emote";
-"Chat replay" = "Chat replay";
 "The chat replay of this video is not available." = "The chat replay of this video is not available.";
 "No messages at this point of the video." = "No messages at this point of the video.";
 "This chat is for followers. Follow the channel to write." = "This chat is for followers. Follow the channel to write.";
@@ -1415,8 +1413,6 @@
 "Nothing to do with me" = "Nothing to do with me";
 "Too many old videos" = "Too many old videos";
 "My channels are missing" = "My channels are missing";
-"Section" = "Section";
-"Infos" = "Infos";
 "Opens the Twitch channel." = "Opens the Twitch channel.";
 "Search settings" = "Search settings";
 "Opens %@" = "Opens %@";
@@ -1697,3 +1693,4 @@
 "Press left to go back in the live." = "Press left to go back in the live.";
 "Where a live chat sits. Over the picture keeps the video full size." = "Where a live chat sits. Over the picture keeps the video full size.";
 "Larger text is easier to read from the couch; smaller text shows more messages." = "Larger text is easier to read from the couch; smaller text shows more messages.";
+"1 month" = "1 month";
